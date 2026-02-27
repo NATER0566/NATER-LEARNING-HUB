@@ -288,11 +288,40 @@ app.post('/api/academy/post-comment', async (req, res) => {
     }
 });
 
-// NEW: ADMIN REPLY TO QUESTION
+// NEW: ADMIN REPLY TO QUESTION (WITH EMAIL NOTIFICATION)
 app.post('/api/academy/reply-comment', async (req, res) => {
     const { commentId, reply } = req.body;
     try {
-        await db.query('UPDATE lesson_comments SET admin_reply = $1 WHERE id = $2', [reply, commentId]);
+        // Update the reply and return the student's details
+        const result = await db.query(
+            'UPDATE lesson_comments SET admin_reply = $1 WHERE id = $2 RETURNING email, user_name, comment', 
+            [reply, commentId]
+        );
+
+        if (result.rows.length > 0) {
+            const student = result.rows[0];
+            
+            // Send notification email to the student
+            await transporter.sendMail({
+                from: `"NATER HUB ACADEMY" <${process.env.EMAIL_USER}>`,
+                to: student.email,
+                subject: "New Instructor Reply to Your Question",
+                html: brandedEmail(`
+                    <h2>Hello ${student.user_name},</h2>
+                    <p>An instructor has replied to your question in the academy:</p>
+                    <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #b71c1c; margin: 20px 0;">
+                        <p style="margin: 0; font-style: italic; color: #666;">" ${student.comment} "</p>
+                    </div>
+                    <p><b>Admin Response:</b></p>
+                    <p>${reply}</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.BASE_URL}/academy.html" style="background: #b71c1c; color: white; padding: 18px 35px; text-decoration: none; border-radius: 10px; font-weight: 800; display: inline-block;">VIEW LESSON</a>
+                    </div>
+                `),
+                attachments: emailAttachments
+            });
+        }
+
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ success: false });
