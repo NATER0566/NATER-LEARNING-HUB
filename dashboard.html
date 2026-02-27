@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Helper | Global Production Portal</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root { 
+            --brand-red: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --bg-color: radial-gradient(circle at top, #b71c1c 0%, #000000 100%);
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --text-on-card: #333333;
+            --sidebar-text: #333333;
+            --border-color: rgba(255, 255, 255, 0.3);
+            --header-display: #ffffff;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-on-card: #e0e0e0;
+            --sidebar-text: #ffffff; 
+            --border-color: #333333;
+            --header-display: #ffffff;
+            --nav-bg: #1e1e1e;
+        }
+        
+        body { 
+            margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg-color); background-attachment: fixed; 
+            min-height: 100vh; overflow-x: hidden; transition: 0.3s ease;
+            padding-bottom: 180px; 
+        }
+
+        /* IMPROVED: Ultra-Reflective, Growing, and Bold Orb */
+        .admin-orb {
+            position: fixed; bottom: 100px; right: 25px; width: 95px; height: 95px;
+            background: linear-gradient(135deg, #ff1a1a 0%, #b71c1c 50%, #7f0000 100%); 
+            border-radius: 50%; color: white;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7), inset 0 0 20px rgba(255,255,255,0.6); 
+            z-index: 2000; cursor: pointer;
+            border: 4px solid #fff;
+            animation: orbRefract 2.5s infinite ease-in-out, orbPulse 1.5s infinite alternate;
+            backdrop-filter: blur(8px);
+        }
+        .admin-orb i { font-size: 38px; text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+
+        @keyframes orbRefract {
+            0% { transform: scale(1) translateY(0); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.2) translateY(-15px); filter: hue-rotate(15deg); }
+            100% { transform: scale(1) translateY(0); filter: hue-rotate(0deg); }
+        }
+        @keyframes orbPulse {
+            from { box-shadow: 0 0 20px rgba(255,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.4); }
+            to { box-shadow: 0 0 50px rgba(255,0,0,0.9), inset 0 0 30px rgba(255,255,255,0.8); }
+        }
+
+        .news-ticker {
+            background: #ffeb3b; color: #000; padding: 8px 0;
+            font-size: 13px; font-weight: bold; overflow: hidden;
+            white-space: nowrap; position: relative; border-bottom: 2px solid #fbc02d;
+            z-index: 1001;
+        }
+        .ticker-content { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; }
+        @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+        .performance-dashboard { padding: 40px 20px 20px; text-align: center; color: var(--header-display); }
+        .gpa-circle-container {
+            position: relative; width: 140px; height: 140px; margin: 0 auto 15px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.1); border-radius: 50%;
+            border: 6px solid var(--border-color); box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .gpa-big-value { font-size: 42px; font-weight: 900; color: #ffffff; }
+
+        .main-container { max-width: 1100px; margin: 0 auto; padding: 0 20px 20px 20px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 850px) { .main-container { grid-template-columns: 1fr 1fr; gap: 25px; } .full-width { grid-column: span 2; } }
+
+        .card-helper { background: var(--card-bg); border-radius: 16px; padding: 25px; border-top: 6px solid var(--brand-red); color: var(--text-on-card); transition: 0.3s; }
+        
+        .collapsible-content { display: block; margin-top: 15px; }
+        .card-header-clickable { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+        #sidebar { 
+            position: fixed; left: -320px; top: 0; width: 300px; height: 100%; 
+            background: var(--card-bg); color: var(--sidebar-text); z-index: 9999; 
+            transition: 0.4s ease; box-shadow: 10px 0 30px rgba(0,0,0,0.6); 
+            display: flex; flex-direction: column; overflow-y: auto; 
+        }
+        #sidebar.active { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 9000; backdrop-filter: blur(4px); }
+        .overlay.active { display: block; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 1000; }
+        .nav-item { color: var(--text-on-card); text-decoration: none; font-size: 11px; opacity: 0.8; text-align: center; cursor: pointer; }
+        .nav-item.active { color: var(--brand-red); opacity: 1; font-weight: bold; }
+
+        .premium-btn-box { position:relative; border-radius:12px; overflow:hidden; height:100px; background:#000; cursor:pointer; }
+        .premium-btn-box img { width:100%; height:100%; object-fit:cover; opacity:0.4; }
+        .lib-btn-box { border: 2px dashed var(--brand-red); border-radius:12px; height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; }
+        
+        .list-group-item { cursor: pointer; border: none; background: transparent; color: inherit; }
+        .list-group-item i { margin-right: 12px; width: 20px; }
+
+        .avatar-wrapper { position: relative; display: inline-block; }
+        .upload-label { 
+            position: absolute; bottom: 0; right: 0; background: var(--brand-red); 
+            color: white; border-radius: 50%; width: 32px; height: 32px; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; border: 3px solid var(--card-bg); transition: 0.2s;
+        }
+
+        .sidebar-ad-box { padding: 15px; margin-top: auto; border-top: 1px solid #eee; background: #fafafa; text-align: center; }
+        
+        .bottom-sticky-ad { 
+            position: fixed; 
+            bottom: 75px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 999; 
+            background: #ffffff; 
+            border: 1px solid #ddd;
+            border-radius: 8px 8px 0 0; 
+            padding: 5px; 
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2); 
+            width: 320px; 
+            min-height: 50px;
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        .ad-label { font-size: 8px; color: #999; text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="admin-orb" id="featureOrb" onclick="openAdminSuggest()">
+        <i class="fas fa-gift"></i>
+    </div>
+
+    <div class="news-ticker"><div class="ticker-content" id="tickerText">Loading latest updates...</div></div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar(true)"></div>
+
+    <div id="sidebar">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold">COMMAND CENTER</span>
+            <i class="fas fa-times text-danger" onclick="toggleSidebar(true)" style="cursor:pointer"></i>
+        </div>
+        <div class="p-4 text-center">
+            <div class="avatar-wrapper">
+                <img src="https://via.placeholder.com/100" id="userAvatar" class="rounded-circle border border-danger p-1" style="width:100px; height:100px; object-fit:cover;">
+                <label for="avatarInput" class="upload-label"><i class="fas fa-camera" id="uploadIcon"></i></label>
+                <input type="file" id="avatarInput" hidden accept="image/*" onchange="uploadAvatar(this)">
+            </div>
+            <h6 id="userName" class="mt-2 fw-bold">Student User</h6>
+            <small id="userEmail" class="opacity-75 d-block mb-3"></small>
+        </div>
+
+        <div class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom">
+            <span><i class="fas fa-moon me-2"></i> Dark Mode</span>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="darkModeToggle" onchange="toggleTheme()"></div>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <div id="adminPanelLink" class="list-group-item text-success fw-bold border-bottom" style="display: none;" onclick="window.location.href='admin.html'">
+                <i class="fas fa-user-shield"></i>Admin Panel
+            </div>
+            <div class="list-group-item" onclick="scrollToSec('sec-ann')"><i class="fas fa-bullhorn text-danger"></i>Notice Board</div>
+            <div class="list-group-item" onclick="scrollToSec('sec-gpa')"><i class="fas fa-calculator text-danger"></i>GPA Tool</div>
+            <div class="list-group-item" onclick="scrollToSec('sec-premium')"><i class="fas fa-crown text-warning"></i>Premium Academy</div>
+            <div class="list-group-item" onclick="scrollToSec('sec-notes')"><i class="fas fa-book text-primary"></i>Study Materials</div>
+            <div class="list-group-item" onclick="scrollToSec('sec-planner')"><i class="fas fa-tasks text-success"></i>Student Planner</div>
+            <div class="list-group-item text-danger mt-3" onclick="logout()"><i class="fas fa-power-off"></i>Logout</div>
+        </div>
+
+        <div class="sidebar-ad-box">
+            <div class="ad-label">Advertisement</div>
+            <script async="async" data-cfasync="false" src="https://pl28347105.effectivegatecpm.com/a47a98393b556133e6f91589d7e9201e/invoke.js"></script>
+            <div id="container-a47a98393b556133e6f91589d7e9201e"></div>
+        </div>
+    </div>
+
+    <header class="app-header d-flex justify-content-between align-items-center bg-danger p-3 text-white sticky-top shadow">
+        <i class="fas fa-bars fa-lg" onclick="toggleSidebar()" style="cursor:pointer"></i>
+        <b class="small">DASHBOARD</b>
+        <i class="fas fa-user-circle fa-lg" onclick="toggleSidebar()"></i>
+    </header>
+
+    <div class="performance-dashboard">
+        <div class="gpa-circle-container"><div class="gpa-big-value" id="semesterGPA">0.00</div></div>
+        <div class="stats-grid d-flex justify-content-center gap-4">
+            <div><small class="opacity-75">CGPA</small><br><b id="cgpaResult" class="fs-5">0.00</b></div>
+            <div><small class="opacity-75">UNITS</small><br><b id="totalUnits" class="fs-5">0</b></div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="card-helper full-width" id="sec-gpa">
+            <div class="card-header-clickable" onclick="toggleCollapse('gpa-content', 'gpa-icon')">
+                <h6 class="m-0"><i class="fas fa-calculator me-2 text-danger"></i>GPA Entry System</h6>
+                <i class="fas fa-chevron-up" id="gpa-icon"></i>
+            </div>
+            <div id="gpa-content" class="collapsible-content">
+                <div id="gpaRows"></div>
+                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="addRow()">+ Add Course Row</button>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success btn-sm w-50" id="saveBtn" onclick="saveGpaLocal()">Save to Profile</button>
+                    <button class="btn btn-secondary btn-sm w-50" onclick="clearGpaLocal()">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-helper full-width" id="sec-ann">
+            <h6><i class="fas fa-bullhorn me-2 text-danger"></i>Notice Board</h6>
+            <div id="list-announcements"><div class="p-2 small text-muted">No active announcements.</div></div>
+        </div>
+
+        <div class="card-helper" id="sec-premium">
+            <h6 class="mb-3"><i class="fas fa-crown me-2 text-warning"></i>Premium Academy</h6>
+            <div class="premium-btn-box" onclick="window.location.href='academy.html'">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; width:100%;">
+                    <div class="text-white fw-bold mb-1">ENTER HUB</div>
+                    <span class="badge bg-warning text-dark px-3">ACCESS COURSES</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-helper" id="sec-notes">
+            <h6 class="mb-3"><i class="fas fa-book me-2 text-primary"></i>Resource Library</h6>
+            <div class="lib-btn-box" onclick="window.location.href='library.html'">
+                <i class="fas fa-folder-open fa-2x mb-2 text-danger"></i>
+                <div class="fw-bold small">OPEN LIBRARY</div>
+            </div>
+        </div>
+
+        <div class="card-helper full-width" id="sec-planner">
+            <div class="card-header-clickable" onclick="toggleCollapse('planner-content', 'planner-icon')">
+                <h6 class="m-0"><i class="fas fa-calendar-alt me-2 text-danger"></i>Daily Planner</h6>
+                <i class="fas fa-chevron-down" id="planner-icon"></i>
+            </div>
+            <div id="planner-content" style="display:none; margin-top:15px;">
+                <div id="list-planner" class="mb-3"></div>
+                <div class="d-flex gap-2">
+                    <input type="text" id="taskInput" class="form-control" placeholder="What's the plan?">
+                    <button class="btn btn-danger px-4" onclick="addTask()">Save</button>
+                    <button class="btn btn-link btn-sm text-danger text-decoration-none" onclick="clearAllTasks()">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-sticky-ad" id="ad-container">
+        <div class="ad-label">Advertisement</div>
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '1521286ac4b3db2eca85e80d1544ba1e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/1521286ac4b3db2eca85e80d1544ba1e/invoke.js"></script>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fas fa-home d-block fa-lg mb-1"></i>Home</div>
+        <div class="nav-item" onclick="scrollToSec('sec-gpa')"><i class="fas fa-calculator d-block fa-lg mb-1"></i>GPA</div>
+        <div class="nav-item" onclick="toggleSidebar()"><i class="fas fa-bars d-block fa-lg mb-1"></i>Menu</div>
+    </nav>
+
+<script>
+    const showToast = (icon, title) => {
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true
+        });
+        Toast.fire({ icon: icon, title: title });
+    };
+
+    const token = localStorage.getItem('token');
+    if (!token) window.location.replace('index.html');
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch (e) { return null; }
+    }
+
+    // INSTANT EXECUTION: Fetch data immediately before anything else
+    (async function immediateSync() {
+        await loadAdminData();
+    })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        setInterval(loadAdminData, 10000); 
+    });
+
+    async function init() {
+        const userData = parseJwt(token);
+        if (!userData) return logout();
+
+        document.getElementById('userName').innerText = userData.name || "Student";
+        document.getElementById('userEmail').innerText = userData.email;
+
+        // Ensure Admin Data is updated immediately on load
+        loadAdminData();
+
+        const savedPic = localStorage.getItem(`profile_pic_${userData.email}`);
+        if(savedPic) document.getElementById('userAvatar').src = savedPic;
+
+        if (userData.is_admin === true) document.getElementById('adminPanelLink').style.display = 'block';
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('darkModeToggle').checked = true;
+        }
+
+        loadSavedGpa(); 
+        renderTasks();
+    }
+
+    // FIXED: Real-time sync optimized for speed
+    async function loadAdminData() {
+        try {
+            const res = await fetch('/api/public-settings');
+            const data = await res.json();
+            if(data.success) {
+                const ticker = document.getElementById('tickerText');
+                const list = document.getElementById('list-announcements');
+                
+                if(data.announcement) {
+                    ticker.innerText = data.announcement;
+                    list.innerHTML = `<div class="p-2 border-bottom small">${data.announcement}</div>`;
+                }
+
+                if(data.orbData) {
+                    const orb = typeof data.orbData === 'string' ? JSON.parse(data.orbData) : data.orbData;
+                    const orbEl = document.getElementById('featureOrb');
+                    if(orb.active) {
+                        orbEl.style.display = 'flex';
+                        orbEl.dataset.title = orb.title;
+                        orbEl.dataset.msg = orb.message;
+                        orbEl.dataset.url = orb.url;
+                    } else {
+                        orbEl.style.display = 'none';
+                    }
+                }
+            }
+        } catch (e) { console.error("Sync Error:", e); }
+    }
+
+    function openAdminSuggest() {
+        const orbEl = document.getElementById('featureOrb');
+        Swal.fire({
+            title: orbEl.dataset.title || 'New Announcement',
+            text: orbEl.dataset.msg || 'The admin has shared a new update.',
+            icon: 'info',
+            showCancelButton: orbEl.dataset.url ? true : false,
+            confirmButtonText: orbEl.dataset.url ? 'Open Link' : 'Got it!',
+            cancelButtonText: 'Close'
+        }).then((result) => {
+            if (result.isConfirmed && orbEl.dataset.url) {
+                window.location.href = orbEl.dataset.url;
+            }
+        });
+    }
+
+    function addRow(code = "", unit = "", grade = "5") {
+        const rowId = 'gpa-' + Date.now() + Math.random();
+        const div = document.createElement("div"); 
+        div.className = "d-flex gap-2 mb-2 gpa-row-item align-items-center";
+        div.id = rowId;
+        div.innerHTML = `
+            <input class="form-control form-control-sm cc" placeholder="Code" value="${code}">
+            <input type="number" class="form-control form-control-sm cu" style="width:70px" oninput="calc()" value="${unit}">
+            <select class="form-select form-select-sm cg" onchange="calc()">
+                <option value="5" ${grade == '5' ? 'selected':''}>A</option>
+                <option value="4" ${grade == '4' ? 'selected':''}>B</option>
+                <option value="3" ${grade == '3' ? 'selected':''}>C</option>
+                <option value="2" ${grade == '2' ? 'selected':''}>D</option>
+                <option value="1" ${grade == '1' ? 'selected':''}>E</option>
+                <option value="0" ${grade == '0' ? 'selected':''}>F</option>
+            </select>
+            <i class="fas fa-trash text-danger" onclick="deleteGpaRow('${rowId}')" style="cursor:pointer"></i>`;
+        document.getElementById("gpaRows").appendChild(div);
+        calc();
+    }
+
+    function deleteGpaRow(id) {
+        document.getElementById(id).remove();
+        calc();
+        showToast('info', 'Row removed');
+    }
+
+    function clearGpaLocal() {
+        Swal.fire({ title: 'Clear History?', text: "This will wipe your current table!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d32f2f', confirmButtonText: 'Yes, clear it!' }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('saved_gpa_rows');
+                document.getElementById("gpaRows").innerHTML = "";
+                addRow();
+                calc();
+                showToast('info', 'Table cleared');
+            }
+        });
+    }
+
+    function saveGpaLocal() {
+        const rows = document.querySelectorAll('.gpa-row-item');
+        const data = Array.from(rows).map(r => ({
+            code: r.querySelector('.cc').value,
+            unit: r.querySelector('.cu').value,
+            grade: r.querySelector('.cg').value
+        }));
+        localStorage.setItem('saved_gpa_rows', JSON.stringify(data));
+        showToast('success', 'Academic data saved');
+    }
+
+    function loadSavedGpa() {
+        const saved = JSON.parse(localStorage.getItem('saved_gpa_rows') || '[]');
+        document.getElementById("gpaRows").innerHTML = "";
+        if (saved.length > 0) saved.forEach(row => addRow(row.code, row.unit, row.grade));
+        else addRow();
+    }
+
+    function calc() {
+        let tU = 0, tP = 0;
+        document.querySelectorAll('.gpa-row-item').forEach(r => {
+            const u = parseFloat(r.querySelector('.cu').value) || 0;
+            const g = parseFloat(r.querySelector('.cg').value) || 0;
+            tU += u; tP += (u * g);
+        });
+        const gpa = tU > 0 ? (tP / tU).toFixed(2) : "0.00";
+        document.getElementById('semesterGPA').innerText = gpa;
+        document.getElementById('cgpaResult').innerText = gpa;
+        document.getElementById('totalUnits').innerText = tU;
+    }
+
+    function addTask() {
+        const val = document.getElementById('taskInput').value;
+        if(!val) return showToast('error', 'Please enter a task name');
+        const tasks = JSON.parse(localStorage.getItem('student_tasks') || '[]');
+        tasks.push(val);
+        localStorage.setItem('student_tasks', JSON.stringify(tasks));
+        document.getElementById('taskInput').value = "";
+        renderTasks();
+        showToast('success', 'Plan added');
+    }
+
+    function renderTasks() {
+        const tasks = JSON.parse(localStorage.getItem('student_tasks') || '[]');
+        document.getElementById('list-planner').innerHTML = tasks.map((t, i) => `
+            <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
+                <span class="small">${t}</span>
+                <i class="fas fa-times-circle text-danger" onclick="deleteTask(${i})" style="cursor:pointer"></i>
+            </div>
+        `).join('');
+    }
+
+    function deleteTask(index) {
+        const tasks = JSON.parse(localStorage.getItem('student_tasks') || '[]');
+        tasks.splice(index, 1);
+        localStorage.setItem('student_tasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function clearAllTasks() {
+        localStorage.removeItem('student_tasks');
+        renderTasks();
+        showToast('info', 'All tasks cleared');
+    }
+
+    function uploadAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imgBase64 = e.target.result;
+                document.getElementById('userAvatar').src = imgBase64;
+                const email = parseJwt(token).email;
+                localStorage.setItem(`profile_pic_${email}`, imgBase64);
+                showToast('success', 'Profile picture updated');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        showToast('info', 'Session ended.');
+        setTimeout(() => window.location.replace('index.html'), 1000);
+    }
+
+    function toggleSidebar(forceClose = false) {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('overlay');
+        if (forceClose) { sb.classList.remove('active'); ov.classList.remove('active'); return; }
+        sb.classList.toggle('active'); ov.classList.toggle('active');
+    }
+
+    function toggleTheme() {
+        const isDark = document.getElementById('darkModeToggle').checked;
+        document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleCollapse(cid, iid) {
+        const c = document.getElementById(cid);
+        const isOpen = c.style.display === "block";
+        c.style.display = isOpen ? "none" : "block";
+        document.getElementById(iid).className = isOpen ? "fas fa-chevron-down" : "fas fa-chevron-up";
+    }
+
+    function scrollToSec(id) { 
+        toggleSidebar(true); 
+        const el = document.getElementById(id);
+        if(el) window.scrollTo({ top: el.offsetTop - 85, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER HUB ACADEMY | Official Portal</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root { 
+            --brand-red: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --owner-gold: #FFD700;
+            --bg-color: radial-gradient(circle at top, #b71c1c 0%, #000000 100%);
+            --whatsapp-green: #25D366;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            padding: 20px 0;
+            overflow-y: auto; 
+        }
+
+        .contact-wrapper {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .contact-board {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 22px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border-bottom: 5px solid var(--owner-gold);
+            backdrop-filter: blur(10px);
+            margin-bottom: 15px;
+            display: none; 
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 280px;
+            position: relative;
+        }
+
+        .close-board {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+        .close-board:hover { color: var(--brand-red); transform: rotate(90deg); }
+
+        .contact-circle {
+            width: 60px;
+            height: 60px;
+            background: var(--brand-red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transition: 0.3s;
+            border: 3px solid white;
+        }
+        .contact-circle:hover { transform: scale(1.1); background: var(--brand-dark); }
+
+        .contact-board h6 { font-weight: 800; font-size: 11px; margin-bottom: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .contact-item { font-size: 13px; font-weight: 700; color: #222; margin: 8px 0; display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
+        .contact-item i { width: 24px; font-size: 16px; margin-right: 10px; }
+        .icon-mail { color: var(--brand-red); }
+        .icon-phone { color: #444; }
+        .icon-whatsapp { color: var(--whatsapp-green); font-size: 18px !important; }
+        .contact-item:hover { transform: translateX(5px); color: var(--brand-red); }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .auth-container { width: 95%; max-width: 1100px; z-index: 10; }
+        .auth-card { background: rgba(255, 255, 255, 0.98); border-radius: 30px; overflow: hidden; display: flex; box-shadow: 0 40px 80px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.1); min-height: 750px; }
+        .brand-panel { flex: 1; background: linear-gradient(135deg, #b71c1c 0%, #330000 100%); padding: 80px 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; border-right: 6px solid var(--owner-gold); }
+        .form-panel { flex: 1.3; padding: 60px 80px; background: white; display: flex; flex-direction: column; justify-content: center; }
+        
+        @media (max-width: 850px) {
+            .auth-card { flex-direction: column; min-height: auto; }
+            .brand-panel { padding: 40px 20px; border-right: none; border-bottom: 6px solid var(--owner-gold); }
+            .form-panel { padding: 40px 25px; }
+            body { align-items: flex-start; padding-top: 20px; }
+        }
+
+        .password-wrapper { position: relative; }
+        .toggle-password { position: absolute; right: 15px; top: 45px; cursor: pointer; color: #888; z-index: 10; }
+        .profile-container { width: 130px; height: 130px; border-radius: 50%; border: 5px solid var(--owner-gold); overflow: hidden; margin-bottom: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.4); background: #eee; display: flex; align-items: center; justify-content: center; }
+        .profile-container img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-container i { font-size: 60px; color: #ccc; }
+        
+        .dynamic-msg { background: #fff5f5; color: #b71c1c; font-size: 14px; font-weight: 700; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; border: 1px solid rgba(183, 28, 28, 0.2); transition: 0.3s; }
+
+        /* PUBLIC CONTENT DISPLAY CARD - FIXED FOR FULL HEIGHT */
+        .public-content-box {
+            width: 100%;
+            background: #fdfdfd;
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: auto;
+        }
+        #indexPublicImage { 
+            width: 100%; 
+            height: auto; 
+            display: none; 
+            object-fit: contain; 
+        }
+        #indexPublicText { padding: 20px; font-weight: 600; color: #333; text-align: center; font-size: 15px; line-height: 1.5; display: none; }
+
+        .pass-requirements { font-size: 11px; margin-top: -15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; font-weight: 700; }
+        .req-item { color: #999; display: flex; align-items: center; }
+        .req-item i { margin-right: 4px; }
+        .req-item.valid { color: #28a745; }
+
+        .btn-spinner {
+            display: none;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-left: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .form-label { font-size: 12px; font-weight: 800; color: #444; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .form-control { border-radius: 12px; padding: 16px 20px; border: 1px solid #ddd; background: #fdfdfd; font-size: 16px; margin-bottom: 25px; transition: 0.3s; }
+        .form-control.is-invalid { border: 2.5px solid var(--brand-red) !important; background-color: #fff8f8; }
+
+        .btn-auth { background: var(--brand-red); color: white; font-weight: 800; padding: 18px; border-radius: 12px; border: none; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; box-shadow: 0 10px 25px rgba(183, 28, 28, 0.3); font-size: 16px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .btn-auth:hover { background: #000; transform: translateY(-3px); }
+        .btn-auth:disabled { background: #555; cursor: not-allowed; transform: none; }
+        
+        .text-link { color: var(--brand-red); font-weight: 700; cursor: pointer; font-size: 14px; text-decoration: none; }
+        footer { font-size: 11px; margin-top: 40px; opacity: 0.6; text-align: center; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="contact-wrapper">
+        <div class="contact-board" id="contactBoard">
+            <i class="fas fa-times close-board" onclick="toggleContact()"></i>
+            <h6>Direct Access</h6>
+            <a href="https://wa.me/2348160979620" target="_blank" class="contact-item">
+                <i class="fab fa-whatsapp icon-whatsapp"></i> Chat on WhatsApp
+            </a>
+            <a href="mailto:nmbashau@gmail.com" class="contact-item">
+                <i class="fas fa-envelope icon-mail"></i> nmbashau@gmail.com
+            </a>
+            <a href="tel:08160979620" class="contact-item">
+                <i class="fas fa-phone-alt icon-phone"></i> 08160979620
+            </a>
+        </div>
+        <div class="contact-circle" onclick="toggleContact()">
+            <i class="fas fa-headset" id="contactIcon"></i>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="brand-panel">
+                <div class="profile-container" id="adminAvatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h1 id="siteNameDisplay" class="fw-bold mb-2">NATER HUB ACADEMY</h1>
+                <p class="opacity-75 mb-5 fs-5">Official Global Production Portal</p>
+                <div class="badge bg-warning text-dark px-4 py-3 rounded-pill" style="font-size: 12px; font-weight: 800;">
+                    <i class="fas fa-lock me-2"></i> SECURE AUTHENTICATION
+                </div>
+            </div>
+
+            <div class="form-panel">
+                <div id="ownerStatusMsg" class="dynamic-msg">Welcome! Authenticate to access your dashboard.</div>
+
+                <div class="public-content-box" id="publicBox">
+                    <img id="indexPublicImage" src="" alt="Public Content">
+                    <div id="indexPublicText"></div>
+                </div>
+
+                <div id="loginForm">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="yourname@student.com">
+                    <div class="password-wrapper">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="loginPass" class="form-control" placeholder="••••••••">
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('loginPass')"></i>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-link" onclick="toggleForm('register')">Create Account</span>
+                        <span class="text-link" onclick="toggleForm('forgot')">Forgot Password?</span>
+                    </div>
+                    <button class="btn-auth" id="loginBtn" onclick="handleLogin()">
+                        <span id="loginText">Sign In to Dashboard</span>
+                        <div class="btn-spinner" id="loginSpinner"></div>
+                    </button>
+                </div>
+
+                <div id="registerForm" style="display:none;">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="regName" class="form-control" placeholder="John Doe">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="email@student.com">
+                    <div class="password-wrapper">
+                        <label class="form-label">Create Password</label>
+                        <input type="password" id="regPass" class="form-control" placeholder="••••••••" oninput="liveValidatePassword(this)">
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('regPass')"></i>
+                    </div>
+                    <div class="pass-requirements" id="passReqs">
+                        <span id="req-len" class="req-item"><i class="fas fa-circle-notch"></i> 8-16 Chars</span>
+                        <span id="req-upp" class="req-item"><i class="fas fa-circle-notch"></i> Uppercase</span>
+                        <span id="req-num" class="req-item"><i class="fas fa-circle-notch"></i> Number</span>
+                        <span id="req-spc" class="req-item"><i class="fas fa-circle-notch"></i> Special (@$!)</span>
+                    </div>
+                    <button class="btn-auth" id="regBtn" onclick="handleRegister()">
+                        <span id="regText">Register Account</span>
+                        <div class="btn-spinner" id="regSpinner"></div>
+                    </button>
+                    <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
+                </div>
+
+                <div id="forgotForm" style="display:none;">
+                    <label class="form-label">Recovery Email</label>
+                    <input type="email" id="forgotEmail" class="form-control" placeholder="Enter your email address">
+                    <button class="btn-auth" id="forgotBtn" onclick="handleReset()">
+                        <span id="forgotText">Send Recovery Link</span>
+                        <div class="btn-spinner" id="forgotSpinner"></div>
+                    </button>
+                    <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
+                </div>
+
+                <footer>&copy; <span id="currentYear"></span> NATER HUB ACADEMY • SECURE ACCESS</footer>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- REAL FETCH FROM POSTGRES VIA BACKEND ---
+    async function syncRealData() {
+        try {
+            const res = await fetch('/api/public-settings'); // Your server queries Postgres here
+            const data = await res.json();
+            
+            if(data.success) {
+                // Update site identity
+                if(data.siteName) document.getElementById('siteNameDisplay').innerText = data.siteName;
+                if(data.avatar) document.getElementById('adminAvatar').innerHTML = `<img src="${data.avatar}">`;
+
+                // Handle Public Card (ONLY show if there is real content)
+                const box = document.getElementById('publicBox');
+                const img = document.getElementById('indexPublicImage');
+                const txt = document.getElementById('indexPublicText');
+
+                if(data.contentType === 'image' && data.contentValue) {
+                    img.src = data.contentValue;
+                    img.style.display = 'block';
+                    txt.style.display = 'none';
+                    box.style.display = 'flex';
+                } else if (data.contentType === 'text' && data.contentValue) {
+                    txt.innerText = data.contentValue;
+                    txt.style.display = 'block';
+                    img.style.display = 'none';
+                    box.style.display = 'flex';
+                } else {
+                    box.style.display = 'none'; // Keep hidden if empty
+                }
+            }
+        } catch(err) {
+            console.warn("Could not fetch real data, checking local storage fallback.");
+            // Fallback for demo/offline
+            const savedName = localStorage.getItem('admin_site_name');
+            if(savedName) document.getElementById('siteNameDisplay').innerText = savedName;
+        }
+    }
+
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function liveValidatePassword(el) {
+        const val = el.value;
+        const checks = {
+            'req-len': val.length >= 8 && val.length <= 16,
+            'req-upp': /[A-Z]/.test(val),
+            'req-num': /[0-9]/.test(val),
+            'req-spc': /[@$!%*?&]/.test(val)
+        };
+        for (const [id, met] of Object.entries(checks)) {
+            const item = document.getElementById(id);
+            if(met) {
+                item.classList.add('valid');
+                item.querySelector('i').className = 'fas fa-check-circle';
+            } else {
+                item.classList.remove('valid');
+                item.querySelector('i').className = 'fas fa-circle-notch';
+            }
+        }
+        if (passRegex.test(val)) el.classList.remove('is-invalid');
+        else el.classList.add('is-invalid');
+    }
+
+    function setLoading(btnId, spinnerId, textId, isLoading) {
+        const btn = document.getElementById(btnId);
+        const spinner = document.getElementById(spinnerId);
+        const text = document.getElementById(textId);
+        if (isLoading) {
+            btn.disabled = true;
+            spinner.style.display = "inline-block";
+            text.style.opacity = "0.6";
+        } else {
+            btn.disabled = false;
+            spinner.style.display = "none";
+            text.style.opacity = "1";
+        }
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        if(!email || !pass){ Swal.fire('Error', 'Fields required.', 'warning'); return; }
+        setLoading('loginBtn', 'loginSpinner', 'loginText', true);
+        try {
+            const res = await fetch('/api/login', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ email, pass })
+            });
+            const data = await res.json();
+            if(data.success){
+                localStorage.setItem('token', data.token); 
+                window.location.href = (email === "admin@nater.com") ? "admin.html" : "dashboard.html";
+            } else {
+                Swal.fire('Access Denied', data.message, 'error');
+                setLoading('loginBtn', 'loginSpinner', 'loginText', false);
+            }
+        } catch(err){
+            setLoading('loginBtn', 'loginSpinner', 'loginText', false);
+        }
+    }
+
+    async function handleRegister() {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value.trim();
+
+        if(!name || !email || !pass){ 
+            Swal.fire('Oops!', 'All fields are required.', 'warning'); 
+            return; 
+        }
+
+        // --- PASSWORD ENFORCEMENT ---
+        if(!passRegex.test(pass)) {
+            Swal.fire('Weak Password', 'Please ensure your password meets all requirements (Uppercase, Number, Special Character, 8-16 length).', 'error');
+            return;
+        }
+
+        setLoading('regBtn', 'regSpinner', 'regText', true);
+        try {
+            const res = await fetch('/api/register', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ name, email, pass })
+            });
+            const data = await res.json();
+            
+            if(data.success){ 
+                Swal.fire('Success', data.message, 'success'); 
+                toggleForm('login'); 
+            } else {
+                // --- ERROR HANDLING FOR EXISTING EMAIL ---
+                Swal.fire('Registration Error', data.message || 'Email already exists.', 'error');
+            }
+        } catch(err){ 
+            Swal.fire('Error','Server unreachable','error'); 
+        } finally { 
+            setLoading('regBtn', 'regSpinner', 'regText', false); 
+        }
+    }
+
+    async function handleReset() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        if(!email || !emailRegex.test(email)){ Swal.fire('Invalid Email','Provide a valid email address.','warning'); return; }
+        setLoading('forgotBtn', 'forgotSpinner', 'forgotText', true);
+        try {
+            const res = await fetch('/api/forgot-password', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if(data.success) Swal.fire('Recovery Sent', data.message, 'success');
+        } catch(err){ Swal.fire('Error','Server unreachable','error'); }
+        finally { setLoading('forgotBtn', 'forgotSpinner', 'forgotText', false); }
+    }
+
+    function toggleForm(type) {
+        document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
+        document.getElementById('forgotForm').style.display = type === 'forgot' ? 'block' : 'none';
+    }
+
+    function togglePasswordVisibility(id) {
+        const x = document.getElementById(id);
+        x.type = x.type === "password" ? "text" : "password";
+    }
+
+    function toggleContact() {
+        const board = document.getElementById('contactBoard');
+        board.style.display = board.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.onload = () => {
+        syncRealData(); // Real DB fetch
+        document.getElementById('currentYear').innerText = new Date().getFullYear();
+    };
+</script>
+</body>
+</html>
