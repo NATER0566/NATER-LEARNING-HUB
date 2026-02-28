@@ -1,19 +1,19 @@
 const { Pool } = require('pg');
 
-// This configuration automatically uses the DATABASE_URL variable you set in Railway
+// Railway provides the connection string via the DATABASE_URL environment variable
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    // This is required for Railway's secure database connections
+    // This block is mandatory for Railway's production database connections
     rejectUnauthorized: false
   }
 });
 
 module.exports = {
   /**
-   * Helper function to execute SQL queries
-   * @param {string} text - The SQL query string
-   * @param {Array} params - The values for parameterized queries
+   * Method to run SQL queries against the Railway database
+   * @param {string} text - The SQL query
+   * @param {Array} params - Parameters for the query
    */
   query: (text, params) => pool.query(text, params),
 };
