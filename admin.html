@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command | NATER HUB</title>
     
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -14,6 +19,7 @@
         :root { 
             --brand-red: #d32f2f; 
             --admin-dark: #1a1a1a;
+            --gold: #FFD700;
         }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -57,8 +63,7 @@
         .item-action-btn { cursor: pointer; color: #666; transition: 0.2s; margin-left: 10px; }
         .item-action-btn:hover { color: var(--brand-red); }
         .upload-label { font-size: 0.7rem; font-weight: 800; color: #888; margin-top: 5px; text-transform: uppercase; }
-        /* Support Section Styling */
-        #adminSupportBox { max-height: 250px; overflow-y: auto; background: #fafafa; padding: 10px; border-radius: 10px; }
+        #adminSupportBox { max-height: 400px; overflow-y: auto; background: #fafafa; padding: 10px; border-radius: 10px; }
         .support-ticket { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.85rem; }
     </style>
 </head>
@@ -143,12 +148,10 @@
                             <h6 class="fw-bold mb-3"><i class="fas fa-video me-1"></i> Add Lesson Content</h6>
                             <select id="targetCourseId" class="form-select mb-2"><option value="">Select Course...</option></select>
                             <input type="text" id="lessonTitle" class="form-control mb-2" placeholder="Lesson Title">
-                            
                             <div class="mb-2">
                                 <label class="upload-label">Video File</label>
                                 <input type="file" id="videoFile" class="form-control" accept="video/*">
                             </div>
-
                             <div class="mb-3">
                                 <label class="upload-label">PDF File</label>
                                 <input type="file" id="pdfFile" class="form-control" accept="application/pdf">
@@ -170,6 +173,58 @@
             </div>
 
             <div class="col-12">
+                <div class="admin-card" style="border-left-color: var(--gold);">
+                    <h5><i class="fas fa-book-open me-2 text-warning"></i> Academic Library Manager</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6 class="fw-bold mb-3">Upload Study Material</h6>
+                            <input type="text" id="libMaterialTitle" class="form-control mb-2" placeholder="Material Title">
+                            <input type="text" id="libCourseCode" class="form-control mb-2" placeholder="Course Code">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="upload-label">Level</label>
+                                    <select id="libLevel" class="form-select">
+                                        <option value="General">General</option>
+                                        <option value="100">100 Level</option>
+                                        <option value="200">200 Level</option>
+                                        <option value="300">300 Level</option>
+                                        <option value="400">400 Level</option>
+                                        <option value="500">500 Level</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="upload-label">Semester</label>
+                                    <select id="libSemester" class="form-select">
+                                        <option value="1">1st Semester</option>
+                                        <option value="2">2nd Semester</option>
+                                        <option value="3">3rd Semester</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="upload-label">Media Category</label>
+                            <select id="libMediaType" class="form-select mb-2">
+                                <option value="Note">Note</option>
+                                <option value="Past Question">Past Question</option>
+                                <option value="Video">Video</option>
+                                <option value="Audio">Audio</option>
+                                <option value="PDF">PDF</option>
+                            </select>
+                            <label class="upload-label">File Upload</label>
+                            <input type="file" id="libFile" class="form-control mb-3">
+                            <button class="btn btn-warning w-100 fw-bold" onclick="uploadLibraryMaterial()">Publish to Library</button>
+                        </div>
+                        <div class="col-md-7 border-start">
+                            <h6 class="fw-bold mb-3">Manage Library Materials</h6>
+                            <div id="libraryRepositoryList" style="max-height: 400px; overflow-y: auto;">
+                                <p class="text-muted small">Loading library...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
                 <div class="admin-card" style="border-left-color: #e83e8c;">
                     <h5><i class="fas fa-comments me-2 text-pink"></i> Student Questions & Support</h5>
                     <hr>
@@ -181,7 +236,7 @@
 
             <div class="col-12">
                 <div class="admin-card" style="border-left-color: #6f42c1;">
-                    <h5><i class="fas fa-database me-2 text-purple"></i> Manage Repository</h5>
+                    <h5><i class="fas fa-database me-2 text-purple"></i> Manage Course Repository</h5>
                     <hr>
                     <div id="repositoryList"></div>
                 </div>
@@ -230,12 +285,152 @@
             } catch (err) { return { success: false, message: "Server connection failed" }; }
         }
 
+        // ASAP LOGIC: Self-invoking function starts fetches immediately and registers SW
+        (async function immediateSync() {
+            // PWA Service Worker Registration
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("/sw.js")
+                        .then(reg => console.log("Admin PWA Ready"))
+                        .catch(err => console.error("SW failed", err));
+                });
+            }
+        })();
+
         document.addEventListener('DOMContentLoaded', () => {
             fetchInitialSettings();
             loadRepository();
             loadAdminSupport();
+            loadLibraryRepository();
         });
 
+        // --- UPDATED LIBRARY REPOSITORY MANAGEMENT ---
+        async function uploadLibraryMaterial() {
+            const title = document.getElementById('libMaterialTitle').value;
+            const code = document.getElementById('libCourseCode').value;
+            const lvl = document.getElementById('libLevel').value;
+            const sem = document.getElementById('libSemester').value;
+            const type = document.getElementById('libMediaType').value;
+            const file = document.getElementById('libFile').files[0];
+
+            if(!title || (!file && type !== 'Note')) {
+                 return Swal.fire('Error', 'Please provide a Title and a File.', 'error');
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('courseCode', code);
+            formData.append('level', lvl);
+            formData.append('semester', sem);
+            formData.append('type', type);
+            if(file) formData.append('file', file);
+
+            Swal.fire({ title: 'Publishing Material...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            const res = await apiPost('/api/library/add', formData);
+            Swal.close();
+            
+            if(res.success) {
+                Swal.fire('Published!', 'Material is now live in the library.', 'success');
+                loadLibraryRepository();
+                document.getElementById('libMaterialTitle').value = '';
+                document.getElementById('libCourseCode').value = '';
+                document.getElementById('libFile').value = '';
+            } else {
+                Swal.fire('Upload Failed', res.message, 'error');
+            }
+        }
+
+        async function loadLibraryRepository() {
+            try {
+                const res = await fetch('/api/library/all');
+                const data = await res.json();
+                const box = document.getElementById('libraryRepositoryList');
+                box.innerHTML = '';
+                
+                if(data.length === 0) {
+                    box.innerHTML = '<p class="text-muted small">Library is empty.</p>';
+                    return;
+                }
+
+                data.forEach(item => {
+                    box.innerHTML += `
+                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light mb-1 rounded">
+                        <div>
+                            <span class="small fw-bold">${item.courseCode || 'GEN'}: ${item.title}</span><br>
+                            <span class="badge bg-dark" style="font-size:10px;">Lvl ${item.level} | Sem ${item.semester} | ${item.type}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-edit item-action-btn text-success" title="Full Edit" onclick="editLibraryItem('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${item.courseCode}', '${item.type}')"></i>
+                            <i class="fas fa-trash text-danger item-action-btn" title="Delete" onclick="deleteLibraryItem('${item.id}')"></i>
+                        </div>
+                    </div>`;
+                });
+            } catch (e) { console.log("Failed to load library items"); }
+        }
+
+        async function editLibraryItem(id, currentTitle, currentCode, currentType) {
+            const { value: formValues } = await Swal.fire({
+                title: 'Full Edit Material',
+                html:
+                    `<label class="upload-label">Title</label><input id="editLibTitle" class="form-control mb-2" value="${currentTitle}">` +
+                    `<label class="upload-label">Course Code</label><input id="editLibCode" class="form-control mb-2" value="${currentCode}">` +
+                    `<label class="upload-label">Level</label><select id="editLibLevel" class="form-select mb-2">
+                        <option value="General">General</option><option value="100">100 Level</option><option value="200">200 Level</option><option value="300">300 Level</option><option value="400">400 Level</option><option value="500">500 Level</option>
+                    </select>` +
+                    `<label class="upload-label">Semester</label><select id="editLibSem" class="form-select mb-2">
+                        <option value="1">1st Semester</option><option value="2">2nd Semester</option><option value="3">3rd Semester</option>
+                    </select>` +
+                    `<label class="upload-label">Category</label><select id="editLibType" class="form-select mb-2">
+                        <option value="Note">Note</option><option value="Past Question">Past Question</option><option value="Video">Video</option><option value="Audio">Audio</option><option value="PDF">PDF</option>
+                    </select>` +
+                    `<label class="upload-label">Replace File (Leave empty to keep current)</label><input id="editLibFile" type="file" class="form-control">`,
+                focusConfirm: false,
+                showCancelButton: true,
+                preConfirm: () => {
+                    return {
+                        title: document.getElementById('editLibTitle').value,
+                        courseCode: document.getElementById('editLibCode').value,
+                        level: document.getElementById('editLibLevel').value,
+                        semester: document.getElementById('editLibSem').value,
+                        type: document.getElementById('editLibType').value,
+                        file: document.getElementById('editLibFile').files[0]
+                    }
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Updating...', didOpen: () => Swal.showLoading() });
+                
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('title', formValues.title);
+                formData.append('courseCode', formValues.courseCode);
+                formData.append('level', formValues.level);
+                formData.append('semester', formValues.semester);
+                formData.append('type', formValues.type);
+                if (formValues.file) formData.append('file', formValues.file);
+
+                const res = await apiPost('/api/library/edit', formData);
+                Swal.close();
+
+                if(res.success) {
+                    Swal.fire('Updated', 'Material updated successfully.', 'success');
+                    loadLibraryRepository();
+                } else {
+                    Swal.fire('Error', 'Update failed.', 'error');
+                }
+            }
+        }
+
+        async function deleteLibraryItem(id) {
+            if(confirm('Permanently remove this material?')) {
+                const res = await apiPost('/api/library/delete', { id });
+                if(res.success) loadLibraryRepository();
+            }
+        }
+
+        // --- FIXED SUPPORT & QUESTIONS ---
         async function loadAdminSupport() {
             const res = await apiPost('/api/academy/all-content-detailed', { admin: true });
             const box = document.getElementById('adminSupportBox');
@@ -247,17 +442,25 @@
                     const comRes = await apiPost('/api/academy/get-comments', { lessonId: l.id });
                     if(comRes.comments && comRes.comments.length > 0) {
                         comRes.comments.forEach(com => {
-                            box.innerHTML += `
-                            <div class="support-ticket">
-                                <b>${com.user_name} (${com.email}):</b> ${com.comment}<br>
-                                <small class="text-danger">Lesson: ${l.title}</small> | 
-                                <button class="btn btn-xs btn-link p-0 text-primary fw-bold" onclick="replyStudentEmail('${com.id}', '${com.user_name}', '${com.email}')">REPLY & NOTIFY</button>
-                            </div>`;
+                            if(!com.admin_reply) {
+                                box.innerHTML += `
+                                <div class="support-ticket d-flex justify-content-between border-start border-danger border-4 ps-2 mb-2 bg-white p-2 rounded shadow-sm">
+                                    <div>
+                                        <small class="fw-bold text-primary">${com.user_name}</small> <small class="text-muted">${com.email}</small><br>
+                                        <p class="m-0 small">${com.comment}</p>
+                                        <small class="text-danger" style="font-size:10px">Course: ${c.title} > ${l.title}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-success mb-1" onclick="replyStudentEmail('${com.id}', '${com.user_name}', '${com.email}')"><i class="fas fa-reply"></i></button><br>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteComment('${com.id}')"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>`;
+                            }
                         });
                     }
                 }
             }
-            if(box.innerHTML === '') box.innerHTML = '<p class="text-muted small">No questions found.</p>';
+            if(box.innerHTML === '') box.innerHTML = '<p class="text-muted small">All questions have been answered! Clean slate.</p>';
         }
 
         async function replyStudentEmail(commentId, studentName, studentEmail) {
@@ -265,20 +468,42 @@
                 title: `Reply to ${studentName}`,
                 input: 'textarea',
                 inputPlaceholder: 'Type your answer here...',
-                showCancelButton: true
+                showCancelButton: true,
+                confirmButtonText: 'Send Reply & Notify'
             });
 
             if (replyText) {
+                Swal.fire({ title: 'Sending...', didOpen: () => Swal.showLoading() });
                 const res = await apiPost('/api/academy/reply-comment', { 
                     commentId: commentId, 
-                    reply: replyText, 
-                    studentEmail: studentEmail, 
-                    studentName: studentName 
+                    reply: replyText 
                 });
-                if(res.success) Swal.fire('Sent', 'Reply posted and email sent.', 'success');
+                Swal.close();
+
+                if(res.success) {
+                    const { isConfirmed } = await Swal.fire({
+                        title: 'Reply Sent!',
+                        text: 'Email notification delivered. Remove this question from your dashboard?',
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Delete Question',
+                        cancelButtonText: 'Keep Question'
+                    });
+                    if(isConfirmed) deleteComment(commentId);
+                    else loadAdminSupport();
+                }
             }
         }
 
+        async function deleteComment(id) {
+            const res = await apiPost('/api/academy/delete-comment', { id });
+            if(res.success) {
+                loadAdminSupport();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Ticket Cleared', showConfirmButton: false, timer: 2000 });
+            }
+        }
+
+        // --- ORIGINAL BRANDING & ACADEMY FUNCTIONS ---
         async function fetchInitialSettings() {
             const res = await fetch('/api/public-settings');
             const data = await res.json();
@@ -288,14 +513,13 @@
                 if(data.avatar) document.getElementById('avatarPreviewBox').innerHTML = `<img src="${data.avatar}">`;
                 document.getElementById('publicContentType').value = data.contentType || 'text';
                 document.getElementById('newsText').value = data.announcement || '';
-                
                 if(data.orbData) {
                     try {
                         const orb = typeof data.orbData === 'string' ? JSON.parse(data.orbData) : data.orbData;
                         document.getElementById('orbTitle').value = orb.title || '';
                         document.getElementById('orbStatus').value = String(orb.active);
                         document.getElementById('orbUrl').value = orb.url || '';
-                    } catch(e) { console.log("Orb data empty or invalid"); }
+                    } catch(e) { console.log("Orb data invalid"); }
                 }
             }
         }
@@ -303,11 +527,9 @@
         async function loadRepository() {
             const res = await apiPost('/api/academy/all-content-detailed', { admin: true });
             if(!res.success) return;
-
             const repoList = document.getElementById('repositoryList');
             const targetSelect = document.getElementById('targetCourseId');
             const singleSelect = document.getElementById('singleCourseId');
-            
             repoList.innerHTML = '';
             targetSelect.innerHTML = '<option value="">Select Course...</option>';
             singleSelect.innerHTML = '<option value="">Pick Course...</option>';
@@ -315,13 +537,12 @@
             res.courses.forEach(course => {
                 targetSelect.innerHTML += `<option value="${course.id}">${course.title}</option>`;
                 singleSelect.innerHTML += `<option value="${course.id}">${course.title}</option>`;
-
                 let lessonsHtml = course.lessons.map(lesson => `
                     <div class="d-flex justify-content-between align-items-center p-2 border-bottom small">
                         <span><i class="fas fa-file-alt me-2 text-primary"></i> ${lesson.title}</span>
                         <div>
-                            <i class="fas fa-edit item-action-btn text-success" title="Full Edit Lesson" onclick="fullEditLesson('${lesson.id}', '${lesson.title.replace(/'/g, "\\'")}')"></i>
-                            <i class="fas fa-trash item-action-btn" title="Delete Lesson" onclick="deleteLesson('${lesson.id}')"></i>
+                            <i class="fas fa-edit item-action-btn text-success" onclick="fullEditLesson('${lesson.id}', '${lesson.title.replace(/'/g, "\\'")}')"></i>
+                            <i class="fas fa-trash item-action-btn" onclick="deleteLesson('${lesson.id}')"></i>
                         </div>
                     </div>`).join('');
 
@@ -330,20 +551,14 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <img src="${course.thumbnail || ''}" class="table-img me-3" onerror="this.src='https://via.placeholder.com/50'">
-                            <div>
-                                <h6 class="m-0 fw-bold">${course.title}</h6>
-                                <span class="badge-category">${course.category} | ₦${course.price}</span>
-                            </div>
+                            <div><h6 class="m-0 fw-bold">${course.title}</h6><span class="badge-category">${course.category} | ₦${course.price}</span></div>
                         </div>
                         <div>
-                            <button class="btn btn-sm btn-outline-success me-1" onclick="editCourse('${course.id}')"><i class="fas fa-edit"></i> Edit All</button>
+                            <button class="btn btn-sm btn-outline-success me-1" onclick="editCourse('${course.id}', '${course.title.replace(/'/g, "\\'")}', '${course.price}', '${course.category}')"><i class="fas fa-edit"></i> Edit All</button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('${course.id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                    <div class="lesson-group">
-                        <div class="fw-bold xsmall mb-2 text-muted uppercase">Lessons:</div>
-                        ${lessonsHtml || '<div class="text-muted small">No lessons yet.</div>'}
-                    </div>
+                    <div class="lesson-group">${lessonsHtml || '<div class="text-muted small">No lessons yet.</div>'}</div>
                 </div>`;
             });
         }
@@ -367,47 +582,60 @@
             const videoFile = document.getElementById('videoFile').files[0];
             const pdfFile = document.getElementById('pdfFile').files[0];
             if(!courseId || !title || !videoFile) return Swal.fire('Error', 'Fill required fields', 'error');
-            Swal.fire({ title: 'Uploading...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            try {
-                const formData = new FormData();
-                formData.append('courseId', courseId);
-                formData.append('title', title);
-                formData.append('video', videoFile);
-                if (pdfFile) formData.append('pdf', pdfFile);
-                const res = await apiPost('/api/academy/add-lesson', formData);
-                Swal.close();
-                if(res.success) { loadRepository(); Swal.fire('Success', 'Lesson Added', 'success'); }
-            } catch (err) { Swal.close(); Swal.fire('Error', 'Upload failed.', 'error'); }
+            const formData = new FormData();
+            formData.append('courseId', courseId);
+            formData.append('title', title);
+            formData.append('video', videoFile);
+            if (pdfFile) formData.append('pdf', pdfFile);
+            Swal.fire({ title: 'Uploading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const res = await apiPost('/api/academy/add-lesson', formData);
+            Swal.close();
+            if(res.success) { loadRepository(); Swal.fire('Success', 'Lesson Added', 'success'); }
         }
 
         async function grantFreeAccess() {
             const email = document.getElementById('accessEmail').value;
             const type = document.getElementById('accessType').value;
             const courseId = document.getElementById('singleCourseId').value;
-            if(!email) return Swal.fire('Error', 'Enter student email', 'error');
+            if(!email) return Swal.fire('Error', 'Enter email', 'error');
             const res = await apiPost('/api/academy/grant-access', { email, type, courseId });
-            if(res.success) { Swal.fire('Success', 'Access Granted', 'success'); document.getElementById('accessEmail').value = ''; }
+            if(res.success) { Swal.fire('Success', 'Access Granted', 'success'); }
         }
 
-        async function editCourse(id) {
+        async function editCourse(id, currentTitle, currentPrice, currentCat) {
             const { value: formValues } = await Swal.fire({
                 title: 'Full Edit Course',
                 html:
-                    '<input id="editTitle" class="swal2-input" placeholder="New Title">' +
-                    '<input id="editPrice" type="number" class="swal2-input" placeholder="New Price">' +
-                    '<select id="editCat" class="swal2-select"><option value="Programming">Programming</option><option value="Trading">Trading</option><option value="Design">Design</option><option value="Marketing">Marketing</option></select>',
+                    `<label class="upload-label text-start d-block">Course Title</label><input id="editCTitle" class="swal2-input mt-1" value="${currentTitle}">` +
+                    `<label class="upload-label text-start d-block mt-3">Price (₦)</label><input id="editCPrice" type="number" class="swal2-input mt-1" value="${currentPrice}">` +
+                    `<label class="upload-label text-start d-block mt-3">Category</label><select id="editCCat" class="swal2-select mt-1">
+                        <option value="Programming" ${currentCat === 'Programming' ? 'selected' : ''}>Programming</option>
+                        <option value="Trading" ${currentCat === 'Trading' ? 'selected' : ''}>Trading</option>
+                        <option value="Design" ${currentCat === 'Design' ? 'selected' : ''}>Design</option>
+                        <option value="Marketing" ${currentCat === 'Marketing' ? 'selected' : ''}>Marketing</option>
+                    </select>` +
+                    `<label class="upload-label text-start d-block mt-3 text-danger">Replace Thumbnail (Optional)</label><input id="editCThumb" type="file" class="form-control mt-1" accept="image/*">`,
                 focusConfirm: false,
-                preConfirm: () => {
+                showCancelButton: true,
+                preConfirm: async () => {
+                    const thumbFile = document.getElementById('editCThumb').files[0];
+                    let thumbBase64 = null;
+                    if(thumbFile) thumbBase64 = await toBase64(thumbFile);
                     return {
-                        title: document.getElementById('editTitle').value,
-                        price: document.getElementById('editPrice').value,
-                        category: document.getElementById('editCat').value
+                        id: id,
+                        title: document.getElementById('editCTitle').value,
+                        price: document.getElementById('editCPrice').value,
+                        category: document.getElementById('editCCat').value,
+                        thumbnail: thumbBase64
                     }
                 }
             });
+
             if (formValues) {
-                const res = await apiPost('/api/academy/edit-course', { id, ...formValues });
-                if(res.success) { loadRepository(); Swal.fire('Updated', 'Course updated successfully', 'success'); }
+                Swal.fire({ title: 'Updating Course...', didOpen: () => Swal.showLoading() });
+                const res = await apiPost('/api/academy/edit-course', formValues);
+                Swal.close();
+                if(res.success) { loadRepository(); Swal.fire('Updated', 'Course branding refreshed.', 'success'); }
             }
         }
 
@@ -415,11 +643,9 @@
             const { value: fileData } = await Swal.fire({
                 title: 'Full Edit Lesson',
                 html: `
-                    <input id="swal-l-title" class="swal2-input" value="${currentTitle}" placeholder="Lesson Title">
-                    <label class="mt-3 small fw-bold">Update Video (Optional)</label>
-                    <input id="swal-l-video" type="file" class="form-control" accept="video/*">
-                    <label class="mt-3 small fw-bold">Update PDF (Optional)</label>
-                    <input id="swal-l-pdf" type="file" class="form-control" accept="application/pdf">
+                    <label class="upload-label text-start d-block">Lesson Title</label><input id="swal-l-title" class="swal2-input mt-1" value="${currentTitle}">
+                    <label class="mt-3 upload-label text-start d-block text-danger fw-bold">Replace Video (Optional)</label><input id="swal-l-video" type="file" class="form-control mt-1" accept="video/*">
+                    <label class="mt-3 upload-label text-start d-block text-primary fw-bold">Replace PDF (Optional)</label><input id="swal-l-pdf" type="file" class="form-control mt-1" accept="application/pdf">
                 `,
                 focusConfirm: false,
                 showCancelButton: true,
@@ -433,16 +659,16 @@
             });
 
             if(fileData) {
-                Swal.fire({ title: 'Updating Lesson...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                Swal.fire({ title: 'Publishing Changes...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 const fd = new FormData();
                 fd.append('id', id);
                 fd.append('title', fileData.title);
                 if(fileData.video) fd.append('video', fileData.video);
                 if(fileData.pdf) fd.append('pdf', fileData.pdf);
                 
-                const res = await apiPost('/api/academy/edit-lesson-full', fd);
+                const res = await apiPost('/api/academy/edit-lesson', fd); 
                 Swal.close();
-                if(res.success) { loadRepository(); Swal.fire('Success', 'Lesson updated completely.', 'success'); }
+                if(res.success) { loadRepository(); Swal.fire('Success', 'Lesson content updated.', 'success'); }
             }
         }
 

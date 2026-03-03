@@ -162,6 +162,29 @@
         .btn-auth:disabled { background: #555; cursor: not-allowed; transform: none; }
         
         .text-link { color: var(--brand-red); font-weight: 700; cursor: pointer; font-size: 14px; text-decoration: none; }
+
+        /* AI ASSISTANT STYLING */
+        .ai-support-trigger {
+            background: linear-gradient(135deg, #FFD700, #b8860b);
+            color: black;
+            border-radius: 50px;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            margin: 25px auto 10px;
+            width: fit-content;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: 0.3s;
+            border: 2px solid white;
+        }
+        .ai-support-trigger:hover { transform: translateY(-2px); background: white; border-color: var(--owner-gold); }
+        .ai-support-trigger i { font-size: 20px; color: var(--brand-dark); }
+
         footer { font-size: 11px; margin-top: 40px; opacity: 0.6; text-align: center; font-weight: bold; color: #555; }
     </style>
 </head>
@@ -258,24 +281,78 @@
                     <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
                 </div>
 
+                <div class="ai-support-trigger" onclick="askSecurityAI()">
+                    <i class="fas fa-robot"></i>
+                    <span>NEED HELP? ASK NATER'S AI</span>
+                </div>
+
                 <footer>&copy; <span id="currentYear"></span> NATER HUB ACADEMY • SECURE ACCESS</footer>
             </div>
         </div>
     </div>
 
 <script>
-    // --- REAL FETCH FROM POSTGRES VIA BACKEND ---
+    // --- AI SECURITY & FULL PAGE CONTEXT SUPPORT ---
+    async function askSecurityAI() {
+        // Scrape all text on page to give AI full context of contacts, rules, and branding
+        const pageContext = document.body.innerText;
+        
+        const { value: userQuery } = await Swal.fire({
+            title: 'NATER\'S AI ASSISTANT',
+            input: 'text',
+            inputLabel: 'Ask about registration, activation, contacts, or rules.',
+            inputPlaceholder: 'e.g., "What is the support phone number?"',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            background: '#ffffff',
+            customClass: { title: 'fw-bold fs-5' }
+        });
+
+        if (userQuery) {
+            Swal.fire({
+                title: 'Syncing Intelligence...',
+                html: 'Analyzing portal context for your request.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: userQuery, 
+                        context: pageContext, // ACCESS TO EVERYTHING ON THE PAGE
+                        email: 'visitor@portal.com', 
+                        name: 'Portal Visitor',
+                        isLoginPage: true 
+                    })
+                });
+
+                const data = await response.json();
+
+                Swal.fire({
+                    title: 'NATER\'S AI RESPONSE',
+                    html: `<div style="text-align:left; font-size:14px; line-height:1.6; font-weight:600;">${data.reply}</div>`,
+                    icon: 'info',
+                    confirmButtonColor: '#d32f2f'
+                });
+
+            } catch (error) {
+                Swal.fire('Error', 'Intelligence Hub is temporarily offline.', 'error');
+            }
+        }
+    }
+
     async function syncRealData() {
         try {
-            const res = await fetch('/api/public-settings'); // Your server queries Postgres here
+            const res = await fetch('/api/public-settings'); 
             const data = await res.json();
             
             if(data.success) {
-                // Update site identity
                 if(data.siteName) document.getElementById('siteNameDisplay').innerText = data.siteName;
                 if(data.avatar) document.getElementById('adminAvatar').innerHTML = `<img src="${data.avatar}">`;
 
-                // Handle Public Card (ONLY show if there is real content)
                 const box = document.getElementById('publicBox');
                 const img = document.getElementById('indexPublicImage');
                 const txt = document.getElementById('indexPublicText');
@@ -291,14 +368,11 @@
                     img.style.display = 'none';
                     box.style.display = 'flex';
                 } else {
-                    box.style.display = 'none'; // Keep hidden if empty
+                    box.style.display = 'none'; 
                 }
             }
         } catch(err) {
-            console.warn("Could not fetch real data, checking local storage fallback.");
-            // Fallback for demo/offline
-            const savedName = localStorage.getItem('admin_site_name');
-            if(savedName) document.getElementById('siteNameDisplay').innerText = savedName;
+            console.warn("Real data fetch failed.");
         }
     }
 
@@ -376,9 +450,8 @@
             return; 
         }
 
-        // --- PASSWORD ENFORCEMENT ---
         if(!passRegex.test(pass)) {
-            Swal.fire('Weak Password', 'Please ensure your password meets all requirements (Uppercase, Number, Special Character, 8-16 length).', 'error');
+            Swal.fire('Weak Password', 'Review the red requirements below.', 'error');
             return;
         }
 
@@ -395,7 +468,6 @@
                 Swal.fire('Success', data.message, 'success'); 
                 toggleForm('login'); 
             } else {
-                // --- ERROR HANDLING FOR EXISTING EMAIL ---
                 Swal.fire('Registration Error', data.message || 'Email already exists.', 'error');
             }
         } catch(err){ 
@@ -438,7 +510,7 @@
     }
 
     window.onload = () => {
-        syncRealData(); // Real DB fetch
+        syncRealData();
         document.getElementById('currentYear').innerText = new Date().getFullYear();
     };
 </script>

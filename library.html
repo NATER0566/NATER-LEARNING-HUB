@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER GENIUS ACADEMY | Academic Repository</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4661775522120249" crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root { --brand-red: #d32f2f; --bg-color: #f8f9fa; --card-bg: #ffffff; --gold: #d4af37; }
+        body { background: var(--bg-color); font-family: 'Segoe UI', sans-serif; padding-bottom: 100px; }
+        
+        .lib-header { background: var(--brand-red); padding: 50px 20px; color: white; text-align: center; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+        
+        .search-container { max-width: 600px; margin: -30px auto 20px; padding: 0 20px; }
+        .search-input { border-radius: 30px; padding: 15px 25px; border: 1px solid #ddd; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 100%; outline: none; }
+
+        /* Filter Styling */
+        .filter-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #666; margin-left: 15px; margin-bottom: 5px; }
+        .scroll-wrapper { display: flex; gap: 10px; overflow-x: auto; padding: 5px 15px; scrollbar-width: none; }
+        .scroll-wrapper::-webkit-scrollbar { display: none; }
+        
+        .cat-pill { white-space: nowrap; background: white; padding: 8px 20px; border-radius: 30px; cursor: pointer; border: 1px solid #ddd; font-size: 13px; font-weight: 600; transition: 0.3s; }
+        .cat-pill.active { background: var(--brand-red); color: white; border-color: var(--brand-red); }
+        .type-pill { background: #eee; color: #555; }
+        .type-pill.active { background: var(--gold); color: black; border-color: var(--gold); }
+
+        /* Grid & Cards */
+        .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .material-card { background: white; border-radius: 15px; padding: 20px; border-top: 5px solid var(--brand-red); box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; display: flex; flex-direction: column; position: relative; }
+        .material-card:hover { transform: translateY(-5px); }
+        .type-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; padding: 3px 8px; border-radius: 10px; background: #f0f0f0; font-weight: bold; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 2000; }
+        .nav-item { color: #888; text-decoration: none; font-size: 11px; text-align: center; flex: 1; cursor: pointer; }
+        .nav-item.active { color: var(--brand-red); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="lib-header">
+        <h2 class="fw-bold">Academic Repository</h2>
+        <p class="opacity-75">Level, Semester & Media Categorized</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="libSearch" class="search-input" placeholder="Search course code (e.g. MTH101) or title..." onkeyup="searchLogic()">
+    </div>
+
+    <div class="container-fluid">
+        <div class="filter-label">Select Academic Level</div>
+        <div class="scroll-wrapper mb-3">
+            <div class="cat-pill active lvl-btn" onclick="filterBy('level', 'General', this)">General</div>
+            <div class="cat-pill lvl-btn" onclick="filterBy('level', '100', this)">100 Level</div>
+            <div class="cat-pill lvl-btn" onclick="filterBy('level', '200', this)">200 Level</div>
+            <div class="cat-pill lvl-btn" onclick="filterBy('level', '300', this)">300 Level</div>
+            <div class="cat-pill lvl-btn" onclick="filterBy('level', '400', this)">400 Level</div>
+            <div class="cat-pill lvl-btn" onclick="filterBy('level', '500', this)">500 Level</div>
+        </div>
+
+        <div class="filter-label">Select Semester</div>
+        <div class="scroll-wrapper mb-3">
+            <div class="cat-pill active sem-btn" onclick="filterBy('semester', '1', this)">1st Semester</div>
+            <div class="cat-pill sem-btn" onclick="filterBy('semester', '2', this)">2nd Semester</div>
+            <div class="cat-pill sem-btn" onclick="filterBy('semester', '3', this)">3rd Semester/Summer</div>
+        </div>
+
+        <div class="filter-label">Filter by Media Type</div>
+        <div class="scroll-wrapper mb-4">
+            <div class="cat-pill type-pill active tp-btn" onclick="filterBy('type', 'All', this)">All Materials</div>
+            <div class="cat-pill type-pill tp-btn" onclick="filterBy('type', 'Note', this)">Notes</div>
+            <div class="cat-pill type-pill tp-btn" onclick="filterBy('type', 'Past Question', this)">Past Questions</div>
+            <div class="cat-pill type-pill tp-btn" onclick="filterBy('type', 'Video', this)">Videos</div>
+            <div class="cat-pill type-pill tp-btn" onclick="filterBy('type', 'Audio', this)">Audio</div>
+            <div class="cat-pill type-pill tp-btn" onclick="filterBy('type', 'PDF', this)">PDFs</div>
+        </div>
+
+        <div class="materials-grid" id="materialsContainer">
+             <div class="text-center w-100 p-5"><div class="spinner-border text-danger"></div></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="window.location.href='/dashboard.html'"><i class="fas fa-university d-block fa-lg mb-1"></i>Portal</div>
+        <div class="nav-item active"><i class="fas fa-book d-block fa-lg mb-1"></i>Library</div>
+        <div class="nav-item" onclick="window.history.back()"><i class="fas fa-chevron-left d-block fa-lg mb-1"></i>Back</div>
+    </nav>
+
+<script>
+    let allMaterials = [];
+    let filters = {
+        level: 'General',
+        semester: '1',
+        type: 'All'
+    };
+
+    // ASAP LOGIC: Self-invoking function starts fetches immediately and registers SW
+    (async function immediateSync() {
+        // Start fetching repository data immediately
+        init();
+
+        // PWA Service Worker Registration
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js")
+                    .then(reg => console.log("Library PWA Ready"))
+                    .catch(err => console.error("SW failed", err));
+            });
+        }
+    })();
+
+    async function init() {
+        try {
+            const res = await fetch('/api/library/all');
+            allMaterials = await res.json();
+            applyAllFilters();
+        } catch (e) {
+            document.getElementById('materialsContainer').innerHTML = "Error connecting to server.";
+        }
+    }
+
+    function filterBy(key, value, el) {
+        filters[key] = value;
+        
+        // Handle active UI classes
+        const btnClass = key === 'level' ? '.lvl-btn' : (key === 'semester' ? '.sem-btn' : '.tp-btn');
+        document.querySelectorAll(btnClass).forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        
+        applyAllFilters();
+    }
+
+    function applyAllFilters() {
+        let filtered = allMaterials.filter(item => {
+            const matchLvl = item.level === filters.level;
+            const matchSem = filters.level === 'General' ? true : (item.semester == filters.semester);
+            const matchType = filters.type === 'All' ? true : (item.type === filters.type);
+            return matchLvl && matchSem && matchType;
+        });
+
+        render(filtered);
+    }
+
+    function getIcon(type) {
+        switch(type) {
+            case 'Video': return 'fa-play-circle text-primary';
+            case 'Audio': return 'fa-microphone text-warning';
+            case 'Past Question': return 'fa-question-circle text-success';
+            case 'PDF': return 'fa-file-pdf text-danger';
+            default: return 'fa-file-alt text-secondary';
+        }
+    }
+
+    function render(items) {
+        const container = document.getElementById('materialsContainer');
+
+        if (items.length === 0) {
+            container.innerHTML = `<div class="text-center w-100 p-5 opacity-50">No ${filters.type !== 'All' ? filters.type : ''} materials found for this selection.</div>`;
+            return;
+        }
+
+        container.innerHTML = items.map(item => `
+            <div class="material-card">
+                <span class="type-badge">${item.type || 'Note'}</span>
+                <i class="fas ${getIcon(item.type)} fa-3x mb-3"></i>
+                <h6 class="fw-bold mb-1">${item.title}</h6>
+                <small class="text-danger d-block mb-3" style="font-weight:800;">${item.courseCode || 'GENERAL'}</small>
+                <div class="mt-auto">
+                    <a href="${item.fileURL}" target="_blank" class="btn btn-sm btn-danger w-100 fw-bold shadow-sm">
+                        ${item.type === 'Video' ? 'WATCH VIDEO' : (item.type === 'Audio' ? 'LISTEN' : 'VIEW DOCUMENT')}
+                    </a>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function searchLogic() {
+        const term = document.getElementById('libSearch').value.toLowerCase();
+        if(term === "") { applyAllFilters(); return; }
+
+        const filtered = allMaterials.filter(m => 
+            m.title.toLowerCase().includes(term) || 
+            (m.courseCode || "").toLowerCase().includes(term)
+        );
+        render(filtered);
+    }
+</script>
+</body>
+</html>

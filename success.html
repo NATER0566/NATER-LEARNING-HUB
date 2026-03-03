@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Activated | NATER HUB ACADEMY</title>
     
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#b71c1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -138,7 +143,7 @@
 
     <div class="success-card">
         <div class="brand-header">
-            <h1>NATER HUB ACADEMY</h1>
+            <h1 id="siteNameDisplay">NATER HUB ACADEMY</h1>
         </div>
 
         <div class="logo-display">
@@ -150,7 +155,7 @@
             
             <h2>Account Activated</h2>
             
-            <p>Congratulations! Your account at <strong>NATER HUB ACADEMY</strong> is now fully verified. Your high-performance learning journey begins right now.</p>
+            <p>Congratulations! Your account at <strong id="siteNameBold">NATER HUB ACADEMY</strong> is now fully verified. Your high-performance learning journey begins right now.</p>
             
             <a href="/index.html" class="btn-portal">
                 Access My Dashboard
@@ -164,6 +169,28 @@
     </div>
 
     <script>
+        // --- ASAP LOGIC: Self-invoking function for PWA and Data Sync ---
+        (async function immediateSync() {
+            // Register PWA Service Worker ASAP
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("/sw.js")
+                        .then(reg => console.log("PWA Active on Success Page"))
+                        .catch(err => console.error("SW failed", err));
+                });
+            }
+
+            // Fetch custom branding ASAP to match the user's specific Academy name
+            try {
+                const res = await fetch('/api/public-settings');
+                const data = await res.json();
+                if(data.success && data.siteName) {
+                    document.getElementById('siteNameDisplay').innerText = data.siteName;
+                    document.getElementById('siteNameBold').innerText = data.siteName;
+                }
+            } catch(e) { console.log("Branding sync skipped."); }
+        })();
+
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
