@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Helper | Global Production Portal</title>
     
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#b71c1c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +13,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -193,19 +192,6 @@
     </div>
 
     <div class="main-container">
-        <div class="card-helper full-width" id="pwa-install-banner" style="display: none; background: linear-gradient(135deg, #1a1a1a, #000); border-top-color: var(--gold);">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <img src="logo.jpg" style="width: 50px; height: 50px; border-radius: 10px; margin-right: 15px; border: 1px solid var(--gold);">
-                    <div class="text-start">
-                        <h6 class="m-0 text-white fw-bold">Install Nater Hub App</h6>
-                        <small class="text-warning">Access your academy instantly from your home screen.</small>
-                    </div>
-                </div>
-                <button class="btn btn-warning btn-sm fw-bold px-3 rounded-pill" onclick="triggerPwaInstall()">INSTALL</button>
-            </div>
-        </div>
-
         <div class="card-helper full-width" id="sec-gpa">
             <div class="card-header-clickable" onclick="toggleCollapse('gpa-content', 'gpa-icon')">
                 <h6 class="m-0"><i class="fas fa-calculator me-2 text-danger"></i>GPA Entry System</h6>
@@ -299,44 +285,6 @@
         } catch (e) { return null; }
     }
 
-    let deferredPrompt;
-
-    // INSTANT EXECUTION: Run ASAP for real-time feel and PWA registration
-    (async function immediateSync() {
-        await loadAdminData();
-        await updateCounters();
-        
-        // PWA Service Worker Registration & Install Logic
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js")
-                    .then(reg => console.log("Nater Hub PWA Ready"))
-                    .catch(err => console.log("PWA registration failed", err));
-            });
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                const installBanner = document.getElementById('pwa-install-banner');
-                if (installBanner) installBanner.style.display = 'block';
-            });
-
-            window.addEventListener('appinstalled', (evt) => {
-                const installBanner = document.getElementById('pwa-install-banner');
-                if (installBanner) installBanner.style.display = 'none';
-                showToast('success', 'App installed on your device!');
-            });
-        }
-    })();
-
-    async function triggerPwaInstall() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        document.getElementById('pwa-install-banner').style.display = 'none';
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         init();
         setInterval(() => {
@@ -364,6 +312,8 @@
 
         loadSavedGpa(); 
         renderTasks();
+        loadAdminData();
+        updateCounters();
     }
 
     async function loadAdminData() {

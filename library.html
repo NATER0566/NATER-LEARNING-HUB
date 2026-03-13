@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NATER GENIUS ACADEMY | Academic Repository</title>
     
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#d32f2f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,7 +22,6 @@
         .search-container { max-width: 600px; margin: -30px auto 20px; padding: 0 20px; }
         .search-input { border-radius: 30px; padding: 15px 25px; border: 1px solid #ddd; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 100%; outline: none; }
 
-        /* Filter Styling */
         .filter-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #666; margin-left: 15px; margin-bottom: 5px; }
         .scroll-wrapper { display: flex; gap: 10px; overflow-x: auto; padding: 5px 15px; scrollbar-width: none; }
         .scroll-wrapper::-webkit-scrollbar { display: none; }
@@ -33,7 +31,6 @@
         .type-pill { background: #eee; color: #555; }
         .type-pill.active { background: var(--gold); color: black; border-color: var(--gold); }
 
-        /* Grid & Cards */
         .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
         .material-card { background: white; border-radius: 15px; padding: 20px; border-top: 5px solid var(--brand-red); box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; display: flex; flex-direction: column; position: relative; }
         .material-card:hover { transform: translateY(-5px); }
@@ -102,19 +99,8 @@
         type: 'All'
     };
 
-    // ASAP LOGIC: Self-invoking function starts fetches immediately and registers SW
-    (async function immediateSync() {
-        // Start fetching repository data immediately
+    (function immediateSync() {
         init();
-
-        // PWA Service Worker Registration
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js")
-                    .then(reg => console.log("Library PWA Ready"))
-                    .catch(err => console.error("SW failed", err));
-            });
-        }
     })();
 
     async function init() {
@@ -130,7 +116,6 @@
     function filterBy(key, value, el) {
         filters[key] = value;
         
-        // Handle active UI classes
         const btnClass = key === 'level' ? '.lvl-btn' : (key === 'semester' ? '.sem-btn' : '.tp-btn');
         document.querySelectorAll(btnClass).forEach(p => p.classList.remove('active'));
         el.classList.add('active');

@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Official Verification Portal</title>
+    <link rel="manifest" href="manifest.json">
     
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#d4af37">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -50,7 +46,7 @@
         .brand-nater { font-family: 'Cinzel', serif; font-weight: 900; font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase;}
         .brand-hub { font-family: 'Cinzel', serif; font-weight: 900; font-size: 2.2rem; color: var(--red); letter-spacing: 3px; text-transform: uppercase;}
 
-        .top-nav { position: fixed; top: 20px; left: 20px; z-index: 100; }
+        .top-nav { position: fixed; top: 20px; left: 20px; z-index: 100; display: flex; gap: 10px; }
 
         .id-input-field { background: #000; border: 2px solid var(--gold); border-radius: 15px; padding: 12px 20px; color: white; width: 100%; text-align: center; font-family: monospace; letter-spacing: 1px; margin-bottom: 15px; font-size: 1.1rem; }
         .id-input-field:focus { outline: none; box-shadow: 0 0 15px rgba(212,175,55,0.3); }
@@ -63,6 +59,7 @@
         .btn-action:hover { background: white; transform: translateY(-3px); }
 
         #errorSection, #successSection, #loadingSection, #manualSection { display: none; }
+        #installBtn { display: none; } /* Hidden by default until PWA is ready */
     </style>
 </head>
 <body>
@@ -74,10 +71,12 @@
     <button class="btn btn-outline-warning rounded-pill px-4 fw-bold" onclick="window.location.href='academy.html'">
         <i class="fas fa-arrow-left me-2"></i> BACK TO HUB
     </button>
+    <button id="installBtn" class="btn btn-warning rounded-pill px-4 fw-bold">
+        <i class="fas fa-download me-2"></i> INSTALL APP
+    </button>
 </div>
 
 <div class="verify-card" id="mainCard">
-    
     <div id="loadingSection">
         <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;"></div>
         <h4 class="mt-4 fw-bold">AUTHENTICATING <span class="dynamic-site-name">REGISTRY</span>...</h4>
@@ -126,22 +125,41 @@
 </div>
 
 <script>
-    // --- ASAP LOGIC: Self-invoking function for PWA and Data Sync ---
-    (async function immediateSync() {
+    // PWA INSTALL LOGIC
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block'; // Show button when installable
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.log('SW Registration failed', err));
+        });
+    }
+
+    // EXISTING LOGIC
+    window.onload = async () => {
         initStars();
         animateStars();
-        
-        // PWA Service Worker Registration
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js")
-                    .then(reg => console.log("Verification PWA Ready"))
-                    .catch(err => console.error("SW failed", err));
-            });
-        }
-
-        // Immediate Branding and Auto-Verify Check
-        fetchBranding(); 
+        await fetchBranding(); 
         const urlParams = new URLSearchParams(window.location.search);
         const certId = urlParams.get('id');
 
@@ -150,7 +168,7 @@
         } else {
             showManual();
         }
-    })();
+    };
 
     async function fetchBranding() {
         try {
@@ -160,7 +178,6 @@
                 const nameParts = (data.siteName || 'NATER HUB').split(' ');
                 const n = nameParts[0];
                 const h = " " + nameParts.slice(1).join(' ');
-                
                 document.querySelectorAll('.site-nater').forEach(el => el.innerText = n);
                 document.querySelectorAll('.site-hub').forEach(el => el.innerText = h);
                 document.querySelectorAll('.dynamic-site-name').forEach(el => el.innerText = data.siteName);
@@ -175,6 +192,7 @@
         const courseId = urlParams.get('course') || null; 
         
         if (!targetId || !userEmail) {
+            alert("Please provide both Verification ID and Student Email.");
             return;
         }
 
@@ -218,16 +236,14 @@
     }
 
     /* STAR ENGINE */
+    const canvas = document.getElementById('starCanvas');
+    const ctx = canvas.getContext('2d');
     let stars = [];
     function initStars() {
-        const canvas = document.getElementById('starCanvas');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         for(let i=0; i<150; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*2, o:Math.random()});
     }
-
     function animateStars() {
-        const canvas = document.getElementById('starCanvas');
-        const ctx = canvas.getContext('2d');
         ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = "white";
         stars.forEach(s => { ctx.globalAlpha = s.o; ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y -= 0.3; if(s.y < 0) s.y = canvas.height; });
         requestAnimationFrame(animateStars);

@@ -4,18 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifying Payment | NATER HUB</title>
-    
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background: #0a0a0a; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .loader { border: 5px solid #333; border-top: 5px solid #FFD700; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .text-center { text-align: center; }
     </style>
 </head>
 <body>
@@ -25,21 +18,6 @@
     </div>
 
     <script>
-        // ASAP LOGIC: Start verification and SW registration immediately
-        (async function immediateSync() {
-            // PWA Service Worker Registration
-            if ("serviceWorker" in navigator) {
-                window.addEventListener("load", () => {
-                    navigator.serviceWorker.register("/sw.js")
-                        .then(reg => console.log("Verify PWA Ready"))
-                        .catch(err => console.error("SW failed", err));
-                });
-            }
-
-            // Trigger Verification logic immediately
-            verifyPayment();
-        })();
-
         async function verifyPayment() {
             const urlParams = new URLSearchParams(window.location.search);
             const reference = urlParams.get('reference') || urlParams.get('trxref');
@@ -52,13 +30,8 @@
                 return;
             }
 
-            if (!reference) {
-                document.getElementById('statusText').innerText = "REFERENCE MISSING";
-                return;
-            }
-
             try {
-                // Decode JWT
+                // Decode the student email from your JWT token
                 const student = JSON.parse(atob(token.split('.')[1]));
 
                 const response = await fetch('/api/paystack/verify', {
@@ -68,7 +41,7 @@
                         reference: reference,
                         email: student.email,
                         courseId: courseId,
-                        courseTitle: courseTitle 
+                        courseTitle: courseTitle // Required by your server.js for the email
                     })
                 });
 
@@ -100,6 +73,9 @@
                 document.getElementById('statusText').innerText = "VERIFICATION FAILED";
             }
         }
+
+        // Run as soon as the page loads
+        window.onload = verifyPayment;
     </script>
 </body>
 </html>

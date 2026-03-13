@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command | NATER HUB</title>
     
-    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -284,18 +283,6 @@
                 return await res.json();
             } catch (err) { return { success: false, message: "Server connection failed" }; }
         }
-
-        // ASAP LOGIC: Self-invoking function starts fetches immediately and registers SW
-        (async function immediateSync() {
-            // PWA Service Worker Registration
-            if ("serviceWorker" in navigator) {
-                window.addEventListener("load", () => {
-                    navigator.serviceWorker.register("/sw.js")
-                        .then(reg => console.log("Admin PWA Ready"))
-                        .catch(err => console.error("SW failed", err));
-                });
-            }
-        })();
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchInitialSettings();

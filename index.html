@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NATER HUB ACADEMY | Official Portal</title>
     
+    <meta name="theme-color" content="#b71c1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4661775522120249" crossorigin="anonymous"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -114,7 +120,6 @@
         
         .dynamic-msg { background: #fff5f5; color: #b71c1c; font-size: 14px; font-weight: 700; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; border: 1px solid rgba(183, 28, 28, 0.2); transition: 0.3s; }
 
-        /* PUBLIC CONTENT DISPLAY CARD - FIXED FOR FULL HEIGHT */
         .public-content-box {
             width: 100%;
             background: #fdfdfd;
@@ -128,12 +133,7 @@
             flex-direction: column;
             height: auto;
         }
-        #indexPublicImage { 
-            width: 100%; 
-            height: auto; 
-            display: none; 
-            object-fit: contain; 
-        }
+        #indexPublicImage { width: 100%; height: auto; display: none; object-fit: contain; }
         #indexPublicText { padding: 20px; font-weight: 600; color: #333; text-align: center; font-size: 15px; line-height: 1.5; display: none; }
 
         .pass-requirements { font-size: 11px; margin-top: -15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; font-weight: 700; }
@@ -155,35 +155,10 @@
 
         .form-label { font-size: 12px; font-weight: 800; color: #444; text-transform: uppercase; margin-bottom: 10px; display: block; }
         .form-control { border-radius: 12px; padding: 16px 20px; border: 1px solid #ddd; background: #fdfdfd; font-size: 16px; margin-bottom: 25px; transition: 0.3s; }
-        .form-control.is-invalid { border: 2.5px solid var(--brand-red) !important; background-color: #fff8f8; }
-
         .btn-auth { background: var(--brand-red); color: white; font-weight: 800; padding: 18px; border-radius: 12px; border: none; width: 100%; text-transform: uppercase; letter-spacing: 1.5px; transition: 0.3s; box-shadow: 0 10px 25px rgba(183, 28, 28, 0.3); font-size: 16px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .btn-auth:hover { background: #000; transform: translateY(-3px); }
         .btn-auth:disabled { background: #555; cursor: not-allowed; transform: none; }
-        
         .text-link { color: var(--brand-red); font-weight: 700; cursor: pointer; font-size: 14px; text-decoration: none; }
-
-        /* AI ASSISTANT STYLING */
-        .ai-support-trigger {
-            background: linear-gradient(135deg, #FFD700, #b8860b);
-            color: black;
-            border-radius: 50px;
-            padding: 12px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 14px;
-            margin: 25px auto 10px;
-            width: fit-content;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            transition: 0.3s;
-            border: 2px solid white;
-        }
-        .ai-support-trigger:hover { transform: translateY(-2px); background: white; border-color: var(--owner-gold); }
-        .ai-support-trigger i { font-size: 20px; color: var(--brand-dark); }
 
         footer { font-size: 11px; margin-top: 40px; opacity: 0.6; text-align: center; font-weight: bold; color: #555; }
     </style>
@@ -281,99 +256,29 @@
                     <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
                 </div>
 
-                <div class="ai-support-trigger" onclick="askSecurityAI()">
-                    <i class="fas fa-robot"></i>
-                    <span>NEED HELP? ASK NATER'S AI</span>
-                </div>
-
                 <footer>&copy; <span id="currentYear"></span> NATER HUB ACADEMY • SECURE ACCESS</footer>
             </div>
         </div>
     </div>
 
 <script>
-    // --- AI SECURITY & FULL PAGE CONTEXT SUPPORT ---
-    async function askSecurityAI() {
-        // Scrape all text on page to give AI full context of contacts, rules, and branding
-        const pageContext = document.body.innerText;
-        
-        const { value: userQuery } = await Swal.fire({
-            title: 'NATER\'S AI ASSISTANT',
-            input: 'text',
-            inputLabel: 'Ask about registration, activation, contacts, or rules.',
-            inputPlaceholder: 'e.g., "What is the support phone number?"',
-            showCancelButton: true,
-            confirmButtonColor: '#d32f2f',
-            background: '#ffffff',
-            customClass: { title: 'fw-bold fs-5' }
-        });
-
-        if (userQuery) {
-            Swal.fire({
-                title: 'Syncing Intelligence...',
-                html: 'Analyzing portal context for your request.',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-
-            try {
-                const response = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: userQuery, 
-                        context: pageContext, // ACCESS TO EVERYTHING ON THE PAGE
-                        email: 'visitor@portal.com', 
-                        name: 'Portal Visitor',
-                        isLoginPage: true 
-                    })
-                });
-
-                const data = await response.json();
-
-                Swal.fire({
-                    title: 'NATER\'S AI RESPONSE',
-                    html: `<div style="text-align:left; font-size:14px; line-height:1.6; font-weight:600;">${data.reply}</div>`,
-                    icon: 'info',
-                    confirmButtonColor: '#d32f2f'
-                });
-
-            } catch (error) {
-                Swal.fire('Error', 'Intelligence Hub is temporarily offline.', 'error');
-            }
-        }
-    }
-
     async function syncRealData() {
         try {
             const res = await fetch('/api/public-settings'); 
             const data = await res.json();
-            
             if(data.success) {
                 if(data.siteName) document.getElementById('siteNameDisplay').innerText = data.siteName;
                 if(data.avatar) document.getElementById('adminAvatar').innerHTML = `<img src="${data.avatar}">`;
-
                 const box = document.getElementById('publicBox');
                 const img = document.getElementById('indexPublicImage');
                 const txt = document.getElementById('indexPublicText');
-
                 if(data.contentType === 'image' && data.contentValue) {
-                    img.src = data.contentValue;
-                    img.style.display = 'block';
-                    txt.style.display = 'none';
-                    box.style.display = 'flex';
+                    img.src = data.contentValue; img.style.display = 'block'; txt.style.display = 'none'; box.style.display = 'flex';
                 } else if (data.contentType === 'text' && data.contentValue) {
-                    txt.innerText = data.contentValue;
-                    txt.style.display = 'block';
-                    img.style.display = 'none';
-                    box.style.display = 'flex';
-                } else {
-                    box.style.display = 'none'; 
-                }
+                    txt.innerText = data.contentValue; txt.style.display = 'block'; img.style.display = 'none'; box.style.display = 'flex';
+                } else { box.style.display = 'none'; }
             }
-        } catch(err) {
-            console.warn("Real data fetch failed.");
-        }
+        } catch(err) { console.warn("Real data fetch failed."); }
     }
 
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
@@ -381,24 +286,13 @@
 
     function liveValidatePassword(el) {
         const val = el.value;
-        const checks = {
-            'req-len': val.length >= 8 && val.length <= 16,
-            'req-upp': /[A-Z]/.test(val),
-            'req-num': /[0-9]/.test(val),
-            'req-spc': /[@$!%*?&]/.test(val)
-        };
+        const checks = {'req-len': val.length >= 8 && val.length <= 16, 'req-upp': /[A-Z]/.test(val), 'req-num': /[0-9]/.test(val), 'req-spc': /[@$!%*?&]/.test(val)};
         for (const [id, met] of Object.entries(checks)) {
             const item = document.getElementById(id);
-            if(met) {
-                item.classList.add('valid');
-                item.querySelector('i').className = 'fas fa-check-circle';
-            } else {
-                item.classList.remove('valid');
-                item.querySelector('i').className = 'fas fa-circle-notch';
-            }
+            if(met) { item.classList.add('valid'); item.querySelector('i').className = 'fas fa-check-circle'; } 
+            else { item.classList.remove('valid'); item.querySelector('i').className = 'fas fa-circle-notch'; }
         }
-        if (passRegex.test(val)) el.classList.remove('is-invalid');
-        else el.classList.add('is-invalid');
+        if (passRegex.test(val)) el.classList.remove('is-invalid'); else el.classList.add('is-invalid');
     }
 
     function setLoading(btnId, spinnerId, textId, isLoading) {
@@ -406,13 +300,9 @@
         const spinner = document.getElementById(spinnerId);
         const text = document.getElementById(textId);
         if (isLoading) {
-            btn.disabled = true;
-            spinner.style.display = "inline-block";
-            text.style.opacity = "0.6";
+            btn.disabled = true; spinner.style.display = "inline-block"; text.style.opacity = "0.6";
         } else {
-            btn.disabled = false;
-            spinner.style.display = "none";
-            text.style.opacity = "1";
+            btn.disabled = false; spinner.style.display = "none"; text.style.opacity = "1";
         }
     }
 
@@ -423,8 +313,7 @@
         setLoading('loginBtn', 'loginSpinner', 'loginText', true);
         try {
             const res = await fetch('/api/login', {
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
+                method:'POST', headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ email, pass })
             });
             const data = await res.json();
@@ -435,46 +324,27 @@
                 Swal.fire('Access Denied', data.message, 'error');
                 setLoading('loginBtn', 'loginSpinner', 'loginText', false);
             }
-        } catch(err){
-            setLoading('loginBtn', 'loginSpinner', 'loginText', false);
-        }
+        } catch(err){ setLoading('loginBtn', 'loginSpinner', 'loginText', false); }
     }
 
     async function handleRegister() {
         const name = document.getElementById('regName').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const pass = document.getElementById('regPass').value.trim();
-
-        if(!name || !email || !pass){ 
-            Swal.fire('Oops!', 'All fields are required.', 'warning'); 
-            return; 
-        }
-
-        if(!passRegex.test(pass)) {
-            Swal.fire('Weak Password', 'Review the red requirements below.', 'error');
-            return;
-        }
-
+        if(!name || !email || !pass){ Swal.fire('Oops!', 'All fields are required.', 'warning'); return; }
+        if(!passRegex.test(pass)) { Swal.fire('Weak Password', 'Review the red requirements below.', 'error'); return; }
         setLoading('regBtn', 'regSpinner', 'regText', true);
         try {
             const res = await fetch('/api/register', {
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
+                method:'POST', headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ name, email, pass })
             });
             const data = await res.json();
-            
             if(data.success){ 
-                Swal.fire('Success', data.message, 'success'); 
-                toggleForm('login'); 
-            } else {
-                Swal.fire('Registration Error', data.message || 'Email already exists.', 'error');
-            }
-        } catch(err){ 
-            Swal.fire('Error','Server unreachable','error'); 
-        } finally { 
-            setLoading('regBtn', 'regSpinner', 'regText', false); 
-        }
+                Swal.fire('Success', data.message, 'success'); toggleForm('login'); 
+            } else { Swal.fire('Registration Error', data.message || 'Email already exists.', 'error'); }
+        } catch(err){ Swal.fire('Error','Server unreachable','error'); } 
+        finally { setLoading('regBtn', 'regSpinner', 'regText', false); }
     }
 
     async function handleReset() {
@@ -483,8 +353,7 @@
         setLoading('forgotBtn', 'forgotSpinner', 'forgotText', true);
         try {
             const res = await fetch('/api/forgot-password', {
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
+                method:'POST', headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ email })
             });
             const data = await res.json();
