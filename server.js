@@ -113,10 +113,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
 
-// --- EMAIL ENGINE ---
+// --- EMAIL ENGINE (OPTIMIZED WITH TIMEOUTS) ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000,
+    socketTimeout: 15000
 });
 
 // Improved Template with clearer structure
@@ -143,40 +146,69 @@ const brandedEmail = (content, name, title = "NATER LEARNING HUB") => `
     </div>
 </div>`;
 
-// --- 1. AUTHENTICATION API ---
+// --- 1. AUTHENTICATION API (FIXED VERSION) ---
 
 app.post('/api/register', async (req, res) => {
     let { name, email, pass } = req.body;
-    if (!email || !pass) return res.status(400).json({ success: false, message: "Missing fields." });
+    
+    if (!name || !email || !pass) {
+        return res.status(400).json({ success: false, message: "All fields are required." });
+    }
+
     const cleanEmail = email.trim().toLowerCase();
+
     try {
+        // 1. CHECK IF USER EXISTS FIRST
         const userExists = await User.findOne({ email: cleanEmail });
-        if (userExists) return res.status(400).json({ success: false, message: "Email registered already." });
+        if (userExists) {
+            return res.status(400).json({ success: false, message: "This email is already registered." });
+        }
 
+        // 2. PREPARE DATA (Hash password)
         const hashedPassword = await bcrypt.hash(pass, 10);
-        const newUser = new User({ name, email: cleanEmail, password: hashedPassword });
-        await newUser.save();
+        const activationLink = `${process.env.BASE_URL}/api/activate?email=${encodeURIComponent(cleanEmail)}`;
 
+        // 3. TRY SENDING EMAIL FIRST (The Critical Fix)
+        // We do this before saving to DB so if email fails, DB stays clean.
+        try {
+            await transporter.sendMail({
+                from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
+                to: cleanEmail,
+                subject: "Welcome to Nater Learning Hub – Activate Your Account",
+                html: brandedEmail(`
+                    <p>Your account has been prepared. To complete your registration, you must verify your email.</p>
+                    <div style="text-align: center; margin: 35px 0;">
+                        <a href="${activationLink}" style="background: #b71c1c; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">ACTIVATE MY ACCOUNT</a>
+                    </div>
+                `, name),
+                attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
+            });
+        } catch (emailErr) {
+            console.error("EMAIL SENDING FAILED:", emailErr);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Registration failed: Could not send activation email. Please check your email address or try again later." 
+            });
+        }
+
+        // 4. ONLY SAVE TO DATABASE IF EMAIL WAS SENT SUCCESSFULLY
+        const newUser = new User({ 
+            name, 
+            email: cleanEmail, 
+            password: hashedPassword 
+        });
+        
+        await newUser.save();
+        
+        // Optional: Clear old access records if they exist
         await Access.deleteMany({ email: cleanEmail });
 
-        const activationLink = `${process.env.BASE_URL}/api/activate?email=${encodeURIComponent(cleanEmail)}`;
-        
-        await transporter.sendMail({
-            from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
-            to: cleanEmail, 
-            subject: "Welcome to Nater Learning Hub – Activate Your Account",
-            html: brandedEmail(`
-                <p>Your account has been successfully created. To begin accessing our secure academy, courses, and digital library, you must verify your email address.</p>
-                <p>Please click the button below to activate your account. After activation, you will be able to log in and start learning immediately.</p>
-                <div style="text-align: center; margin: 35px 0;">
-                    <a href="${activationLink}" style="background: #b71c1c; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">ACTIVATE MY ACCOUNT</a>
-                </div>
-                <p>If you did not create this account, you can safely ignore this email.</p>
-            `, name),
-            attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
-        });
-        res.json({ success: true, message: "Registration successful! Check your email to activate." });
-    } catch (err) { res.status(500).json({ success: false }); }
+        res.json({ success: true, message: "Registration successful! Please check your email to activate your account." });
+
+    } catch (err) { 
+        console.error("GENERAL REGISTRATION ERROR:", err);
+        res.status(500).json({ success: false, message: "Internal server error." }); 
+    }
 });
 
 app.get('/api/activate', async (req, res) => {
@@ -190,15 +222,42 @@ app.get('/api/activate', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const { email, pass } = req.body;
+    if (!email || !pass) return res.status(400).json({ success: false, message: "Missing credentials." });
+
     const cleanEmail = email.trim().toLowerCase();
+
     try {
         const user = await User.findOne({ email: cleanEmail });
-        if (!user || !(await bcrypt.compare(pass, user.password))) return res.status(401).json({ success: false, message: "Invalid credentials." });
-        if (!user.is_activated) return res.status(403).json({ success: false, message: "Account not activated." });
 
-        const token = jwt.sign({ id: user._id, email: user.email, name: user.name, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        // SPECIFIC ERROR: Email not found
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Account not found with this email." });
+        }
+
+        // SPECIFIC ERROR: Wrong password
+        const isPasswordValid = await bcrypt.compare(pass, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, message: "Incorrect password." });
+        }
+
+        // SPECIFIC ERROR: Not activated
+        if (!user.is_activated) {
+            return res.status(403).json({ success: false, message: "Account not activated. Please check your email." });
+        }
+
+        // SUCCESS
+        const token = jwt.sign(
+            { id: user._id, email: user.email, name: user.name, is_admin: user.is_admin }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '24h' }
+        );
+        
         res.json({ success: true, token });
-    } catch (err) { res.status(500).json({ success: false }); }
+
+    } catch (err) { 
+        console.error("LOGIN ERROR:", err);
+        res.status(500).json({ success: false, message: "Internal server error." }); 
+    }
 });
 
 app.post('/api/forgot-password', async (req, res) => {
@@ -234,7 +293,7 @@ app.post('/api/complete-reset', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 2. PROGRESS TRACKING & LESSONS (Unchanged) ---
+// --- 2. PROGRESS TRACKING & LESSONS ---
 app.post('/api/academy/lessons', async (req, res) => {
     const { email, courseId } = req.body;
     try {
@@ -268,7 +327,7 @@ app.post('/api/academy/mark-watched', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 3. DISCUSSION SYSTEM (Unchanged) ---
+// --- 3. DISCUSSION SYSTEM ---
 app.post('/api/academy/get-comments', async (req, res) => {
     try {
         const comments = await Comment.find({ lesson_id: req.body.lessonId }).sort({ created_at: -1 });
@@ -313,7 +372,7 @@ app.post('/api/academy/delete-comment', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 4. CERTIFICATE VERIFICATION (Unchanged) ---
+// --- 4. CERTIFICATE VERIFICATION ---
 app.post('/api/verify-certificate', async (req, res) => {
     const { certId, email, courseId } = req.body; 
     try {
@@ -330,7 +389,7 @@ app.post('/api/verify-certificate', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 5. ADMIN COMMAND CENTER (Unchanged) ---
+// --- 5. ADMIN COMMAND CENTER ---
 app.get('/api/public-settings', async (req, res) => {
     try {
         const data = await Setting.findOne();
@@ -400,7 +459,6 @@ app.post('/api/academy/all-courses', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// UPDATED: Added email notification for manual access grant
 app.post('/api/academy/grant-access', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email.toLowerCase() });
@@ -440,7 +498,7 @@ app.post('/api/academy/delete-course', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 7. LIBRARY REPOSITORY (Unchanged) ---
+// --- 7. LIBRARY REPOSITORY ---
 app.post('/api/library/add', upload.single('file'), async (req, res) => {
     try {
         const item = new Library({ ...req.body, file_url: req.file ? `uploads/${req.file.filename}` : null });
@@ -466,7 +524,6 @@ app.post('/api/library/delete', async (req, res) => {
 
 // --- 8. PAYSTACK INTEGRATION ---
 
-// UPDATED: Added email notification for successful purchase
 app.post('/api/paystack/verify', async (req, res) => {
     try {
         const { reference, email } = req.body;
@@ -527,7 +584,7 @@ app.get('/api/paystack/initialize', async (req, res) => {
     } catch (err) { res.status(500).send("Init Error"); }
 });
 
-// --- 9. INSTANT BRANDING & PAGE SERVERS (Unchanged) ---
+// --- 9. INSTANT BRANDING & PAGE SERVERS ---
 app.get('/api/branding/instant', async (req, res) => {
     try {
         const data = await Setting.findOne().lean();
