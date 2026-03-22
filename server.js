@@ -2,7 +2,7 @@
  * ============================================================
  * NATER LEARNING HUB - CENTRAL SERVER ENGINE
  * ============================================================
- * Version: 3.1.0 (Professional Production)
+ * Version: 3.1.1 (Professional Production - UI Updated)
  * Framework: Express.js | Database: MongoDB
  * Email Service: Resend | Payments: Paystack
  * Description: High-end education platform with dynamic 
@@ -143,30 +143,38 @@ const brandedEmail = (content, name, actionUrl = "", title = "NATER LEARNING HUB
 <head>
     <meta charset="utf-8">
     <style>
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         .container { font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 16px; overflow: hidden; background: #ffffff; }
-        .header { background: #b71c1c; padding: 30px; text-align: center; }
-        .logo { width: 85px; height: 85px; border-radius: 50%; margin-bottom: 15px; border: 3px solid #FFD700; background: white; object-fit: cover; }
-        .content { padding: 35px 30px; color: #333; line-height: 1.8; }
+        .header { background: #b71c1c; padding: 25px; text-align: center; }
+        .logo-wrap { text-align: center; margin-top: -45px; }
+        .logo { width: 90px; height: 90px; border-radius: 12px; border: 4px solid #ffffff; background: white; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1); animation: float 3s ease-in-out infinite; }
+        .content { padding: 40px 30px; color: #333; line-height: 1.8; }
         .btn { background: #b71c1c; color: white !important; padding: 16px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin: 25px 0; }
+        .support-btn { display: block; padding: 12px; margin: 10px 0; border-radius: 8px; text-decoration: none; font-weight: bold; text-align: center; font-size: 14px; }
+        .wa-btn { background: #25D366; color: white !important; }
+        .mail-btn { background: #f5f5f5; color: #b71c1c !important; border: 1px solid #e0e0e0; }
         .footer { background: #1a1a1a; padding: 25px; text-align: center; color: #999; font-size: 11px; }
-        .support-hub { margin-top: 40px; border-top: 2px solid #f0f0f0; padding-top: 20px; text-align: center; }
+        .support-hub { margin-top: 40px; border-top: 2px solid #f0f0f0; padding-top: 25px; }
         .badge { background: #f9f9f9; border-left: 4px solid #b71c1c; padding: 12px 15px; margin: 15px 0; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <h1 style="color: white; margin: 0; font-size: 22px; letter-spacing: 2px; text-transform: uppercase;">${title}</h1>
+        </div>
+        <div class="logo-wrap">
             <img src="${process.env.BASE_URL}/logo.jpg" alt="Logo" class="logo">
-            <h1 style="color: white; margin: 0; font-size: 24px; letter-spacing: 1px;">${title}</h1>
         </div>
         <div class="content">
             <h2 style="color: #b71c1c; margin-top: 0;">Hello ${name},</h2>
             ${content}
             ${actionUrl ? `<center><a href="${actionUrl}" class="btn">PROCEED TO HUB</a></center>` : ''}
+            
             <div class="support-hub">
-                <p style="font-weight: bold; color: #1a1a1a; margin-bottom: 10px;">Need Direct Assistance?</p>
-                <a href="https://wa.me/2348160979620" style="color: #25D366; text-decoration: none; font-weight: bold;">WhatsApp Support</a> | 
-                <a href="mailto:nmbashau@gmail.com" style="color: #b71c1c; text-decoration: none; font-weight: bold;">Official Email</a>
+                <p style="font-weight: bold; color: #1a1a1a; margin-bottom: 15px; text-align: center;">Need Direct Assistance?</p>
+                <a href="https://wa.me/2348160979620" class="support-btn wa-btn">CONTACT VIA WHATSAPP</a>
+                <a href="mailto:nmbashau@gmail.com" class="support-btn mail-btn">SEND OFFICIAL EMAIL</a>
             </div>
         </div>
         <div class="footer">
