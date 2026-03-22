@@ -1,52 +1,72 @@
+/**
+ * ============================================================
+ * NATER LEARNING HUB - CENTRAL SERVER ENGINE
+ * ============================================================
+ * Version: 3.1.0 (Professional Production)
+ * Framework: Express.js | Database: MongoDB
+ * Email Service: Resend | Payments: Paystack
+ * Description: High-end education platform with dynamic 
+ * scholarship granting and branded communication.
+ * ============================================================
+ */
+
 require('dotenv').config();
 const express = require('express');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios'); 
-const mongoose = require('mongoose'); 
-const multer = require('multer'); 
-const fs = require('fs'); 
+const axios = require('axios');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const fs = require('fs');
 
+// --- APP INITIALIZATION ---
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 3000;
+const resend = new Resend(process.env.RESEND_API_KEY);
+const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
 
-// --- MONGODB CONNECTION ---
+// --- DATABASE CONNECTION ---
 mongoose.connect(process.env.DATABASE_URL)
-    .then(() => console.log("🚀 HUB CONNECTED TO MONGODB"))
-    .catch(err => console.error("❌ MongoDB Connection Error:", err));
+    .then(() => console.log("🚀 [HUB] DATABASE CONNECTION ESTABLISHED"))
+    .catch(err => console.error("❌ [CRITICAL] MongoDB Connection Failed:", err));
 
-// --- MONGODB SCHEMAS (Kept exactly as provided) ---
+// --- MONGODB MODELS ---
+
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, unique: true, lowercase: true, required: true, trim: true },
     password: { type: String, required: true },
     is_activated: { type: Boolean, default: false },
-    is_admin: { type: Boolean, default: false }
+    is_admin: { type: Boolean, default: false },
+    joined_at: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', userSchema);
 
 const courseSchema = new mongoose.Schema({
-    title: String,
-    price: Number,
+    title: { type: String, required: true },
+    price: { type: Number, default: 0 },
     category: String,
-    thumbnail: String
+    thumbnail: String,
+    description: String,
+    created_at: { type: Date, default: Date.now }
 });
 const Course = mongoose.model('Course', courseSchema);
 
 const lessonSchema = new mongoose.Schema({
     course_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-    title: String,
+    title: { type: String, required: true },
     video_path: String,
-    pdf_path: String
+    pdf_path: String,
+    order: { type: Number, default: 0 }
 });
 const Lesson = mongoose.model('Lesson', lessonSchema);
 
 const progressSchema = new mongoose.Schema({
-    email: String,
-    lesson_id: String,
+    email: { type: String, required: true },
+    lesson_id: { type: String, required: true },
     last_seconds: { type: Number, default: 0 },
     watched: { type: Boolean, default: false },
     updated_at: { type: Date, default: Date.now }
@@ -58,8 +78,9 @@ const librarySchema = new mongoose.Schema({
     course_code: String,
     level: String,
     semester: String,
-    type: String,
-    file_url: String
+    type: String, 
+    file_url: String,
+    upload_date: { type: Date, default: Date.now }
 });
 const Library = mongoose.model('Library', librarySchema);
 
@@ -67,10 +88,9 @@ const settingSchema = new mongoose.Schema({
     siteName: { type: String, default: "NATER LEARNING HUB" },
     tagline: String,
     avatar: String,
-    contentType: String,
-    contentValue: String,
     announcement: String,
-    orbData: String
+    maintenance_mode: { type: Boolean, default: false },
+    orbData: String 
 });
 const Setting = mongoose.model('Setting', settingSchema);
 
@@ -85,129 +105,112 @@ const commentSchema = new mongoose.Schema({
 const Comment = mongoose.model('Comment', commentSchema);
 
 const accessSchema = new mongoose.Schema({
-    email: String,
+    email: { type: String, required: true },
     course_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-    payment_reference: String
+    payment_reference: String, 
+    granted_at: { type: Date, default: Date.now }
 });
 const Access = mongoose.model('Access', accessSchema);
 
-// --- FILE STORAGE CONFIG ---
+// --- MIDDLEWARE & FILE HANDLING ---
+
+app.use(cors());
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, 'uploads/'); },
+    destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        const uniqueID = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${uniqueID}${path.extname(file.originalname)}`);
     }
 });
 const upload = multer({ storage: storage });
 
-app.use(express.json({ limit: '50mb' })); 
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.static(path.join(__dirname))); 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname)));
 
-const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
+// --- PROFESSIONAL BRANDED EMAIL ENGINE ---
 
-// --- EMAIL ENGINE (OPTIMIZED WITH TIMEOUTS) ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000,
-    socketTimeout: 15000
-});
+const brandedEmail = (content, name, actionUrl = "", title = "NATER LEARNING HUB") => `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        .container { font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 16px; overflow: hidden; background: #ffffff; }
+        .header { background: #b71c1c; padding: 30px; text-align: center; }
+        .logo { width: 85px; height: 85px; border-radius: 50%; margin-bottom: 15px; border: 3px solid #FFD700; background: white; object-fit: cover; }
+        .content { padding: 35px 30px; color: #333; line-height: 1.8; }
+        .btn { background: #b71c1c; color: white !important; padding: 16px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin: 25px 0; }
+        .footer { background: #1a1a1a; padding: 25px; text-align: center; color: #999; font-size: 11px; }
+        .support-hub { margin-top: 40px; border-top: 2px solid #f0f0f0; padding-top: 20px; text-align: center; }
+        .badge { background: #f9f9f9; border-left: 4px solid #b71c1c; padding: 12px 15px; margin: 15px 0; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="${process.env.BASE_URL}/logo.jpg" alt="Logo" class="logo">
+            <h1 style="color: white; margin: 0; font-size: 24px; letter-spacing: 1px;">${title}</h1>
+        </div>
+        <div class="content">
+            <h2 style="color: #b71c1c; margin-top: 0;">Hello ${name},</h2>
+            ${content}
+            ${actionUrl ? `<center><a href="${actionUrl}" class="btn">PROCEED TO HUB</a></center>` : ''}
+            <div class="support-hub">
+                <p style="font-weight: bold; color: #1a1a1a; margin-bottom: 10px;">Need Direct Assistance?</p>
+                <a href="https://wa.me/2348160979620" style="color: #25D366; text-decoration: none; font-weight: bold;">WhatsApp Support</a> | 
+                <a href="mailto:nmbashau@gmail.com" style="color: #b71c1c; text-decoration: none; font-weight: bold;">Official Email</a>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; ${new Date().getFullYear()} NATER LEARNING HUB. <br>
+            Empowering Excellence through Digital Innovation.
+        </div>
+    </div>
+</body>
+</html>`;
 
-// Improved Template with clearer structure
-const brandedEmail = (content, name, title = "NATER LEARNING HUB") => `
-<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fdfdfd;">
-    <div style="background: #b71c1c; padding: 40px 20px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px; letter-spacing: 1px;">${title}</h1>
-        <p style="color: #FFD700; margin: 10px 0 0 0; font-weight: bold; text-transform: uppercase; font-size: 12px;">Secure Academy Portal</p>
-    </div>
-    <div style="padding: 20px; text-align: center; background: white;">
-         <img src="cid:logo" alt="Logo" style="width: 120px; height: auto;">
-    </div>
-    <div style="padding: 40px 30px; color: #333; line-height: 1.8; background: white;">
-        <h2 style="color: #b71c1c; margin-top: 0;">Hello ${name},</h2>
-        ${content}
-        <br><br>
-        <p style="font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px;">
-            This is an automated notification from Nater Learning Hub. Please do not reply to this email.
-        </p>
-    </div>
-    <div style="background: #1a1a1a; padding: 25px; text-align: center; color: #777; font-size: 11px;">
-        &copy; ${new Date().getFullYear()} NATER LEARNING HUB. <br>
-        Empowering Minds through Quality Digital Education.
-    </div>
-</div>`;
-
-// --- 1. AUTHENTICATION API (FIXED VERSION) ---
+/**
+ * ------------------------------------------------------------
+ * SECTION 1: USER AUTHENTICATION & ACCESS CONTROL
+ * ------------------------------------------------------------
+ */
 
 app.post('/api/register', async (req, res) => {
-    let { name, email, pass } = req.body;
-    
-    if (!name || !email || !pass) {
-        return res.status(400).json({ success: false, message: "All fields are required." });
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-
     try {
-        // 1. CHECK IF USER EXISTS FIRST
-        const userExists = await User.findOne({ email: cleanEmail });
-        if (userExists) {
-            return res.status(400).json({ success: false, message: "This email is already registered." });
-        }
+        let { name, email, pass } = req.body;
+        if (!name || !email || !pass) return res.status(400).json({ success: false, message: "Missing required fields." });
+        
+        const cleanEmail = email.trim().toLowerCase();
+        const existingUser = await User.findOne({ email: cleanEmail });
+        if (existingUser) return res.status(400).json({ success: false, message: "Email already registered." });
 
-        // 2. PREPARE DATA (Hash password)
-        const hashedPassword = await bcrypt.hash(pass, 10);
+        const hashedPassword = await bcrypt.hash(pass, 12);
+        const newUser = new User({ name, email: cleanEmail, password: hashedPassword });
+        await newUser.save();
+
         const activationLink = `${process.env.BASE_URL}/api/activate?email=${encodeURIComponent(cleanEmail)}`;
 
-        // 3. TRY SENDING EMAIL FIRST (The Critical Fix)
-        // We do this before saving to DB so if email fails, DB stays clean.
-        try {
-            await transporter.sendMail({
-                from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
-                to: cleanEmail,
-                subject: "Welcome to Nater Learning Hub – Activate Your Account",
-                html: brandedEmail(`
-                    <p>Your account has been prepared. To complete your registration, you must verify your email.</p>
-                    <div style="text-align: center; margin: 35px 0;">
-                        <a href="${activationLink}" style="background: #b71c1c; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">ACTIVATE MY ACCOUNT</a>
-                    </div>
-                `, name),
-                attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
-            });
-        } catch (emailErr) {
-            console.error("EMAIL SENDING FAILED:", emailErr);
-            return res.status(500).json({ 
-                success: false, 
-                message: "Registration failed: Could not send activation email. Please check your email address or try again later." 
-            });
-        }
-
-        // 4. ONLY SAVE TO DATABASE IF EMAIL WAS SENT SUCCESSFULLY
-        const newUser = new User({ 
-            name, 
-            email: cleanEmail, 
-            password: hashedPassword 
+        await resend.emails.send({
+            from: process.env.MAIL_SENDER,
+            to: cleanEmail,
+            subject: "Verify Your Enrollment – Nater Hub",
+            html: brandedEmail(`
+                <p>Welcome to the academy! Your registration was successful. We are thrilled to have you join our community of learners.</p>
+                <p>To activate your account and access your dashboard, please click the verification button below:</p>
+            `, name, activationLink)
         });
-        
-        await newUser.save();
-        
-        // Optional: Clear old access records if they exist
-        await Access.deleteMany({ email: cleanEmail });
 
-        res.json({ success: true, message: "Registration successful! Please check your email to activate your account." });
-
-    } catch (err) { 
-        console.error("GENERAL REGISTRATION ERROR:", err);
-        res.status(500).json({ success: false, message: "Internal server error." }); 
+        res.json({ success: true, message: "Verification email sent. Please check your inbox." });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error during registration." });
     }
 });
 
@@ -215,119 +218,307 @@ app.get('/api/activate', async (req, res) => {
     try {
         const cleanEmail = decodeURIComponent(req.query.email).trim().toLowerCase();
         const user = await User.findOneAndUpdate({ email: cleanEmail }, { is_activated: true });
-        if(!user) return res.status(404).send("Activation failed: User not found.");
+        if (!user) return res.status(404).send("User not found.");
         res.sendFile(path.resolve(__dirname, 'success.html'));
-    } catch (err) { res.status(500).send("Activation failed."); }
+    } catch (err) {
+        res.status(500).send("Activation failed.");
+    }
 });
 
 app.post('/api/login', async (req, res) => {
-    const { email, pass } = req.body;
-    if (!email || !pass) return res.status(400).json({ success: false, message: "Missing credentials." });
-
-    const cleanEmail = email.trim().toLowerCase();
-
     try {
-        const user = await User.findOne({ email: cleanEmail });
+        const { email, pass } = req.body;
+        const user = await User.findOne({ email: email.trim().toLowerCase() });
 
-        // SPECIFIC ERROR: Email not found
-        if (!user) {
-            return res.status(404).json({ success: false, message: "Account not found with this email." });
-        }
+        if (!user) return res.status(404).json({ success: false, message: "Account does not exist." });
+        if (!user.is_activated) return res.status(403).json({ success: false, message: "Account not activated." });
 
-        // SPECIFIC ERROR: Wrong password
-        const isPasswordValid = await bcrypt.compare(pass, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ success: false, message: "Incorrect password." });
-        }
+        const isValid = await bcrypt.compare(pass, user.password);
+        if (!isValid) return res.status(401).json({ success: false, message: "Invalid credentials." });
 
-        // SPECIFIC ERROR: Not activated
-        if (!user.is_activated) {
-            return res.status(403).json({ success: false, message: "Account not activated. Please check your email." });
-        }
-
-        // SUCCESS
         const token = jwt.sign(
-            { id: user._id, email: user.email, name: user.name, is_admin: user.is_admin }, 
-            process.env.JWT_SECRET, 
-            { expiresIn: '24h' }
+            { id: user._id, email: user.email, name: user.name, is_admin: user.is_admin },
+            process.env.JWT_SECRET,
+            { expiresIn: '48h' }
         );
-        
-        res.json({ success: true, token });
 
-    } catch (err) { 
-        console.error("LOGIN ERROR:", err);
-        res.status(500).json({ success: false, message: "Internal server error." }); 
+        res.json({ success: true, token, user: { name: user.name, email: user.email, is_admin: user.is_admin } });
+    } catch (err) {
+        res.status(500).json({ success: false });
     }
 });
 
 app.post('/api/forgot-password', async (req, res) => {
-    const cleanEmail = req.body.email.trim().toLowerCase();
     try {
-        const user = await User.findOne({ email: cleanEmail });
-        if (!user) return res.status(404).json({ success: false, message: "Email not found." });
-        const resetLink = `${process.env.BASE_URL}/reset-password.html?email=${encodeURIComponent(cleanEmail)}`;
-        await transporter.sendMail({
-            from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
-            to: cleanEmail, 
-            subject: "Password Reset Request – Nater Learning Hub",
+        const email = req.body.email.trim().toLowerCase();
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ success: false, message: "No account found." });
+
+        const resetLink = `${process.env.BASE_URL}/reset-password.html?email=${encodeURIComponent(email)}`;
+        await resend.emails.send({
+            from: process.env.MAIL_SENDER,
+            to: email,
+            subject: "Secure Password Reset",
             html: brandedEmail(`
-                <p>We received a request to reset your password for your Nater Learning Hub account.</p>
-                <p>If you made this request, click the button below to choose a new password:</p>
-                <div style="text-align: center; margin: 35px 0;">
-                    <a href="${resetLink}" style="background: #1a1a1a; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RESET MY PASSWORD</a>
-                </div>
-                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-            `, user.name),
-            attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
+                <p>A password reset was requested for your account. If you made this request, click the button below to set a new password.</p>
+                <p><b>If you did not request this, you can safely ignore this email.</b></p>
+            `, user.name, resetLink)
         });
-        res.json({ success: true, message: "Instructions sent." });
+        res.json({ success: true, message: "Reset instructions sent to your email." });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
 app.post('/api/complete-reset', async (req, res) => {
-    const { email, pass } = req.body;
     try {
-        const hashedPassword = await bcrypt.hash(pass, 10);
+        const { email, pass } = req.body;
+        const hashedPassword = await bcrypt.hash(pass, 12);
         await User.findOneAndUpdate({ email: email.toLowerCase() }, { password: hashedPassword });
-        res.json({ success: true });
+        res.json({ success: true, message: "Password updated successfully." });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 2. PROGRESS TRACKING & LESSONS ---
-app.post('/api/academy/lessons', async (req, res) => {
-    const { email, courseId } = req.body;
+/**
+ * ------------------------------------------------------------
+ * SECTION 2: ACADEMY ENGINE (COURSES & LESSONS)
+ * ------------------------------------------------------------
+ */
+
+app.post('/api/academy/all-courses', async (req, res) => {
     try {
+        const { email } = req.body;
+        const courses = await Course.find().sort({ created_at: -1 }).lean();
+        const accessRecords = await Access.find({ email: email?.toLowerCase() });
+        
+        const stats = {
+            totalCourses: courses.length,
+            totalStudents: await User.countDocuments(),
+            totalSales: await Access.countDocuments({ payment_reference: { $ne: 'scholarship' } }),
+            totalScholarships: await Access.countDocuments({ payment_reference: 'scholarship' })
+        };
+
+        const ownedIds = accessRecords.map(a => a.course_id?.toString());
+        const formattedCourses = courses.map(c => ({
+            ...c,
+            id: c._id,
+            isOwned: ownedIds.includes(c._id.toString())
+        }));
+
+        res.json({ success: true, courses: formattedCourses, stats, ownedIds });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/academy/lessons', async (req, res) => {
+    try {
+        const { email, courseId } = req.body;
         const user = await User.findOne({ email });
-        const access = await Access.findOne({ email, course_id: courseId });
-        if (user?.is_admin || access) {
-            const lessons = await Lesson.find({ course_id: courseId }).sort({ _id: 1 }).lean();
-            const lessonsWithProgress = await Promise.all(lessons.map(async (lesson) => {
-                const prog = await Progress.findOne({ email, lesson_id: lesson._id.toString() });
-                return {
-                    id: lesson._id, title: lesson.title, video: lesson.video_path,
-                    pdf: lesson.pdf_path, watched: prog ? prog.watched : false
-                };
-            }));
-            res.json({ success: true, lessons: lessonsWithProgress, enrollment: access || { payment_reference: 'ADMIN-AUTH' } });
-        } else res.status(403).json({ success: false, message: "Unauthorized." });
+        const hasAccess = await Access.findOne({ email, course_id: courseId });
+
+        if (!user?.is_admin && !hasAccess) {
+            return res.status(403).json({ success: false, message: "Enrollment required." });
+        }
+
+        const lessons = await Lesson.find({ course_id: courseId }).sort({ order: 1, _id: 1 }).lean();
+        const progress = await Progress.find({ email, lesson_id: { $in: lessons.map(l => l._id.toString()) } });
+
+        const enrichedLessons = lessons.map(l => {
+            const p = progress.find(pg => pg.lesson_id === l._id.toString());
+            return {
+                ...l,
+                id: l._id,
+                watched: p ? p.watched : false,
+                lastSeconds: p ? p.last_seconds : 0
+            };
+        });
+
+        res.json({ success: true, lessons: enrichedLessons, enrollment: hasAccess || { payment_reference: 'ADMIN' } });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
 app.post('/api/academy/save-progress', async (req, res) => {
     try {
-        await Progress.findOneAndUpdate({ email: req.body.email, lesson_id: req.body.lessonId }, { last_seconds: req.body.seconds }, { upsert: true });
+        const { email, lessonId, seconds, watched } = req.body;
+        await Progress.findOneAndUpdate(
+            { email, lesson_id: lessonId },
+            { last_seconds: seconds, watched: watched || false, updated_at: Date.now() },
+            { upsert: true }
+        );
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-app.post('/api/academy/mark-watched', async (req, res) => {
+/**
+ * ------------------------------------------------------------
+ * SECTION 3: PAYMENT GATEWAY (PAYSTACK INTEGRATION)
+ * ------------------------------------------------------------
+ */
+
+app.get('/api/paystack/initialize', async (req, res) => {
     try {
-        await Progress.findOneAndUpdate({ email: req.body.email, lesson_id: req.body.lessonId }, { watched: true, updated_at: Date.now() }, { upsert: true });
+        const { email, amount, courseId, title } = req.query;
+        const paystackResponse = await axios.post('https://api.paystack.co/transaction/initialize', {
+            email,
+            amount: Math.round(Number(amount) * 100), 
+            metadata: { courseId, courseTitle: title },
+            callback_url: `${process.env.BASE_URL}/verify-payment.html`
+        }, {
+            headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` }
+        });
+        
+        res.redirect(paystackResponse.data.data.authorization_url);
+    } catch (err) {
+        res.status(500).send("Payment system currently unavailable.");
+    }
+});
+
+app.post('/api/paystack/verify', async (req, res) => {
+    try {
+        const { reference, email } = req.body;
+        const verifyRes = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+            headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` }
+        });
+
+        if (verifyRes.data.data.status === 'success') {
+            const { courseId, courseTitle } = verifyRes.data.data.metadata;
+            const cleanEmail = email.toLowerCase();
+            const user = await User.findOne({ email: cleanEmail });
+
+            await Access.findOneAndUpdate(
+                { email: cleanEmail, course_id: courseId },
+                { payment_reference: reference },
+                { upsert: true }
+            );
+
+            await resend.emails.send({
+                from: process.env.MAIL_SENDER,
+                to: cleanEmail,
+                subject: `Payment Confirmed: ${courseTitle}`,
+                html: brandedEmail(`
+                    <p>Success! Your payment for <b>${courseTitle}</b> has been confirmed. You now have full lifetime access to this course.</p>
+                    <div class="badge">
+                        <strong>Transaction ID:</strong> ${reference}<br>
+                        <strong>Status:</strong> Enrollment Activated
+                    </div>
+                    <p>Click the button below to start your first lesson!</p>
+                `, user?.name || "Student", `${process.env.BASE_URL}/academy.html`)
+            });
+
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: "Payment not successful." });
+        }
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+/**
+ * ------------------------------------------------------------
+ * SECTION 4: ADMIN COMMAND CENTER
+ * ------------------------------------------------------------
+ */
+
+app.post('/api/academy/add-course', async (req, res) => {
+    try {
+        const newCourse = new Course(req.body);
+        await newCourse.save();
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// --- 3. DISCUSSION SYSTEM ---
+app.post('/api/academy/add-lesson', upload.fields([{ name: 'video' }, { name: 'pdf' }]), async (req, res) => {
+    try {
+        const lessonData = {
+            course_id: req.body.courseId,
+            title: req.body.title,
+            video_path: req.files['video'] ? `uploads/${req.files['video'].filename}` : null,
+            pdf_path: req.files['pdf'] ? `uploads/${req.files['pdf'].filename}` : null,
+            order: req.body.order || 0
+        };
+        const lesson = new Lesson(lessonData);
+        await lesson.save();
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/academy/grant-access', async (req, res) => {
+    try {
+        const { email, courseId, type } = req.body;
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) return res.status(404).json({ success: false, message: "User not found." });
+
+        let emailBody = "";
+        let subject = "Hub Access Granted";
+
+        if (type === 'all') {
+            const allCourses = await Course.find();
+            for (let c of allCourses) {
+                await Access.findOneAndUpdate({ email: email.toLowerCase(), course_id: c._id }, { payment_reference: 'scholarship' }, { upsert: true });
+            }
+            subject = "Full Academy Scholarship Awarded";
+            emailBody = `
+                <p>Congratulations! We are pleased to inform you that you have been awarded a <b>Full Institutional Scholarship</b>.</p>
+                <p>You now have unrestricted access to <b>EVERY course (${allCourses.length} courses)</b> currently available in our library.</p>
+                <p>Your enrollment has been manually activated by the administration. Happy learning!</p>
+            `;
+        } else {
+            const course = await Course.findById(courseId);
+            await Access.findOneAndUpdate({ email: email.toLowerCase(), course_id: courseId }, { payment_reference: 'manual_grant' }, { upsert: true });
+            subject = `Course Access Unlocked: ${course.title}`;
+            emailBody = `<p>An administrator has manually activated your access to the premium course: <b>${course.title}</b>. You can now access all its resources in your dashboard.</p>`;
+        }
+
+        await resend.emails.send({
+            from: process.env.MAIL_SENDER,
+            to: email,
+            subject: subject,
+            html: brandedEmail(emailBody, user.name, `${process.env.BASE_URL}/academy.html`)
+        });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+/**
+ * ------------------------------------------------------------
+ * SECTION 5: LIBRARY & PUBLIC SETTINGS
+ * ------------------------------------------------------------
+ */
+
+app.post('/api/library/add', upload.single('file'), async (req, res) => {
+    try {
+        const item = new Library({
+            ...req.body,
+            file_url: req.file ? `uploads/${req.file.filename}` : null
+        });
+        await item.save();
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/library/all', async (req, res) => {
+    try {
+        const items = await Library.find().sort({ upload_date: -1 });
+        res.json(items.map(i => ({ ...i._doc, id: i._id })));
+    } catch (err) { res.status(500).json([]); }
+});
+
+app.get('/api/public-settings', async (req, res) => {
+    try {
+        const settings = await Setting.findOne() || await Setting.create({ siteName: "NATER HUB" });
+        res.json({ success: true, ...settings._doc });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/update-settings', async (req, res) => {
+    try {
+        await Setting.findOneAndUpdate({}, req.body, { upsert: true });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+/**
+ * ------------------------------------------------------------
+ * SECTION 6: DISCUSSION SYSTEM
+ * ------------------------------------------------------------
+ */
+
 app.post('/api/academy/get-comments', async (req, res) => {
     try {
         const comments = await Comment.find({ lesson_id: req.body.lessonId }).sort({ created_at: -1 });
@@ -345,257 +536,45 @@ app.post('/api/academy/post-comment', async (req, res) => {
 
 app.post('/api/academy/reply-comment', async (req, res) => {
     try {
-        const comment = await Comment.findByIdAndUpdate(req.body.commentId, { admin_reply: req.body.reply });
+        const { commentId, reply } = req.body;
+        const comment = await Comment.findByIdAndUpdate(commentId, { admin_reply: reply });
         if (comment) {
-            await transporter.sendMail({ 
-                from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`, 
-                to: comment.email, 
-                subject: "Instructor Replied to Your Question", 
+            await resend.emails.send({
+                from: process.env.MAIL_SENDER,
+                to: comment.email,
+                subject: "New Instructor Response",
                 html: brandedEmail(`
-                    <p>An instructor has replied to your question in the lesson discussion.</p>
-                    <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #b71c1c; margin: 20px 0;">
-                        <b>Reply:</b> ${req.body.reply}
+                    <p>An instructor has responded to your question in the lesson discussion area:</p>
+                    <div class="badge">
+                        " ${reply} "
                     </div>
-                    <p>Log in to the academy to continue the conversation.</p>
-                `, comment.user_name),
-                attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
+                    <p>Click below to view the response and continue the discussion.</p>
+                `, comment.user_name, `${process.env.BASE_URL}/academy.html`)
             });
         }
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-app.post('/api/academy/delete-comment', async (req, res) => {
-    try {
-        await Comment.findByIdAndDelete(req.body.id);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+/**
+ * ------------------------------------------------------------
+ * SECTION 7: STATIC PAGE ROUTES
+ * ------------------------------------------------------------
+ */
+
+app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+app.get('/academy.html', (req, res) => res.sendFile(path.join(__dirname, 'academy.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/certificate.html', (req, res) => res.sendFile(path.join(__dirname, 'certificate.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+// Start Server
+app.listen(PORT, () => {
+    console.log(`
+    ================================================
+    🚀 NATER HUB ENGINE ACTIVATED
+    📡 PORT: ${PORT}
+    🌐 BASE URL: ${process.env.BASE_URL}
+    ================================================
+    `);
 });
-
-// --- 4. CERTIFICATE VERIFICATION ---
-app.post('/api/verify-certificate', async (req, res) => {
-    const { certId, email, courseId } = req.body; 
-    try {
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(404).json({ success: false });
-        if (certId === "ADMIN-AUTH" || certId === "SCHOLAR-AUTH") {
-            const course = await Course.findById(courseId) || await Course.findOne();
-            return res.json({ success: true, studentName: user.name, courseName: course.title });
-        }
-        const access = await Access.findOne({ payment_reference: certId, email: email.toLowerCase() }).populate('course_id');
-        if (access) {
-            res.json({ success: true, studentName: user.name, courseName: access.course_id?.title || "HUB COURSE" });
-        } else res.status(404).json({ success: false });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- 5. ADMIN COMMAND CENTER ---
-app.get('/api/public-settings', async (req, res) => {
-    try {
-        const data = await Setting.findOne();
-        res.json({ success: true, ...data?._doc, siteName: data?.siteName || "NATER LEARNING HUB" });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/update-settings', async (req, res) => {
-    try {
-        await Setting.findOneAndUpdate({}, req.body, { upsert: true });
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/update-news', async (req, res) => {
-    try {
-        await Setting.findOneAndUpdate({}, { announcement: req.body.news }, { upsert: true });
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- 6. ACADEMY OPERATIONS ---
-
-app.post('/api/academy/add-course', async (req, res) => {
-    try {
-        const course = new Course(req.body);
-        await course.save();
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/academy/edit-course', async (req, res) => {
-    try {
-        await Course.findByIdAndUpdate(req.body.id, req.body);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/academy/add-lesson', upload.fields([{ name: 'video' }, { name: 'pdf' }]), async (req, res) => {
-    try {
-        const lesson = new Lesson({
-            course_id: req.body.courseId, title: req.body.title,
-            video_path: req.files['video'] ? `uploads/${req.files['video'][0].filename}` : null,
-            pdf_path: req.files['pdf'] ? `uploads/${req.files['pdf'][0].filename}` : null
-        });
-        await lesson.save();
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/academy/all-courses', async (req, res) => {
-    try {
-        const courses = await Course.find().sort({ _id: -1 }).lean();
-        const accessRecords = await Access.find({ email: req.body.email });
-        const courseCount = courses.length;
-        const registeredCount = await User.countDocuments();
-        
-        const ownedIds = accessRecords
-            .map(a => a.course_id ? a.course_id.toString() : null)
-            .filter(id => id !== null);
-        
-        const scholarCount = await Access.countDocuments({ payment_reference: 'manual' });
-        const purchaserCount = await Access.countDocuments({ payment_reference: { $ne: 'manual' } });
-
-        const formatted = courses.map(c => ({ ...c, id: c._id.toString() }));
-        res.json({ success: true, courses: formatted, ownedIds, courseCount, registeredCount, scholarCount, purchaserCount });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/academy/grant-access', async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.body.email.toLowerCase() });
-        if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
-        if (req.body.type === 'all') {
-            const courses = await Course.find();
-            for(let c of courses) await Access.findOneAndUpdate({ email: req.body.email, course_id: c._id }, { payment_reference: 'manual' }, { upsert: true });
-        } else {
-            await Access.findOneAndUpdate({ email: req.body.email, course_id: req.body.courseId }, { payment_reference: 'manual' }, { upsert: true });
-        }
-
-        // Notify user
-        await transporter.sendMail({
-            from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
-            to: user.email,
-            subject: "Course Access Granted – Nater Learning Hub",
-            html: brandedEmail(`
-                <p>You have been granted access to a course on Nater Learning Hub by an administrator.</p>
-                <p>You can now log in and start learning immediately. Visit your dashboard to access the new content in your academy.</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="${process.env.BASE_URL}/academy.html" style="background: #b71c1c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">GO TO MY ACADEMY</a>
-                </div>
-            `, user.name),
-            attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
-        });
-
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/academy/delete-course', async (req, res) => {
-    try {
-        await Lesson.deleteMany({ course_id: req.body.id });
-        await Course.findByIdAndDelete(req.body.id);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- 7. LIBRARY REPOSITORY ---
-app.post('/api/library/add', upload.single('file'), async (req, res) => {
-    try {
-        const item = new Library({ ...req.body, file_url: req.file ? `uploads/${req.file.filename}` : null });
-        await item.save();
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/library/all', async (req, res) => {
-    try {
-        const result = await Library.find().sort({ _id: -1 });
-        const formatted = result.map(item => ({ ...item._doc, id: item._id, courseCode: item.course_code, fileURL: item.file_url }));
-        res.json(formatted);
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.post('/api/library/delete', async (req, res) => {
-    try {
-        await Library.findByIdAndDelete(req.body.id);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- 8. PAYSTACK INTEGRATION ---
-
-app.post('/api/paystack/verify', async (req, res) => {
-    try {
-        const { reference, email } = req.body;
-        if (!reference || reference === 'manual') return res.status(400).json({ success: false });
-
-        let payRes;
-        try {
-            payRes = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, { 
-                headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` } 
-            });
-        } catch (e) { return res.status(400).json({ success: false, message: "Reference not found." }); }
-        
-        if (payRes.data.data.status === 'success') {
-            const courseId = payRes.data.data.metadata?.courseId;
-            const courseTitle = payRes.data.data.metadata?.courseTitle || "Premium Course";
-            if (!courseId) return res.status(400).json({ success: false });
-
-            await Access.findOneAndUpdate(
-                { email: email.toLowerCase(), course_id: courseId }, 
-                { payment_reference: reference }, 
-                { upsert: true }
-            );
-
-            // Fetch User for the name
-            const user = await User.findOne({ email: email.toLowerCase() });
-
-            // Notify user of purchase
-            await transporter.sendMail({
-                from: `"NATER LEARNING HUB" <${process.env.EMAIL_USER}>`,
-                to: email.toLowerCase(),
-                subject: "Course Purchase Confirmed – Nater Learning Hub",
-                html: brandedEmail(`
-                    <p>Your payment has been successfully verified. You now have full access to the course you purchased.</p>
-                    <div style="background: #fff8e1; border: 1px solid #ffd54f; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                        <b style="color: #b71c1c;">Purchased Course:</b> ${courseTitle}
-                    </div>
-                    <p>To begin learning, log in to your dashboard and open the academy section. We wish you success in your learning journey!</p>
-                    <div style="text-align: center; margin: 25px 0;">
-                        <a href="${process.env.BASE_URL}/academy.html" style="background: #1a1a1a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">START LEARNING NOW</a>
-                    </div>
-                `, user?.name || "Student"),
-                attachments: [{ filename: 'logo.jpg', path: path.join(__dirname, 'logo.jpg'), cid: 'logo' }]
-            });
-
-            res.json({ success: true });
-        } else res.status(400).json({ success: false });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/paystack/initialize', async (req, res) => {
-    try {
-        const { email, amount, courseId, title } = req.query;
-        const response = await axios.post('https://api.paystack.co/transaction/initialize', {
-            email, amount: Number(amount) * 100, metadata: { courseId, courseTitle: title },
-            callback_url: `${process.env.BASE_URL}/verify-payment.html`
-        }, { headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` } });
-        res.redirect(response.data.data.authorization_url);
-    } catch (err) { res.status(500).send("Init Error"); }
-});
-
-// --- 9. INSTANT BRANDING & PAGE SERVERS ---
-app.get('/api/branding/instant', async (req, res) => {
-    try {
-        const data = await Setting.findOne().lean();
-        res.json({ success: true, ...data });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.get('/dashboard.html', (req, res) => { res.sendFile(path.join(__dirname, 'dashboard.html')); });
-app.get('/academy.html', (req, res) => { res.sendFile(path.join(__dirname, 'academy.html')); });
-app.get('/admin.html', (req, res) => { res.sendFile(path.join(__dirname, 'admin.html')); });
-app.get('/certificate.html', (req, res) => { res.sendFile(path.join(__dirname, 'certificate.html')); });
-
-const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 NATER HUB ONLINE ON PORT ${PORT}`));
