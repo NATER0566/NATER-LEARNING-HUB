@@ -2,11 +2,9 @@
  * ============================================================
  * NATER LEARNING HUB - CENTRAL SERVER ENGINE
  * ============================================================
- * Version: 3.1.1 (Professional Production - UI Updated)
+ * Version: 3.2.2 (Stats Logic Fix & Secure Verification)
  * Framework: Express.js | Database: MongoDB
  * Email Service: Resend | Payments: Paystack
- * Description: High-end education platform with dynamic 
- * scholarship granting and branded communication.
  * ============================================================
  */
 
@@ -89,6 +87,8 @@ const settingSchema = new mongoose.Schema({
     tagline: String,
     avatar: String,
     announcement: String,
+    contentType: String,
+    contentValue: String,
     maintenance_mode: { type: Boolean, default: false },
     orbData: String 
 });
@@ -297,11 +297,20 @@ app.post('/api/academy/all-courses', async (req, res) => {
         const courses = await Course.find().sort({ created_at: -1 }).lean();
         const accessRecords = await Access.find({ email: email?.toLowerCase() });
         
+        // RE-CALIBRATED STATS LOGIC
+        const scholarshipTypes = ['scholarship', 'manual_grant'];
+
         const stats = {
             totalCourses: courses.length,
             totalStudents: await User.countDocuments(),
-            totalSales: await Access.countDocuments({ payment_reference: { $ne: 'scholarship' } }),
-            totalScholarships: await Access.countDocuments({ payment_reference: 'scholarship' })
+            // COUNT ONLY PAYSTACK / PAID TRANSACTIONS
+            totalSales: await Access.countDocuments({ 
+                payment_reference: { $exists: true, $nin: scholarshipTypes } 
+            }),
+            // COUNT ONLY SCHOLARSHIPS / MANUAL GRANTS
+            totalScholarships: await Access.countDocuments({ 
+                payment_reference: { $in: scholarshipTypes } 
+            })
         };
 
         const ownedIds = accessRecords.map(a => a.course_id?.toString());
@@ -313,6 +322,21 @@ app.post('/api/academy/all-courses', async (req, res) => {
 
         res.json({ success: true, courses: formattedCourses, stats, ownedIds });
     } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/academy/all-content-detailed', async (req, res) => {
+    try {
+        const courses = await Course.find().sort({ created_at: -1 }).lean();
+        const coursesWithLessons = await Promise.all(courses.map(async (course) => {
+            const lessons = await Lesson.find({ course_id: course._id }).sort({ order: 1 }).lean();
+            return {
+                ...course,
+                id: course._id,
+                lessons: lessons.map(l => ({ ...l, id: l._id }))
+            };
+        }));
+        res.json({ success: true, courses: coursesWithLessons });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 app.post('/api/academy/lessons', async (req, res) => {
@@ -431,19 +455,21 @@ app.post('/api/academy/add-course', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-app.post('/api/academy/add-lesson', upload.fields([{ name: 'video' }, { name: 'pdf' }]), async (req, res) => {
+app.post('/api/academy/add-lesson', upload.fields([{ name: 'video', maxCount: 1 }, { name: 'pdf', maxCount: 1 }]), async (req, res) => {
     try {
         const lessonData = {
             course_id: req.body.courseId,
             title: req.body.title,
-            video_path: req.files['video'] ? `uploads/${req.files['video'].filename}` : null,
-            pdf_path: req.files['pdf'] ? `uploads/${req.files['pdf'].filename}` : null,
+            video_path: req.files['video'] ? `uploads/${req.files['video'][0].filename}` : null,
+            pdf_path: req.files['pdf'] ? `uploads/${req.files['pdf'][0].filename}` : null,
             order: req.body.order || 0
         };
         const lesson = new Lesson(lessonData);
         await lesson.save();
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false, message: err.message }); 
+    }
 });
 
 app.post('/api/academy/grant-access', async (req, res) => {
@@ -483,16 +509,75 @@ app.post('/api/academy/grant-access', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+app.post('/api/academy/delete-course', async (req, res) => {
+    try {
+        await Course.findByIdAndDelete(req.body.id);
+        await Lesson.deleteMany({ course_id: req.body.id });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/academy/delete-lesson', async (req, res) => {
+    try {
+        await Lesson.findByIdAndDelete(req.body.id);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
 /**
  * ------------------------------------------------------------
- * SECTION 5: LIBRARY & PUBLIC SETTINGS
+ * SECTION 5: LIBRARY, SETTINGS & VERIFICATION
  * ------------------------------------------------------------
  */
+
+// --- SECURE CERTIFICATE VERIFICATION ENDPOINT ---
+app.post('/api/verify-certificate', async (req, res) => {
+    try {
+        const { certId, email } = req.body;
+
+        if (!certId || !email) {
+            return res.status(400).json({ success: false, message: "Certificate ID and Registered Email are required for validation." });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanId = certId.trim();
+
+        const accessRecord = await Access.findOne({ 
+            payment_reference: cleanId, 
+            email: cleanEmail 
+        });
+
+        if (!accessRecord) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Verification Failed: This Certificate ID does not match the provided email address." 
+            });
+        }
+
+        const course = await Course.findById(accessRecord.course_id);
+        const user = await User.findOne({ email: cleanEmail });
+
+        res.json({
+            success: true,
+            studentName: user ? user.name : "Nater Hub Student",
+            courseTitle: course ? course.title : "Premium Course",
+            date: accessRecord.granted_at
+        });
+
+    } catch (err) {
+        console.error("Verification Error:", err);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
 
 app.post('/api/library/add', upload.single('file'), async (req, res) => {
     try {
         const item = new Library({
-            ...req.body,
+            title: req.body.title,
+            course_code: req.body.courseCode || req.body.course_code,
+            level: req.body.level,
+            semester: req.body.semester,
+            type: req.body.type,
             file_url: req.file ? `uploads/${req.file.filename}` : null
         });
         await item.save();
@@ -500,13 +585,31 @@ app.post('/api/library/add', upload.single('file'), async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+app.post('/api/library/edit', upload.single('file'), async (req, res) => {
+    try {
+        const { id, title, courseCode, level, semester, type } = req.body;
+        const updateData = { title, course_code: courseCode, level, semester, type };
+        if (req.file) updateData.file_url = `uploads/${req.file.filename}`;
+        await Library.findByIdAndUpdate(id, updateData);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/library/delete', async (req, res) => {
+    try {
+        await Library.findByIdAndDelete(req.body.id);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
 app.get('/api/library/all', async (req, res) => {
     try {
         const items = await Library.find().sort({ upload_date: -1 });
-        res.json(items.map(i => ({ ...i._doc, id: i._id })));
+        res.json(items.map(i => ({ ...i._doc, id: i._id, courseCode: i.course_code })));
     } catch (err) { res.status(500).json([]); }
 });
 
+// Settings Endpoints
 app.get('/api/public-settings', async (req, res) => {
     try {
         const settings = await Setting.findOne() || await Setting.create({ siteName: "NATER HUB" });
@@ -521,6 +624,28 @@ app.post('/api/update-settings', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+app.post('/api/update-public-box', async (req, res) => {
+    try {
+        const { contentType, contentValue } = req.body;
+        await Setting.findOneAndUpdate({}, { contentType, contentValue }, { upsert: true });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/update-news', async (req, res) => {
+    try {
+        await Setting.findOneAndUpdate({}, { announcement: req.body.news }, { upsert: true });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/update-orb', async (req, res) => {
+    try {
+        await Setting.findOneAndUpdate({}, { orbData: JSON.stringify(req.body) }, { upsert: true });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
 /**
  * ------------------------------------------------------------
  * SECTION 6: DISCUSSION SYSTEM
@@ -530,7 +655,7 @@ app.post('/api/update-settings', async (req, res) => {
 app.post('/api/academy/get-comments', async (req, res) => {
     try {
         const comments = await Comment.find({ lesson_id: req.body.lessonId }).sort({ created_at: -1 });
-        res.json({ success: true, comments });
+        res.json({ success: true, comments: comments.map(c => ({ ...c._doc, id: c._id })) });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
@@ -550,7 +675,7 @@ app.post('/api/academy/reply-comment', async (req, res) => {
             await resend.emails.send({
                 from: process.env.MAIL_SENDER,
                 to: comment.email,
-                subject: "New Instructor Response",
+                subject: "New Response to your Question",
                 html: brandedEmail(`
                     <p>An instructor has responded to your question in the lesson discussion area:</p>
                     <div class="badge">
@@ -560,6 +685,13 @@ app.post('/api/academy/reply-comment', async (req, res) => {
                 `, comment.user_name, `${process.env.BASE_URL}/academy.html`)
             });
         }
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/academy/delete-comment', async (req, res) => {
+    try {
+        await Comment.findByIdAndDelete(req.body.id);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
