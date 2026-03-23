@@ -165,10 +165,6 @@
         </div>
 
         <div class="list-group list-group-flush">
-            <div class="list-group-item border-bottom bg-light fw-bold" onclick="window.location.href='funder.html'">
-                <i class="fas fa-id-card text-danger"></i> Founder's Biography
-            </div>
-
             <div id="adminPanelLink" class="list-group-item text-success fw-bold border-bottom" style="display: none;" onclick="window.location.href='admin.html'">
                 <i class="fas fa-user-shield"></i>Admin Panel
             </div>
@@ -213,7 +209,7 @@
 
         <div class="card-helper full-width" id="sec-ann">
             <h6><i class="fas fa-bullhorn me-2 text-danger"></i>Notice Board</h6>
-            <div id="list-announcements"><div class="p-2 small text-muted">Loading notice board...</div></div>
+            <div id="list-announcements"><div class="p-2 small text-muted">No active announcements.</div></div>
         </div>
 
         <div class="card-helper" id="sec-premium">
@@ -283,30 +279,18 @@
 
     function parseJwt(token) {
         try {
-            const base64Url = token.split('.');
+            const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             return JSON.parse(window.atob(base64));
         } catch (e) { return null; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // ASAP LOAD: Immediately show cached numbers/announcements
-        const cachedAcad = localStorage.getItem('cache_acad_count');
-        const cachedLib = localStorage.getItem('cache_lib_count');
-        const cachedAnn = localStorage.getItem('cache_announcement');
-        
-        if(cachedAcad) document.getElementById('academyCount').innerText = cachedAcad;
-        if(cachedLib) document.getElementById('libraryCount').innerText = cachedLib;
-        if(cachedAnn) {
-            document.getElementById('tickerText').innerText = cachedAnn;
-            document.getElementById('list-announcements').innerHTML = `<div class="p-2 border-bottom small">${cachedAnn}</div>`;
-        }
-
         init();
         setInterval(() => {
             loadAdminData();
             updateCounters();
-        }, 8000); 
+        }, 5000); 
     });
 
     async function init() {
@@ -328,7 +312,6 @@
 
         loadSavedGpa(); 
         renderTasks();
-        // Load fresh data immediately after init
         loadAdminData();
         updateCounters();
     }
@@ -344,7 +327,6 @@
                 if(data.announcement) {
                     ticker.innerText = data.announcement;
                     list.innerHTML = `<div class="p-2 border-bottom small">${data.announcement}</div>`;
-                    localStorage.setItem('cache_announcement', data.announcement);
                 }
 
                 if(data.orbData) {
@@ -376,18 +358,10 @@
             ]);
             
             const acadData = await acadRes.json();
-            if(acadData.success) {
-                const text = acadData.courses.length + " Courses";
-                document.getElementById('academyCount').innerText = text;
-                localStorage.setItem('cache_acad_count', text);
-            }
+            if(acadData.success) document.getElementById('academyCount').innerText = acadData.courses.length + " Courses";
 
             const libData = await libRes.json();
-            if(Array.isArray(libData)) {
-                const text = libData.length + " Files";
-                document.getElementById('libraryCount').innerText = text;
-                localStorage.setItem('cache_lib_count', text);
-            }
+            if(Array.isArray(libData)) document.getElementById('libraryCount').innerText = libData.length + " Files";
         } catch (e) { console.log("Counter Sync Error"); }
     }
 
@@ -397,7 +371,7 @@
             title: orbEl.dataset.title || 'New Announcement',
             text: orbEl.dataset.msg || 'The admin has shared a new update.',
             icon: 'info',
-            showCancelButton: !!orbEl.dataset.url,
+            showCancelButton: orbEl.dataset.url ? true : false,
             confirmButtonText: orbEl.dataset.url ? 'Open Link' : 'Got it!',
             cancelButtonText: 'Close'
         }).then((result) => {
@@ -512,16 +486,16 @@
     }
 
     function uploadAvatar(input) {
-        if (input.files && input.files) {
+        if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const imgBase64 = e.target.result;
                 document.getElementById('userAvatar').src = imgBase64;
-                const user = parseJwt(token);
-                if(user) localStorage.setItem(`profile_pic_${user.email}`, imgBase64);
+                const email = parseJwt(token).email;
+                localStorage.setItem(`profile_pic_${email}`, imgBase64);
                 showToast('success', 'Profile picture updated');
             };
-            reader.readAsDataURL(input.files);
+            reader.readAsDataURL(input.files[0]);
         }
     }
 
