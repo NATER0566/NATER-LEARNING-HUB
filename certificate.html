@@ -56,7 +56,6 @@
         .logo-nater { font-family: 'Cinzel', serif; font-size: 42px; font-weight: 900; color: #d4af37; text-transform: uppercase; }
         .logo-hub { font-family: 'Cinzel', serif; font-size: 42px; font-weight: 900; color: #d32f2f; text-transform: uppercase; }
         
-        /* BOLD LARGE NAME: Stays large, wraps if necessary */
         #displayName { 
             font-size: 52px; 
             font-weight: 900; 
@@ -65,12 +64,11 @@
             text-transform: uppercase; 
             margin: 10px auto; 
             display: inline-block;
-            max-width: 95%; /* Use almost full width */
-            word-wrap: break-word; /* Wrap long names */
+            max-width: 95%;
+            word-wrap: break-word;
             line-height: 1.2;
         }
 
-        /* BOLD LARGE COURSE: prominent and clear */
         #displayCourse { 
             font-size: 32px; 
             color: #d4af37; 
@@ -85,7 +83,6 @@
         .sig-zone { text-align: right; }
         .sig-font { font-family: 'Dancing Script', cursive; font-size: 45px; font-weight: 900; }
 
-        /* VERIFICATION ID: Secure Black Badge with Gold Border */
         .id-badge { 
             font-size: 13px; 
             font-weight: 900; 
@@ -93,7 +90,7 @@
             color: #fff; 
             padding: 10px 25px; 
             border-radius: 4px; 
-            border: 3px solid var(--gold); /* Bold gold border */
+            border: 3px solid var(--gold);
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -129,7 +126,7 @@
 <div id="inputSection" class="no-print">
     <div class="claim-wrapper">
         <div id="siteIdentity">
-            <span class="brand-nater" id="siteNameNater">NATER</span> <span class="brand-hub" id="siteNameHub">GENIUS</span>
+            <span class="brand-nater" id="siteNameNater">NATER</span> <span class="brand-hub" id="siteNameHub">HUB</span>
         </div>
         <p style="color: #d4af37; font-weight: 800; font-size: 1.1rem; letter-spacing: 2px;" id="siteTagline">OFFICIAL CERTIFICATE PORTAL</p>
         <input type="text" id="certIdInput" class="id-input" placeholder="PASTE VERIFICATION ID">
@@ -145,7 +142,7 @@
     <div id="scaler">
         <div class="cert" id="printableCert">
             <div>
-                <span class="logo-nater" id="certNameNater">NATER</span><span class="logo-hub" id="certNameHub"> GENIUS</span>
+                <span class="logo-nater" id="certNameNater">NATER</span><span class="logo-hub" id="certNameHub"> HUB</span>
                 <p style="letter-spacing: 5px; font-weight: 900; text-transform: uppercase; color: #666; margin-top: 8px;">Certificate of Professional Completion</p>
             </div>
             
@@ -178,6 +175,7 @@
         fetchBranding();
         const urlParams = new URLSearchParams(window.location.search);
         const autoId = urlParams.get('certId'); 
+        
         if(autoId) {
             document.getElementById('certIdInput').value = autoId;
             validateId();
@@ -191,7 +189,7 @@
             const res = await fetch('/api/public-settings');
             const data = await res.json();
             if(data.success) {
-                const nameParts = (data.siteName || 'NATER GENIUS').split(' ');
+                const nameParts = (data.siteName || 'NATER HUB').split(' ');
                 const naterPart = nameParts[0];
                 const hubPart = nameParts.slice(1).join(' ');
 
@@ -206,28 +204,35 @@
     }
 
     async function validateId() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const userEmail = urlParams.get('u'); 
-        const courseId = urlParams.get('course');
         const certId = document.getElementById('certIdInput').value.trim();
         
+        if (!certId) {
+            return Swal.fire('Missing ID', 'Please paste your Verification ID to proceed.', 'warning');
+        }
+
         document.getElementById('loader').style.display = 'flex';
 
         try {
             const response = await fetch('/api/verify-certificate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ certId, email: userEmail, courseId: courseId }) 
+                body: JSON.stringify({ certId }) 
             });
             const data = await response.json();
 
             if (data.success) {
                 document.getElementById('displayName').innerText = data.studentName;
-                document.getElementById('displayCourse').innerText = data.courseName;
+                document.getElementById('displayCourse').innerText = data.courseTitle; 
                 document.getElementById('displayId').innerText = "VERIFICATION ID: " + certId;
-                document.getElementById('displayDate').innerText = "DATE: " + new Date().toLocaleDateString('en-GB');
+                
+                const certDate = new Date(data.date).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                document.getElementById('displayDate').innerText = "DATE: " + certDate;
 
-                const verifyUrl = `${window.location.origin}/certificate.html?certId=${certId}&u=${userEmail}&course=${courseId}`;
+                const verifyUrl = `${window.location.origin}/certificate.html?certId=${certId}`;
                 document.getElementById('displayQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(verifyUrl)}&margin=10`;
 
                 document.getElementById('inputSection').style.display = 'none';
@@ -236,11 +241,11 @@
                 handleScaling();
             } else {
                 document.getElementById('loader').style.display = 'none';
-                Swal.fire('Invalid ID', 'Credential verification failed.', 'error');
+                Swal.fire('Access Denied', data.message || 'Credential verification failed.', 'error');
             }
         } catch (error) {
             document.getElementById('loader').style.display = 'none';
-            Swal.fire('Error', 'Server connection error.', 'error');
+            Swal.fire('Server Error', 'Could not connect to verification server.', 'error');
         }
     }
 
