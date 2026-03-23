@@ -17,197 +17,121 @@
     
     <style>
         :root { --red: #d32f2f; --gold: #FFD700; --bg: #0a0a0a; --brand-red: #d32f2f; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: white; min-height: 100vh; user-select: none; -webkit-user-select: none; overflow-x: hidden; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: white; min-height: 100vh; user-select: none; -webkit-user-select: none; }
         
-        /* --- HIGH-INTENSITY CELESTIAL LOADER --- */
-        #masterSyncScreen {
-            position: fixed; inset: 0; background: radial-gradient(circle at center, #2b0000 0%, #000 100%);
-            z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .celestial-container { position: relative; width: 180px; height: 180px; margin-bottom: 40px; }
-        
-        .core-orb {
-            position: absolute; inset: 15%; background: #b71c1c; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: #FFD700;
-            font-size: 3.5rem; z-index: 5;
-            box-shadow: 0 0 80px #ff1a1a, inset 0 0 30px rgba(255,255,255,0.9);
-            animation: corePlumbing 1.2s infinite alternate ease-in-out;
-        }
-
-        .star-layer {
-            position: absolute; inset: -20px; border: 6px solid transparent; border-radius: 50%;
-            animation: rotateStar 2s linear infinite;
-        }
-        .refractive { 
-            border-top: 8px solid var(--gold); border-bottom: 8px solid var(--gold); 
-            filter: blur(1px) drop-shadow(0 0 40px var(--gold));
-            animation-duration: 1.5s;
-        }
-        .reflective { 
-            border-left: 8px solid #fff; border-right: 8px solid #fff; 
-            opacity: 0.9; filter: drop-shadow(0 0 50px #fff);
-            animation-direction: reverse; animation-duration: 3s;
-        }
-        .shining-flares {
-            position: absolute; inset: -50px; border: 3px dashed rgba(255,255,255,0.5);
-            border-radius: 50%; animation: rotateStar 10s linear infinite;
-            filter: blur(2px);
-        }
-
-        .audio-toggle {
-            position: absolute; top: 30px; right: 30px; background: rgba(255,255,255,0.1);
-            border: 1px solid var(--gold); color: var(--gold); border-radius: 50px;
-            padding: 8px 20px; font-size: 12px; font-weight: 800; cursor: pointer;
-            z-index: 100000; transition: 0.3s;
-        }
-
-        .sync-text { text-align: center; font-family: 'Cinzel', serif; z-index: 10; }
-        .main-msg { display: block; color: #fff; font-size: 1.6rem; font-weight: 900; letter-spacing: 5px; margin-bottom: 12px; animation: flashGlow 0.8s infinite alternate; }
-        .sub-msg { color: #aaa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
-
-        @keyframes rotateStar { 
-            0% { transform: rotate(0deg) scale(1); } 
-            50% { transform: rotate(180deg) scale(1.5); }
-            100% { transform: rotate(360deg) scale(1); } 
-        }
-        @keyframes corePlumbing { 
-            from { transform: scale(1) rotate(0deg); filter: brightness(1); } 
-            to { transform: scale(1.5) rotate(20deg); filter: brightness(2); } 
-        }
-        @keyframes flashGlow { from { opacity: 0.3; text-shadow: 0 0 5px #fff; } to { opacity: 1; text-shadow: 0 0 30px #fff, 0 0 50px var(--gold); } }
-
-        /* Content Reveal */
-        #mainContainer { opacity: 0; transition: opacity 1s ease; }
-        body.data-ready #mainContainer { opacity: 1; }
-
-        /* Branding and Stats */
         .brand-logo { margin-bottom: 20px; padding-top: 10px; text-align: center; }
         .brand-nater { font-family: 'Cinzel', serif; font-weight: 900; color: var(--gold); letter-spacing: 3px; font-size: 2.2rem; text-transform: uppercase; }
         .brand-hub { font-family: 'Cinzel', serif; font-weight: 900; color: var(--red); letter-spacing: 3px; font-size: 2.2rem; text-transform: uppercase; }
         .brand-tagline { letter-spacing: 3px; color: #aaa; font-weight: bold; font-size: 0.8rem; margin-top: -5px; text-transform: uppercase; }
-        
+
         .stats-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
         @media (min-width: 850px) { .stats-container { grid-template-columns: repeat(4, 1fr); } }
-        .stat-item { text-align: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border-bottom: 3px solid var(--gold); }
+        
+        .stat-item { text-align: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border-bottom: 3px solid var(--gold); transition: 0.3s; }
         .stat-val { color: var(--gold); font-weight: 900; font-size: 1.5rem; display: block; }
         .stat-lbl { font-size: 0.65rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        
+
         .search-wrapper { max-width: 500px; margin: 0 auto 15px; position: relative; padding: 0 15px; }
         .search-input { background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 50px; padding: 12px 25px 12px 50px; color: white; width: 100%; transition: 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--gold); background: rgba(255,255,255,0.1); }
         .search-icon { position: absolute; left: 35px; top: 15px; color: var(--gold); }
-        
+
         .category-scroll { display: flex; justify-content: flex-start; gap: 12px; overflow-x: auto; padding: 10px 20px; margin-bottom: 25px; scrollbar-width: none; }
-        .cat-btn { background: #1a1a1a; border: 1px solid #333; color: #888; padding: 10px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
-        .cat-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
+        @media (min-width: 768px) { .category-scroll { justify-content: center; } }
         
-        .course-card { background: white; color: #333; border-radius: 20px; overflow: hidden; border-bottom: 6px solid var(--gold); height: 100%; cursor: pointer; transition: 0.3s; }
-        .course-card:hover { transform: translateY(-10px); }
-        
-        /* Video and Overlays */
-        #videoOverlay { display: none; position: fixed; inset: 0; background: #000; z-index: 20000; flex-direction: column; align-items: center; justify-content: center; }
-        .video-wrapper { position: relative; width: 95%; max-width: 1200px; border-radius: 15px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
-        video { width: 100%; height: 100%; display: block; object-fit: contain; }
-        #watermark { position: absolute; color: rgba(255,255,255,0.12); font-weight: bold; pointer-events: none; z-index: 20001; font-size: 1.1rem; }
-        
-        .lesson-item { background: #151515; border-radius: 15px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--red); display: flex; justify-content: space-between; align-items: center; }
+        .cat-btn { background: #1a1a1a; border: 1px solid #333; color: #888; padding: 10px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; transition: 0.3s; }
+        .cat-btn.active { background: var(--gold); color: black; border-color: var(--gold); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
+
+        .nav-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+
+        .lesson-header-branding { text-align: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .course-title-style { font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.8rem; letter-spacing: 2px; }
+
+        .lesson-item { background: #151515; border-radius: 15px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--red); display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
         .lesson-locked { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
 
-        /* Payment Loader - Fixed hidden state */
-        #paymentLoader { display: none !important; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 30000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        body.payment-verifying #paymentLoader { display: flex !important; }
+        .course-card { background: white; color: #333; border-radius: 20px; overflow: hidden; border-bottom: 6px solid var(--gold); transition: 0.3s; height: 100%; cursor: pointer; }
+        
+        #videoOverlay { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 20000; flex-direction: column; align-items: center; justify-content: center; }
+        .video-wrapper { position: relative; width: 95%; max-width: 1200px; border-radius: 15px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+        #watermark { position: absolute; color: rgba(255,255,255,0.12); font-weight: bold; pointer-events: none; z-index: 20001; font-size: 1.1rem; transition: 6s linear; font-family: 'Cinzel', serif; text-shadow: 1px 1px 2px black; top: 10%; left: 10%; }
+        
+        video { width: 100%; height: 100%; display: block; object-fit: contain; }
+
+        #paymentLoader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 30000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .spinner { width: 60px; height: 60px; border: 6px solid #222; border-top: 6px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .cert-card { background: linear-gradient(135deg, #1a1a1a, #000); border: 2px solid var(--gold); border-radius: 15px; padding: 25px; text-align: center; margin-top: 30px; display: none; }
+        .cert-id-box { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 2px dashed var(--gold); font-family: monospace; font-size: 1.5rem; color: var(--gold); margin-bottom: 20px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;" onkeydown="return disableShortcuts(event)">
 
-<div id="masterSyncScreen">
-    <button class="audio-toggle" id="audioBtn" onclick="toggleAudio()"><i class="fas fa-volume-up" id="volIcon"></i> MUTE AUDIO</button>
-    <div class="celestial-container">
-        <div class="shining-flares"></div>
-        <div class="star-layer refractive"></div>
-        <div class="star-layer reflective"></div>
-        <div class="core-orb"><i class="fas fa-cross"></i></div>
-    </div>
-    <div class="sync-text">
-        <span class="main-msg">DIVINE SYNCHRONIZATION</span>
-        <span class="sub-msg">Activating Nater Hub Celestial Portal...</span>
-    </div>
-</div>
-
-<audio id="syncVoice" loop preload="auto">
-    <source src="https://www.soundjay.com/buttons/sounds/button-20.mp3" type="audio/mpeg">
-</audio>
-<audio id="shimmerReveal" preload="auto">
-    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3" type="audio/mpeg">
-</audio>
-
 <div id="paymentLoader"><div class="spinner"></div><h4 class="fw-bold text-white mt-3">VERIFYING PAYMENT...</h4></div>
 
-<div id="mainContainer">
-    <div class="container p-3">
-        <div class="d-flex justify-content-end mb-3">
-            <button class="btn btn-outline-light btn-sm rounded-pill px-4" onclick="window.location.href='dashboard.html'"><i class="fas fa-th-large me-2"></i>DASHBOARD</button>
+<div class="container p-3">
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-outline-light btn-sm rounded-pill px-4" onclick="window.location.href='dashboard.html'"><i class="fas fa-th-large me-2"></i>DASHBOARD</button>
+    </div>
+
+    <div id="galleryView">
+        <div class="brand-logo">
+            <div id="siteIdentity">
+                <span class="brand-nater dyn-site-nater">NATER</span><span class="brand-hub dyn-site-hub">HUB</span>
+            </div>
+            <div class="brand-tagline" id="displayTagline">PREMIUM ACADEMY</div>
         </div>
 
-        <div id="galleryView">
-            <div class="brand-logo">
-                <div id="siteIdentity">
-                    <span class="brand-nater dyn-site-nater">NATER</span><span class="brand-hub dyn-site-hub">HUB</span>
-                </div>
-                <div class="brand-tagline" id="displayTagline">PREMIUM ACADEMY</div>
-            </div>
-
-            <div class="stats-container">
-                <div class="stat-item"><span class="stat-val" id="courseCount">0</span><span class="stat-lbl">Courses</span></div>
-                <div class="stat-item"><span class="stat-val" id="studentCount">0</span><span class="stat-lbl">Students</span></div>
-                <div class="stat-item"><span class="stat-val" id="scholarCount">0</span><span class="stat-lbl">Scholars</span></div>
-                <div class="stat-item"><span class="stat-val" id="purchaserCount">0</span><span class="stat-lbl">Purchasers</span></div>
-            </div>
-
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="courseSearch" class="search-input" placeholder="Search for courses..." onkeyup="applyFilters()">
-            </div>
-
-            <div class="category-scroll" id="categoryTabs">
-                <button class="cat-btn active" onclick="setCategory('All', this)">All</button>
-                <button class="cat-btn" onclick="setCategory('Programming', this)">Programming</button>
-                <button class="cat-btn" onclick="setCategory('Trading', this)">Trading</button>
-                <button class="cat-btn" onclick="setCategory('Design', this)">Design</button>
-                <button class="cat-btn" onclick="setCategory('Marketing', this)">Marketing</button>
-            </div>
-
-            <div class="nav-container d-flex justify-content-center gap-2 flex-wrap mb-4">
-                <button class="btn btn-warning rounded-pill px-4 fw-bold shadow" onclick="resetView()">EXPLORE ALL</button>
-                <button class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow" onclick="filterPurchased()">MY COURSES</button>
-                <a href="verify-payment.html" class="btn btn-outline-danger rounded-pill px-4 fw-bold shadow"><i class="fas fa-receipt me-2"></i>VERIFY PAYMENT</a>
-                <a href="verify-certificate.html" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow"><i class="fas fa-certificate me-2"></i>VERIFY CERTIFICATE</a>
-            </div>
-
-            <div id="courseGrid" class="row g-4 text-start"></div>
+        <div class="stats-container">
+            <div class="stat-item"><span class="stat-val" id="courseCount">0</span><span class="stat-lbl">Courses</span></div>
+            <div class="stat-item"><span class="stat-val" id="studentCount">0</span><span class="stat-lbl">Students</span></div>
+            <div class="stat-item"><span class="stat-val" id="scholarCount">0</span><span class="stat-lbl">Scholars</span></div>
+            <div class="stat-item"><span class="stat-val" id="purchaserCount">0</span><span class="stat-lbl">Purchasers</span></div>
         </div>
 
-        <div id="lessonView" style="display:none;">
-            <div class="mb-4 text-warning fw-bold" style="cursor:pointer;" onclick="location.reload()"><i class="fas fa-arrow-left me-2"></i> BACK TO HUB</div>
-            <div class="lesson-header-branding">
-                <span class="brand-nater course-title-style dyn-site-nater"></span><span class="brand-hub course-title-style dyn-site-hub"></span>
-            </div>
-            <div id="lessonList"></div>
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="courseSearch" class="search-input" placeholder="Search for courses..." onkeyup="applyFilters()">
+        </div>
 
-            <div class="cert-card" id="completionCard" style="display:none; background: #111; border: 2px solid var(--gold); border-radius: 15px; padding: 25px; text-align: center; margin-top: 30px;">
-                <h3 class="text-gold fw-bold mb-2"><i class="fas fa-award me-2"></i> COURSE COMPLETED!</h3>
-                <div class="cert-id-box" id="certIdDisplay" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border: 2px dashed var(--gold); font-family: monospace; font-size: 1.5rem; color: var(--gold); margin-bottom: 20px; cursor: pointer;" onclick="copyCertID()">---</div>
-                <button class="btn btn-warning fw-bold px-5" onclick="goToCertificate()">GENERATE CERTIFICATE</button>
-            </div>
+        <div class="category-scroll" id="categoryTabs">
+            <button class="cat-btn active" onclick="setCategory('All', this)">All</button>
+            <button class="cat-btn" onclick="setCategory('Programming', this)">Programming</button>
+            <button class="cat-btn" onclick="setCategory('Trading', this)">Trading</button>
+            <button class="cat-btn" onclick="setCategory('Design', this)">Design</button>
+            <button class="cat-btn" onclick="setCategory('Marketing', this)">Marketing</button>
+        </div>
+
+        <div class="nav-container">
+            <button class="btn btn-warning rounded-pill px-4 fw-bold shadow" onclick="resetView()">EXPLORE ALL</button>
+            <button class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow" onclick="filterPurchased()">MY COURSES</button>
+            <a href="verify-payment.html" class="btn btn-outline-danger rounded-pill px-4 fw-bold shadow"><i class="fas fa-receipt me-2"></i>VERIFY PAYMENT</a>
+            <a href="verify-certificate.html" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow"><i class="fas fa-certificate me-2"></i>VERIFY CERTIFICATE</a>
+        </div>
+
+        <div id="courseGrid" class="row g-4 text-start"></div>
+    </div>
+
+    <div id="lessonView" style="display:none;">
+        <div class="mb-4 text-warning fw-bold" style="cursor:pointer;" onclick="location.reload()"><i class="fas fa-arrow-left me-2"></i> BACK TO HUB</div>
+        <div class="lesson-header-branding">
+            <span class="brand-nater course-title-style dyn-site-nater"></span><span class="brand-hub course-title-style dyn-site-hub"></span>
+        </div>
+        <div id="lessonList"></div>
+
+        <div class="cert-card" id="completionCard">
+            <h3 class="text-gold fw-bold mb-2"><i class="fas fa-award me-2"></i> COURSE COMPLETED!</h3>
+            <p class="text-white small mb-3">Your unique verification ID is below. Click to copy.</p>
+            <div class="cert-id-box" id="certIdDisplay" onclick="copyCertID()">---</div>
+            <button class="btn btn-warning fw-bold px-5" onclick="goToCertificate()">GENERATE CERTIFICATE</button>
         </div>
     </div>
 </div>
 
 <div id="videoOverlay">
     <div class="brand-logo mb-3">
-        <span class="brand-nater dyn-site-nater" style="color:white; font-size:1.5rem;"></span><span class="brand-hub dyn-site-hub" style="font-size:1.5rem;"></span>
+        <span class="brand-nater dyn-site-nater" style="color:black; font-size:1.5rem;"></span><span class="brand-hub dyn-site-hub" style="font-size:1.5rem;"></span>
     </div>
     <div class="video-wrapper">
         <div id="watermark">SECURE SESSION: <span id="wmEmail"></span></div>
@@ -217,43 +141,40 @@
 </div>
 
 <script>
-    // --- AUTH & JWT ---
     const token = localStorage.getItem('token');
     if (!token) window.location.replace('index.html');
-    function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
+
+    // FIXED: Proper JWT decoding
+    function parseJwt(t) { 
+        try { 
+            const base64Url = t.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch (e) { 
+            return null; 
+        } 
+    }
+    
     const student = parseJwt(token);
     if(student) document.getElementById('wmEmail').innerText = student.email;
 
-    // --- INSTANT DATA FETCH ---
-    const settingsPromise = fetch('/api/public-settings').then(res => res.json()).catch(() => ({ success: false }));
-    const coursesPromise = fetch('/api/academy/all-courses', { 
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify({ email: student.email }) 
-    }).then(res => res.json()).catch(() => ({ success: false }));
+    let allCourses = [], currentCategory = 'All', ownedCourseIds = [], showingPurchasedOnly = false;
+    let activeLessons = [], currentCourseId = null, enrollmentData = null;
 
-    // --- AUDIO SYSTEM ---
-    const vAudio = document.getElementById('syncVoice');
-    const sReveal = document.getElementById('shimmerReveal');
-    let isMuted = false;
+    function disableShortcuts(e) { if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) return false; }
 
-    function toggleAudio() {
-        isMuted = !isMuted;
-        vAudio.muted = isMuted;
-        sReveal.muted = isMuted;
-        document.getElementById('volIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-    }
-
-    window.addEventListener('click', () => {
-        if(!isMuted && vAudio.paused) vAudio.play().catch(()=>{});
-    }, { once: false });
-
-    async function init() {
+    (async function init() {
         try {
-            vAudio.play().catch(()=>{});
-
-            const [sData, cData] = await Promise.all([settingsPromise, coursesPromise]);
+            const [settingsRes, courseRes] = await Promise.all([
+                fetch('/api/public-settings'),
+                fetch('/api/academy/all-courses', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ email: student.email }) 
+                })
+            ]);
             
+            const sData = await settingsRes.json();
             if(sData.success) {
                 const nameParts = (sData.siteName || 'NATER HUB').split(' ');
                 document.querySelectorAll('.dyn-site-nater').forEach(el => el.innerText = nameParts[0]);
@@ -261,41 +182,22 @@
                 document.getElementById('displayTagline').innerText = sData.tagline;
             }
 
+            const cData = await courseRes.json();
             if(cData.success) {
                 allCourses = cData.courses || [];
                 ownedCourseIds = cData.ownedIds || [];
-                document.getElementById('courseCount').innerText = cData.courseCount || 0;
-                document.getElementById('studentCount').innerText = cData.registeredCount || 0;
-                document.getElementById('scholarCount').innerText = cData.scholarCount || 0;
-                document.getElementById('purchaserCount').innerText = cData.purchaserCount || 0;
+                
+                // FIXED: Direct stats mapping
+                const stats = cData.stats || {};
+                document.getElementById('courseCount').innerText = stats.totalCourses || 0;
+                document.getElementById('studentCount').innerText = stats.totalStudents || 0;
+                document.getElementById('scholarCount').innerText = stats.totalScholarships || 0;
+                document.getElementById('purchaserCount').innerText = stats.totalSales || 0;
+                
                 applyFilters();
             }
-        } finally {
-            setTimeout(() => {
-                if(!isMuted) sReveal.play().catch(()=>{});
-                vAudio.pause();
-                const loader = document.getElementById('masterSyncScreen');
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    document.body.classList.add('data-ready');
-                }, 800);
-            }, 3000); 
-        }
-    }
-
-    // --- LOGIC FUNCTIONS ---
-    let allCourses = [], currentCategory = 'All', ownedCourseIds = [], showingPurchasedOnly = false;
-    let activeLessons = [], currentCourseId = null, enrollmentData = null;
-
-    function setCategory(cat, btn) {
-        currentCategory = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilters(); 
-    }
-    function filterPurchased() { showingPurchasedOnly = true; applyFilters(); }
-    function resetView() { showingPurchasedOnly = false; applyFilters(); }
+        } catch (err) { console.error("Init failed", err); }
+    })();
 
     function applyFilters() {
         const query = document.getElementById('courseSearch').value.toLowerCase();
@@ -334,7 +236,11 @@
     async function openCourse(id, title) {
         currentCourseId = id;
         try {
-            const res = await fetch('/api/academy/lessons', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: student.email, courseId: id }) });
+            const res = await fetch('/api/academy/lessons', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ email: student.email, courseId: id }) 
+            });
             const data = await res.json();
             if(!data.success) throw new Error("Load failed");
             activeLessons = data.lessons || [];
@@ -345,16 +251,33 @@
         } catch (err) { Swal.fire("Error", "Failed to load lessons.", "error"); }
     }
 
+    // FIXED: PDF and VIDEO Buttons side by side
     function renderLessons() {
         const list = document.getElementById('lessonList');
         let allWatched = activeLessons.length > 0;
+        
         list.innerHTML = activeLessons.map((l, i) => {
-            const isUnlocked = i === 0 || activeLessons[i-1].watched;
+            const isUnlocked = i === 0 || (activeLessons[i-1] && activeLessons[i-1].watched);
             if(!l.watched) allWatched = false;
+            
+            // Generate PDF button if path exists
+            const pdfBtn = l.pdf_path ? `
+                <button class="btn btn-warning btn-sm fw-bold ms-2" onclick="${isUnlocked ? `window.open('/${l.pdf_path}', '_blank')` : ''}">
+                    <i class="fas fa-file-pdf me-1"></i> VIEW PDF
+                </button>` : '';
+
             return `
             <div class="lesson-item ${!isUnlocked ? 'lesson-locked' : ''}">
-                <div class="fw-bold"><i class="fas ${l.watched ? 'fa-check-circle text-success' : 'fa-play-circle'} me-2"></i>${i+1}. ${l.title}</div>
-                <button class="btn btn-danger btn-sm" onclick="${isUnlocked ? `playVideo('${l.video}', '${l.id}', ${i})` : ''}">WATCH</button>
+                <div class="fw-bold">
+                    <i class="fas ${l.watched ? 'fa-check-circle text-success' : 'fa-play-circle'} me-2"></i>
+                    ${i+1}. ${l.title}
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-danger btn-sm fw-bold" onclick="${isUnlocked ? `playVideo('/${l.video_path}', '${l.id}', ${i})` : ''}">
+                        <i class="fas fa-play me-1"></i> WATCH
+                    </button>
+                    ${pdfBtn}
+                </div>
             </div>`;
         }).join('');
         
@@ -366,18 +289,28 @@
     }
 
     function playVideo(url, lessonId, index) {
-        const p = document.getElementById('player'); p.src = url; 
-        document.getElementById('videoOverlay').style.display = 'flex'; p.play();
+        const p = document.getElementById('player'); 
+        p.src = url; 
+        document.getElementById('videoOverlay').style.display = 'flex'; 
+        p.play().catch(e => console.log("Playback interrupted"));
+
         p.onended = async () => {
-            activeLessons[index].watched = true; renderLessons();
-            await fetch('/api/academy/mark-watched', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: student.email, lessonId: lessonId }) });
+            activeLessons[index].watched = true; 
+            renderLessons();
+            await fetch('/api/academy/save-progress', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ email: student.email, lessonId: lessonId, watched: true }) 
+            });
         };
     }
 
     function closeVideo() { document.getElementById('player').pause(); document.getElementById('videoOverlay').style.display = 'none'; }
+    function setCategory(cat, btn) { currentCategory = cat; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); applyFilters(); }
+    function filterPurchased() { showingPurchasedOnly = true; applyFilters(); }
+    function resetView() { showingPurchasedOnly = false; applyFilters(); }
     function copyCertID() { navigator.clipboard.writeText(document.getElementById('certIdDisplay').innerText); Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ID Copied!', showConfirmButton: false, timer: 1500 }); }
     function goToCertificate() { window.location.href = `certificate.html?course=${currentCourseId}&certId=${document.getElementById('certIdDisplay').innerText}&u=${student.email}`; }
-    function disableShortcuts(e) { if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) return false; }
 
     setInterval(() => {
         const wm = document.getElementById('watermark');
@@ -385,8 +318,6 @@
             wm.style.top = Math.random() * 70 + 10 + '%'; wm.style.left = Math.random() * 70 + 10 + '%'; 
         }
     }, 6000);
-
-    init();
 </script>
 </body>
 </html>
