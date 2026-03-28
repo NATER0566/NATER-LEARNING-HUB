@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER LEARNING HUB | Master Control Panel</title>
+    
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://api.naterhub.com;">
+    
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NATER HUB">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { 
+            --brand-primary: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --brand-darker: #8b0000;
+            --brand-light: #ffcdd2;
+            --accent-gold: #FFD700;
+            --accent-platinum: #e5e4e2;
+            --admin-dark: #1a1a1a;
+            
+            --gradient-primary: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #8b0000 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 40px rgba(0,0,0,0.16);
+            --shadow-premium: 0 20px 60px rgba(211, 47, 47, 0.15);
+            --shadow-gold: 0 20px 60px rgba(255, 215, 0, 0.2);
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-brand: 'Cinzel', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #f4f7f6 0%, #e8f5f0 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(211, 47, 47, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none; z-index: -1;
+        }
+
+        /* Premium Admin Header */
+        .admin-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 30px 0;
+            border-bottom: 5px solid var(--accent-gold);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .admin-title {
+            font-family: var(--font-brand);
+            font-weight: 900;
+            font-size: 2rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            position: relative;
+            z-index: 1;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: brightness(1) drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); }
+            to { filter: brightness(1.3) drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)); }
+        }
+
+        /* Premium Admin Cards */
+        .admin-card {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+            border: 3px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .admin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .admin-card.branding::before { background: var(--gradient-primary); }
+        .admin-card.content::before { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        .admin-card.academy::before { background: linear-gradient(135deg, #007bff 0%, #6610f2 100%); }
+        .admin-card.library::before { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
+        .admin-card.support::before { background: linear-gradient(135deg, #e83e8c 0%, #f093fb 100%); }
+        .admin-card.repository::before { background: linear-gradient(135deg, #6f42c1 0%, #6610f2 100%); }
+        .admin-card.notice::before { background: var(--gradient-primary); }
+        .admin-card.orb::before { background: var(--gradient-gold); }
+
+        /* Premium Form Elements */
+        .form-label {
+            font-weight: 800;
+            color: var(--brand-primary);
+            margin-bottom: 12px;
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .form-control, .form-select {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-gold);
+            outline: none;
+            background: rgba(255,255,255,0.2);
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.2),
+                var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Buttons */
+        .btn-premium {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 800;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success-premium {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-warning-premium {
+            background: var(--gradient-gold);
+            color: #000;
+        }
+
+        .btn-primary-premium {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+        }
+
+        .btn-dark-premium {
+            background: var(--gradient-dark);
+            color: white;
+        }
+
+        /* Premium Preview Box */
+        .preview-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px dashed var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--glass-bg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .preview-box:hover {
+            border-color: var(--accent-gold);
+            transform: scale(1.05);
+        }
+
+        .preview-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+        }
+
+        /* Premium Table Elements */
+        .table-img { 
+            width: 50px; 
+            height: 50px; 
+            object-fit: cover; 
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .badge-category { 
+            background: var(--glass-bg); 
+            color: var(--brand-primary); 
+            font-size: 0.75rem; 
+            padding: 6px 12px; 
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Premium Lesson Group */
+        .lesson-group { 
+            background: var(--glass-bg); 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-top: 15px; 
+            border-left: 4px solid #6f42c1;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Premium Action Buttons */
+        .item-action-btn { 
+            cursor: pointer; 
+            color: #666; 
+            transition: all 0.3s; 
+            margin-left: 12px;
+            font-size: 1.1rem;
+        }
+
+        .item-action-btn:hover { 
+            color: var(--brand-primary); 
+            transform: scale(1.2);
+        }
+
+        /* Premium Upload Label */
+        .upload-label { 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            color: #666; 
+            margin-top: 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        /* Premium Support Box */
+        #adminSupportBox { 
+            max-height: 450px; 
+            overflow-y: auto; 
+            background: var(--glass-bg); 
+            padding: 20px; 
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .support-ticket { 
+            border-bottom: 1px solid var(--glass-border); 
+            padding: 15px 0; 
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .support-ticket:hover {
+            background: rgba(255,255,255,0.05);
+            padding-left: 10px;
+        }
+
+        /* Premium Repository List */
+        #repositoryList, #libraryRepositoryList {
+            max-height: 450px; 
+            overflow-y: auto;
+            background: var(--glass-bg);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Premium Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Premium Loading Spinner */
+        .spinner-premium {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 1.5rem;
+            }
+
+            .admin-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .preview-box {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-primary);
+        }
+    </style>
+</head>
+<body data-theme="dark" oncontextmenu="return false;" onkeydown="return disableShortcuts(event)">
+
+<!-- Premium Admin Header -->
+<div class="admin-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h4 class="admin-title m-0">
+            <i class="fa-solid fa-shield-halved me-3"></i>MASTER CONTROL PANEL
+        </h4>
+        <button class="btn btn-outline-light btn-lg rounded-pill px-4" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left me-2"></i>BACK TO DASHBOARD
+        </button>
+    </div>
+</div>
+
+<!-- Premium Admin Container -->
+<div class="container py-5">
+    <div class="row">
+        <!-- Branding Control -->
+        <div class="col-lg-6">
+            <div class="admin-card branding fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-paint-brush me-2 text-danger"></i>
+                    LOGIN PAGE BRANDING
+                </h5>
+                <hr class="my-4">
+                
+                <div class="mb-4">
+                    <label class="form-label">1. ADMIN AVATAR</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="preview-box" id="avatarPreviewBox">
+                            <i class="fa-solid fa-user text-muted"></i>
+                        </div>
+                        <input type="file" id="adminAvatarInput" class="form-control" accept="image/*" onchange="previewImage(this, 'avatarPreviewBox')">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">ACADEMY NAME</label>
+                    <input type="text" id="brandName" class="form-control" placeholder="e.g., NATER LEARNING HUB">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">SUB-TEXT (TAGLINE)</label>
+                    <input type="text" id="brandSubText" class="form-control" placeholder="e.g., Official Portal">
+                </div>
+                
+                <button class="btn-premium w-100" onclick="saveBranding()">
+                    <i class="fa-solid fa-save me-2"></i>UPDATE LOGIN PAGE
+                </button>
+            </div>
+        </div>
+
+        <!-- Public Content Control -->
+        <div class="col-lg-6">
+            <div class="admin-card content fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-id-card me-2 text-success"></i>
+                    INDEX PUBLIC CONTENT BOX
+                </h5>
+                <hr class="my-4">
+                
+                <div class="mb-3">
+                    <label class="form-label">CONTENT TYPE</label>
+                    <select id="publicContentType" class="form-select">
+                        <option value="text">Show Message Text</option>
+                        <option value="image">Show Announcement Image</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">TEXT MESSAGE</label>
+                    <textarea id="publicTextValue" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">IMAGE UPLOAD</label>
+                    <input type="file" id="publicImageInput" class="form-control" accept="image/*" onchange="previewImage(this, 'publicPreviewBox')">
+                    <div id="publicPreviewBox" class="mt-3" style="max-height: 120px; overflow: hidden; display: none;"></div>
+                </div>
+                
+                <button class="btn-premium btn-success-premium w-100" onclick="savePublicBox()">
+                    <i class="fa-solid fa-bullhorn me-2"></i>UPDATE PUBLIC CONTENT
+                </button>
+            </div>
+        </div>
+
+        <!-- Academy Content Manager -->
+        <div class="col-12">
+            <div class="admin-card academy fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-upload me-2 text-primary"></i>
+                    ACADEMY CONTENT MANAGER
+                </h5>
+                <hr class="my-4">
+                
+                <div class="row g-4">
+                    <!-- Create Course -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-4">
+                            <i class="fa-solid fa-plus-circle me-2"></i>CREATE COURSE
+                        </h6>
+                        <input type="text" id="courseTitle" class="form-control mb-3" placeholder="Course Title">
+                        <select id="courseCategory" class="form-select mb-3">
+                            <option value="Programming">Programming</option>
+                            <option value="Trading">Trading</option>
+                            <option value="Design">Design</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                        <input type="number" id="coursePrice" class="form-control mb-3" placeholder="Price (₦)">
+                        <label class="upload-label">THUMBNAIL</label>
+                        <input type="file" id="courseThumb" class="form-control mb-4" accept="image/*">
+                        <button class="btn-premium btn-primary-premium w-100" onclick="uploadCourse()">
+                            <i class="fa-solid fa-plus me-2"></i>ADD COURSE
+                        </button>
+                    </div>
+                    
+                    <!-- Add Lesson Content -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-4">
+                            <i class="fa-solid fa-video me-2"></i>ADD LESSON CONTENT
+                        </h6>
+                        <select id="targetCourseId" class="form-select mb-3">
+                            <option value="">Select Course...</option>
+                        </select>
+                        <input type="text" id="lessonTitle" class="form-control mb-3" placeholder="Lesson Title">
+                        <div class="mb-3">
+                            <label class="upload-label">VIDEO FILE (REQUIRED)</label>
+                            <input type="file" id="videoFile" class="form-control" accept="video/*">
+                        </div>
+                        <div class="mb-4">
+                            <label class="upload-label">PDF ATTACHMENT (OPTIONAL)</label>
+                            <input type="file" id="pdfFile" class="form-control" accept="application/pdf">
+                        </div>
+                        <button class="btn-premium btn-dark-premium w-100" onclick="uploadLesson()">
+                            <i class="fa-solid fa-cloud-upload-alt me-2"></i>ADD LESSON
+                        </button>
+                    </div>
+                    
+                    <!-- Grant Access -->
+                    <div class="col-md-4">
+                        <h6 class="fw-bold mb-4">
+                            <i class="fa-solid fa-user-check me-2"></i>GRANT ACCESS
+                        </h6>
+                        <input type="text" id="accessEmail" class="form-control mb-3" placeholder="Student Email">
+                        <select id="accessType" class="form-select mb-3">
+                            <option value="all">Grant All Courses</option>
+                            <option value="single">Grant Single Course</option>
+                        </select>
+                        <select id="singleCourseId" class="form-select mb-4" style="display:none;">
+                            <option value="">Pick Course...</option>
+                        </select>
+                        <button class="btn-premium btn-success-premium w-100" onclick="grantFreeAccess()">
+                            <i class="fa-solid fa-key me-2"></i>CONFIRM ACCESS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Library Manager -->
+        <div class="col-12">
+            <div class="admin-card library fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-book-open me-2 text-warning"></i>
+                    ACADEMIC LIBRARY MANAGER
+                </h5>
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-lg-5">
+                        <h6 class="fw-bold mb-4">UPLOAD STUDY MATERIAL</h6>
+                        <input type="text" id="libMaterialTitle" class="form-control mb-3" placeholder="Material Title">
+                        <input type="text" id="libCourseCode" class="form-control mb-3" placeholder="Course Code">
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="upload-label">LEVEL</label>
+                                <select id="libLevel" class="form-select">
+                                    <option value="General">General</option>
+                                    <option value="100">100 Level</option>
+                                    <option value="200">200 Level</option>
+                                    <option value="300">300 Level</option>
+                                    <option value="400">400 Level</option>
+                                    <option value="500">500 Level</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="upload-label">SEMESTER</label>
+                                <select id="libSemester" class="form-select">
+                                    <option value="1">1st Semester</option>
+                                    <option value="2">2nd Semester</option>
+                                    <option value="3">3rd Semester</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <label class="upload-label">MEDIA CATEGORY</label>
+                        <select id="libMediaType" class="form-select mb-3">
+                            <option value="Note">Note</option>
+                            <option value="Past Question">Past Question</option>
+                            <option value="Video">Video</option>
+                            <option value="Audio">Audio</option>
+                            <option value="PDF">PDF</option>
+                        </select>
+                        
+                        <label class="upload-label">FILE UPLOAD</label>
+                        <input type="file" id="libFile" class="form-control mb-4">
+                        
+                        <button class="btn-premium btn-warning-premium w-100" onclick="uploadLibraryMaterial()">
+                            <i class="fa-solid fa-cloud-upload-alt me-2"></i>PUBLISH TO LIBRARY
+                        </button>
+                    </div>
+                    
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold mb-4">MANAGE LIBRARY MATERIALS</h6>
+                        <div id="libraryRepositoryList">
+                            <p class="text-muted text-center py-4">
+                                <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading library...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Management -->
+        <div class="col-12">
+            <div class="admin-card support fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-comments me-2" style="color: #e83e8c;"></i>
+                    STUDENT QUESTIONS & SUPPORT
+                </h5>
+                <hr class="my-4">
+                <div id="adminSupportBox">
+                    <p class="text-muted text-center py-4">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i>Checking for questions...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Repository -->
+        <div class="col-12">
+            <div class="admin-card repository fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-database me-2 text-purple"></i>
+                    MANAGE COURSE REPOSITORY
+                </h5>
+                <hr class="my-4">
+                <div id="repositoryList">
+                    <p class="text-muted text-center py-4">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading courses...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notice Board & Feature Orb -->
+        <div class="col-lg-6">
+            <div class="admin-card notice fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-bullhorn me-2 text-danger"></i>
+                    NOTICE BOARD
+                </h5>
+                <hr class="my-4">
+                <textarea id="newsText" class="form-control mb-4" rows="3"></textarea>
+                <button class="btn-premium w-100" onclick="saveNews()">
+                    <i class="fa-solid fa-paper-plane me-2"></i>PUSH TO DASHBOARD
+                </button>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="admin-card orb fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-gift me-2" style="color: #FFD700;"></i>
+                    FEATURE ORB
+                </h5>
+                <hr class="my-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <input type="text" id="orbTitle" class="form-control" placeholder="Orb Title">
+                    </div>
+                    <div class="col-6">
+                        <select id="orbStatus" class="form-select">
+                            <option value="true">Visible</option>
+                            <option value="false">Hidden</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" id="orbUrl" class="form-control" placeholder="URL">
+                    </div>
+                </div>
+                <button class="btn-premium btn-dark-premium w-100 mt-3" onclick="saveOrb()">
+                    <i class="fa-solid fa-cog me-2"></i>UPDATE ORB
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Enhanced Security
+    function disableShortcuts(e) { 
+        if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) {
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Premium Toast Notification
+    const showToast = (icon, title, text = '') => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({ 
+            icon: icon, 
+            title: title,
+            text: text
+        });
+    };
+
+    // Base64 Conversion
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    // API Helper
+    async function apiPost(endpoint, data) {
+        try {
+            let options = { method: 'POST' };
+            if (data instanceof FormData) {
+                options.body = data;
+            } else {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(data);
+            }
+            const res = await fetch(endpoint, options);
+            return await res.json();
+        } catch (err) { 
+            return { success: false, message: "Server connection failed" }; 
+        }
+    }
+
+    // Premium Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchInitialSettings();
+        loadRepository();
+        loadAdminSupport();
+        loadLibraryRepository();
+        
+        // Add fade-in animation to cards
+        const cards = document.querySelectorAll('.admin-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // Image Preview
+    function previewImage(input, previewId) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const box = document.getElementById(previewId);
+                box.style.display = 'block';
+                box.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Lesson Upload with Enhanced UI
+    async function uploadLesson() {
+        const courseId = document.getElementById('targetCourseId').value;
+        const title = document.getElementById('lessonTitle').value;
+        const videoFile = document.getElementById('videoFile').files[0];
+        const pdfFile = document.getElementById('pdfFile').files[0];
+
+        if(!courseId || !title || !videoFile) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: 'Course, Title, and Video are required.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+
+        const formData = new FormData();
+        formData.append('courseId', courseId);
+        formData.append('title', title);
+        formData.append('video', videoFile);
+        if (pdfFile) formData.append('pdf', pdfFile);
+
+        Swal.fire({ 
+            title: 'Uploading Content...', 
+            text: 'Please wait while files process.',
+            allowOutsideClick: false, 
+            didOpen: () => Swal.showLoading() 
+        });
+
+        const res = await apiPost('/api/academy/add-lesson', formData);
+        Swal.close();
+
+        if(res.success) { 
+            loadRepository(); 
+            showToast('success', 'Lesson Published!', 'Content uploaded successfully');
+            
+            // Clear fields
+            document.getElementById('lessonTitle').value = '';
+            document.getElementById('videoFile').value = '';
+            document.getElementById('pdfFile').value = '';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: res.message,
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+    }
+
+    // Enhanced Lesson Edit
+    async function fullEditLesson(id, currentTitle) {
+        const { value: fileData } = await Swal.fire({
+            title: 'Full Edit Lesson',
+            html: `
+                <div class="text-start">
+                    <label class="upload-label">Lesson Title</label>
+                    <input id="swal-l-title" class="swal2-input form-control" value="${currentTitle}">
+                    
+                    <label class="upload-label text-danger">Replace Video (Optional)</label>
+                    <input id="swal-l-video" type="file" class="swal2-input form-control" accept="video/*">
+                    
+                    <label class="upload-label text-primary">Replace PDF (Optional)</label>
+                    <input id="swal-l-pdf" type="file" class="swal2-input form-control" accept="application/pdf">
+                    <small class="text-muted">Leaving file inputs empty will keep current files.</small>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#d32f2f',
+            preConfirm: () => {
+                return {
+                    title: document.getElementById('swal-l-title').value,
+                    video: document.getElementById('swal-l-video').files[0],
+                    pdf: document.getElementById('swal-l-pdf').files[0]
+                }
+            }
+        });
+
+        if(fileData) {
+            Swal.fire({ 
+                title: 'Publishing Changes...', 
+                allowOutsideClick: false, 
+                didOpen: () => Swal.showLoading() 
+            });
+            
+            const fd = new FormData();
+            fd.append('id', id);
+            fd.append('title', fileData.title);
+            if(fileData.video) fd.append('video', fileData.video);
+            if(fileData.pdf) fd.append('pdf', fileData.pdf);
+            
+            const res = await apiPost('/api/academy/edit-lesson', fd); 
+            Swal.close();
+            
+            if(res.success) { 
+                loadRepository(); 
+                showToast('success', 'Lesson Updated', 'Content refreshed successfully');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: 'Update failed: ' + res.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        }
+    }
+
+    // Library Management
+    async function uploadLibraryMaterial() {
+        const title = document.getElementById('libMaterialTitle').value;
+        const code = document.getElementById('libCourseCode').value;
+        const lvl = document.getElementById('libLevel').value;
+        const sem = document.getElementById('libSemester').value;
+        const type = document.getElementById('libMediaType').value;
+        const file = document.getElementById('libFile').files[0];
+
+        if(!title || (!file && type !== 'Note')) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: 'Title and File are required.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('courseCode', code);
+        formData.append('level', lvl);
+        formData.append('semester', sem);
+        formData.append('type', type);
+        if(file) formData.append('file', file);
+
+        Swal.fire({ 
+            title: 'Publishing...', 
+            didOpen: () => Swal.showLoading() 
+        });
+        
+        const res = await apiPost('/api/library/add', formData);
+        Swal.close();
+        
+        if(res.success) {
+            showToast('success', 'Published!', 'Library material updated');
+            loadLibraryRepository();
+            document.getElementById('libMaterialTitle').value = '';
+            document.getElementById('libFile').value = '';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: res.message,
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+    }
+
+    async function loadLibraryRepository() {
+        try {
+            const res = await fetch('/api/library/all');
+            const data = await res.json();
+            const box = document.getElementById('libraryRepositoryList');
+            box.innerHTML = '';
+            
+            if(data.length === 0) { 
+                box.innerHTML = '<p class="text-muted text-center py-4">No library materials found.</p>'; 
+                return; 
+            }
+            
+            data.forEach(item => {
+                box.innerHTML += `
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white mb-2 rounded shadow-sm">
+                    <div>
+                        <span class="small fw-bold">${item.courseCode || 'GEN'}: ${item.title}</span><br>
+                        <span class="badge bg-dark" style="font-size:10px;">${item.type} | Sem ${item.semester}</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-edit item-action-btn text-success" onclick="editLibraryItem('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${item.courseCode}', '${item.type}')" title="Edit"></i>
+                        <i class="fas fa-trash text-danger item-action-btn" onclick="deleteLibraryItem('${item.id}')" title="Delete"></i>
+                    </div>
+                </div>`;
+            });
+        } catch (e) { 
+            console.log("Library load error"); 
+        }
+    }
+
+    async function deleteLibraryItem(id) { 
+        const result = await Swal.fire({
+            title: 'Confirm Delete',
+            text: 'Are you sure you want to remove this material?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel'
+        });
+        
+        if (result.isConfirmed) {
+            const res = await apiPost('/api/library/delete', { id }); 
+            if(res.success) {
+                showToast('success', 'Deleted', 'Material removed successfully');
+                loadLibraryRepository();
+            }
+        }
+    }
+
+    // Support Management
+    async function loadAdminSupport() {
+        const res = await apiPost('/api/academy/all-content-detailed', { admin: true });
+        const box = document.getElementById('adminSupportBox');
+        box.innerHTML = '';
+        
+        if(!res.courses) return;
+        
+        let hasQuestions = false;
+        for (const c of res.courses) {
+            for (const l of c.lessons) {
+                const comRes = await apiPost('/api/academy/get-comments', { lessonId: l.id });
+                if(comRes.comments) {
+                    comRes.comments.forEach(com => {
+                        if(!com.admin_reply) {
+                            hasQuestions = true;
+                            box.innerHTML += `
+                            <div class="support-ticket d-flex justify-content-between border-start border-danger border-4 ps-3 mb-3 bg-white p-3 rounded shadow-sm">
+                                <div>
+                                    <small class="fw-bold text-primary">${com.user_name}</small><br>
+                                    <p class="m-0 small">${com.comment}</p>
+                                    <small class="text-muted" style="font-size:10px">${c.title} > ${l.title}</small>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-sm btn-success" onclick="replyStudentEmail('${com.id}', '${com.user_name}', '${com.email}')" title="Reply">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteComment('${com.id}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>`;
+                        }
+                    });
+                }
+            }
+        }
+        
+        if(!hasQuestions) {
+            box.innerHTML = '<p class="text-muted text-center py-4">No pending questions.</p>';
+        }
+    }
+
+    async function replyStudentEmail(commentId, studentName, studentEmail) {
+        const { value: replyText } = await Swal.fire({ 
+            title: `Reply to ${studentName}`, 
+            input: 'textarea', 
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d'
+        });
+        
+        if (replyText) {
+            const res = await apiPost('/api/academy/reply-comment', { commentId, reply: replyText });
+            if(res.success) { 
+                showToast('success', 'Reply Sent!', 'Response delivered successfully');
+                loadAdminSupport(); 
+            }
+        }
+    }
+
+    async function deleteComment(id) { 
+        const result = await Swal.fire({
+            title: 'Delete Comment',
+            text: 'Are you sure you want to delete this comment?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        });
+        
+        if (result.isConfirmed) {
+            const res = await apiPost('/api/academy/delete-comment', { id }); 
+            if(res.success) {
+                showToast('success', 'Deleted', 'Comment removed successfully');
+                loadAdminSupport();
+            }
+        }
+    }
+
+    // Repository Management
+    async function loadRepository() {
+        const res = await apiPost('/api/academy/all-content-detailed', { admin: true });
+        if(!res.success) return;
+        
+        const repoList = document.getElementById('repositoryList');
+        const targetSelect = document.getElementById('targetCourseId');
+        const singleSelect = document.getElementById('singleCourseId');
+        repoList.innerHTML = '';
+        targetSelect.innerHTML = '<option value="">Select Course...</option>';
+        singleSelect.innerHTML = '<option value="">Pick Course...</option>';
+
+        res.courses.forEach(course => {
+            targetSelect.innerHTML += `<option value="${course.id}">${course.title}</option>`;
+            singleSelect.innerHTML += `<option value="${course.id}">${course.title}</option>`;
+            
+            let lessonsHtml = course.lessons.map(lesson => `
+                <div class="d-flex justify-content-between align-items-center p-3 border-bottom small bg-light rounded mb-2">
+                    <span>
+                        <i class="fas fa-file-alt me-2 text-primary"></i> 
+                        ${lesson.title} 
+                        ${lesson.pdf_path ? '<span class="badge bg-warning text-dark ms-2">PDF</span>' : ''}
+                    </span>
+                    <div>
+                        <i class="fas fa-edit item-action-btn text-success" onclick="fullEditLesson('${lesson.id}', '${lesson.title.replace(/'/g, "\\'")}')"></i>
+                        <i class="fas fa-trash item-action-btn" onclick="deleteLesson('${lesson.id}')"></i>
+                    </div>
+                </div>`).join('');
+
+            repoList.innerHTML += `
+            <div class="mb-4 p-4 border rounded bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <img src="${course.thumbnail || ''}" class="table-img me-3" onerror="this.src='https://via.placeholder.com/50'">
+                        <div>
+                            <h6 class="m-0 fw-bold">${course.title}</h6>
+                            <span class="badge-category">${course.category} | ₦${course.price}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success" onclick="editCourse('${course.id}', '${course.title.replace(/'/g, "\\'")}', '${course.price}', '${course.category}')">Edit Course</button>
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteCourse('${course.id}')">Delete</button>
+                    </div>
+                </div>
+                <div class="lesson-group">${lessonsHtml || '<div class="text-muted small">No lessons.</div>'}</div>
+            </div>`;
+        });
+    }
+
+    async function uploadCourse() {
+        const title = document.getElementById('courseTitle').value;
+        const price = document.getElementById('coursePrice').value;
+        const category = document.getElementById('courseCategory').value;
+        const file = document.getElementById('courseThumb').files[0];
+        
+        if(!title || !price || !file) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: 'Please fill all fields and upload a thumbnail.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+        
+        const thumbBase64 = await toBase64(file);
+        const res = await apiPost('/api/academy/add-course', { title, price, category, thumbnail: thumbBase64 });
+        
+        if(res.success) { 
+            loadRepository(); 
+            showToast('success', 'Course Created', 'New course added successfully');
+            
+            // Clear fields
+            document.getElementById('courseTitle').value = '';
+            document.getElementById('coursePrice').value = '';
+            document.getElementById('courseThumb').value = '';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: res.message,
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+    }
+
+    async function editCourse(id, currentTitle, currentPrice, currentCat) {
+        const { value: formValues } = await Swal.fire({
+            title: 'Edit Course',
+            html: `
+                <input id="editCTitle" class="swal2-input form-control" value="${currentTitle}" placeholder="Course Title">
+                <input id="editCPrice" type="number" class="swal2-input form-control" value="${currentPrice}" placeholder="Price">
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Save Changes',
+            confirmButtonColor: '#d32f2f',
+            preConfirm: () => ({
+                id, 
+                title: document.getElementById('editCTitle').value, 
+                price: document.getElementById('editCPrice').value, 
+                category: currentCat 
+            })
+        });
+        
+        if (formValues) {
+            const res = await apiPost('/api/academy/edit-course', formValues);
+            if(res.success) {
+                showToast('success', 'Course Updated', 'Changes saved successfully');
+                loadRepository();
+            }
+        }
+    }
+
+    // Settings Management
+    async function fetchInitialSettings() {
+        const res = await fetch('/api/public-settings');
+        const data = await res.json();
+        if(data.success) {
+            document.getElementById('brandName').value = data.siteName || ''; 
+            document.getElementById('brandSubText').value = data.tagline || '';
+            if(data.avatar) {
+                document.getElementById('avatarPreviewBox').innerHTML = `<img src="${data.avatar}">`;
+            }
+        }
+    }
+
+    async function saveBranding() {
+        const file = document.getElementById('adminAvatarInput').files[0];
+        const avatarData = file ? await toBase64(file) : document.querySelector('#avatarPreviewBox img')?.src;
+        const res = await apiPost('/api/update-settings', { 
+            siteName: document.getElementById('brandName').value, 
+            tagline: document.getElementById('brandSubText').value, 
+            avatar: avatarData 
+        });
+        
+        if(res.success) {
+            showToast('success', 'Branding Saved', 'Login page updated successfully');
+        }
+    }
+
+    async function savePublicBox() {
+        const file = document.getElementById('publicImageInput').files[0];
+        const type = document.getElementById('publicContentType').value;
+        const contentValue = (type === 'image' && file) ? await toBase64(file) : document.getElementById('publicTextValue').value;
+        const res = await apiPost('/api/update-public-box', { contentType: type, contentValue });
+        
+        if(res.success) {
+            showToast('success', 'Content Updated', 'Public content refreshed');
+        }
+    }
+
+    async function saveNews() { 
+        const res = await apiPost('/api/update-news', { 
+            news: document.getElementById('newsText').value 
+        });
+        
+        if(res.success) {
+            showToast('success', 'Published', 'Notice pushed to dashboard');
+        }
+    }
+
+    async function saveOrb() { 
+        const res = await apiPost('/api/update-orb', { 
+            active: document.getElementById('orbStatus').value === "true", 
+            title: document.getElementById('orbTitle').value, 
+            url: document.getElementById('orbUrl').value, 
+            message: "" 
+        });
+        
+        if(res.success) {
+            showToast('success', 'Orb Updated', 'Feature orb configuration saved');
+        }
+    }
+
+    async function deleteCourse(id) { 
+        const result = await Swal.fire({
+            title: 'Delete Course',
+            text: 'This will permanently remove the course and all its lessons. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        });
+        
+        if (result.isConfirmed) {
+            const res = await apiPost('/api/academy/delete-course', { id }); 
+            if(res.success) {
+                showToast('success', 'Deleted', 'Course removed successfully');
+                loadRepository();
+            }
+        }
+    }
+
+    async function deleteLesson(id) { 
+        const result = await Swal.fire({
+            title: 'Delete Lesson',
+            text: 'This will permanently remove the lesson. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        });
+        
+        if (result.isConfirmed) {
+            const res = await apiPost('/api/academy/delete-lesson', { id }); 
+            if(res.success) {
+                showToast('success', 'Deleted', 'Lesson removed successfully');
+                loadRepository();
+            }
+        }
+    }
+
+    function grantFreeAccess() { 
+        const email = document.getElementById('accessEmail').value;
+        const type = document.getElementById('accessType').value;
+        const courseId = document.getElementById('singleCourseId').value;
+        
+        if(!email) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Missing Email',
+                text: 'Please enter a student email address.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+        
+        apiPost('/api/academy/grant-access', { email, type, courseId }).then(r => {
+            if(r.success) {
+                showToast('success', 'Access Granted', 'Student enrollment confirmed');
+                document.getElementById('accessEmail').value = '';
+            }
+        });
+    }
+
+    // Event Listeners
+    document.getElementById('accessType').onchange = (e) => { 
+        document.getElementById('singleCourseId').style.display = (e.target.value === 'single') ? 'block' : 'none'; 
+    };
+
+    // Premium Security Enhancements
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Premium Performance Monitoring
+    console.log('%c🛡️ NATER LEARNING HUB - Premium Master Control Panel 🛡️', 'font-size: 32px; font-weight: bold; color: #FFD700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-family: Space Grotesk;');
+    console.log('%cWorld-Class Administrative System', 'font-size: 18px; color: #d32f2f; font-family: Inter;');
+</script>
+
+<style>
+    /* Premium SweetAlert2 Customization */
+    .swal2-popup {
+        border-radius: 20px;
+        border: 2px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        background: var(--gradient-card);
+    }
+
+    .swal2-title {
+        font-family: var(--font-display);
+        color: var(--brand-primary);
+        font-weight: 800;
+    }
+
+    .swal2-html-container {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .swal2-confirm {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-family: var(--font-primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .swal2-cancel {
+        background: #6c757d;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-family: var(--font-primary);
+    }
+
+    /* Premium Touch Support */
+    @media (hover: none) {
+        .btn-premium:active {
+            transform: scale(0.98);
+        }
+        
+        .preview-box:active {
+            transform: scale(0.95);
+        }
+        
+        .item-action-btn:active {
+            transform: scale(0.9);
+        }
+    }
+</style>
+</body>
+</html>

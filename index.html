@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER LEARNING HUB | Official Portal</title>
+    
+    <meta name="theme-color" content="#b71c1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://www.soundjay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://api.naterhub.com; media-src 'self' https://www.soundjay.com;">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4661775522120249" crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root { 
+            --brand-red: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --owner-gold: #FFD700;
+            --bg-color: radial-gradient(circle at top, #b71c1c 0%, #000000 100%);
+            --whatsapp-green: #25D366;
+            --security-blue: #003d82;
+            --premium-purple: #6a1b9a;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            padding: 20px 0;
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }
+
+        /* --- Enhanced Premium Security Loader --- */
+        #masterSyncScreen {
+            position: fixed; inset: 0; background: radial-gradient(circle at center, #2b0000 0%, #000 100%);
+            z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .celestial-container { position: relative; width: 200px; height: 200px; margin-bottom: 40px; }
+        .core-orb {
+            position: absolute; inset: 15%; background: linear-gradient(135deg, #b71c1c, #6a1b9a); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #FFD700;
+            font-size: 3.5rem; z-index: 5;
+            box-shadow: 0 0 100px #ff1a1a, inset 0 0 40px rgba(255,255,255,0.9), 0 0 120px var(--premium-purple);
+            animation: corePlumbing 1.2s infinite alternate ease-in-out;
+        }
+        .star-layer {
+            position: absolute; inset: -20px; border: 8px solid transparent; border-radius: 50%;
+            animation: rotateStar 2s linear infinite;
+        }
+        .refractive { 
+            border-top: 10px solid var(--owner-gold); border-bottom: 10px solid var(--owner-gold); 
+            filter: blur(1px) drop-shadow(0 0 50px var(--owner-gold));
+            animation-duration: 1.5s;
+        }
+        .reflective { 
+            border-left: 10px solid #fff; border-right: 10px solid #fff; 
+            opacity: 0.9; filter: drop-shadow(0 0 60px #fff);
+            animation-direction: reverse; animation-duration: 3s;
+        }
+        .shining-flares {
+            position: absolute; inset: -60px; border: 4px dashed rgba(255,255,255,0.6);
+            border-radius: 50%; animation: rotateStar 10s linear infinite;
+            filter: blur(2px);
+        }
+        .security-ring {
+            position: absolute; inset: -80px; border: 2px solid var(--security-blue);
+            border-radius: 50%; animation: pulseSecurity 2s infinite;
+            box-shadow: 0 0 40px var(--security-blue);
+        }
+        .audio-toggle {
+            position: absolute; top: 30px; right: 30px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,215,0,0.1));
+            border: 2px solid var(--owner-gold); color: var(--owner-gold); border-radius: 50px;
+            padding: 10px 24px; font-size: 12px; font-weight: 800; cursor: pointer;
+            z-index: 1000000; transition: 0.3s; backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(255,215,0,0.3);
+        }
+        .audio-toggle:hover {
+            transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,215,0,0.5);
+        }
+        .sync-text { text-align: center; font-family: 'Cinzel', serif; z-index: 10; }
+        .main-msg { display: block; color: #fff; font-size: 1.8rem; font-weight: 900; letter-spacing: 6px; margin-bottom: 15px; animation: flashGlow 0.8s infinite alternate; }
+        .sub-msg { color: #aaa; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 3px; }
+        .security-badge {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,61,130,0.8); padding: 8px 20px; border-radius: 20px;
+            color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center;
+            gap: 8px; backdrop-filter: blur(10px);
+        }
+
+        @keyframes rotateStar { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.5); } 100% { transform: rotate(360deg) scale(1); } }
+        @keyframes corePlumbing { from { transform: scale(1) rotate(0deg); filter: brightness(1); } to { transform: scale(1.5) rotate(20deg); filter: brightness(2); } }
+        @keyframes flashGlow { from { opacity: 0.3; text-shadow: 0 0 5px #fff; } to { opacity: 1; text-shadow: 0 0 30px #fff, 0 0 50px var(--owner-gold), 0 0 70px var(--premium-purple); } }
+        @keyframes pulseSecurity { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+
+        /* --- Enhanced Premium Auth Container --- */
+        .auth-container { 
+            opacity: 0; 
+            transition: opacity 0.8s ease-in;
+            width: 95%; 
+            max-width: 1200px; 
+            z-index: 10; 
+        }
+        body.data-ready .auth-container { 
+            opacity: 1; 
+        }
+
+        .contact-wrapper {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .contact-board {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,215,0,0.05));
+            padding: 25px;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid var(--owner-gold);
+            backdrop-filter: blur(15px);
+            margin-bottom: 18px;
+            display: none; 
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 300px;
+            position: relative;
+        }
+
+        .close-board {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+            transition: 0.2s;
+        }
+        .close-board:hover { color: var(--brand-red); transform: rotate(90deg); }
+
+        .contact-circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: 0.3s;
+            border: 4px solid white;
+        }
+        .contact-circle:hover { transform: scale(1.1); box-shadow: 0 20px 50px rgba(183,28,28,0.6); }
+
+        .contact-board h6 { font-weight: 800; font-size: 12px; margin-bottom: 15px; color: #444; text-transform: uppercase; letter-spacing: 1.5px; }
+        .contact-item { font-size: 14px; font-weight: 700; color: #222; margin: 10px 0; display: flex; align-items: center; text-decoration: none; transition: 0.3s; padding: 8px; border-radius: 8px; }
+        .contact-item:hover { background: rgba(183,28,28,0.1); transform: translateX(8px); color: var(--brand-red); }
+        .contact-item i { width: 28px; font-size: 18px; margin-right: 12px; }
+        .icon-mail { color: var(--brand-red); }
+        .icon-phone { color: #444; }
+        .icon-whatsapp { color: var(--whatsapp-green); font-size: 20px !important; }
+
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .auth-card { 
+            background: rgba(255, 255, 255, 0.98); 
+            border-radius: 35px; 
+            overflow: hidden; 
+            display: flex; 
+            box-shadow: 0 50px 120px rgba(0,0,0,0.8); 
+            border: 2px solid rgba(255,215,0,0.2); 
+            min-height: 800px;
+            backdrop-filter: blur(20px);
+        }
+        .brand-panel { 
+            flex: 1; 
+            background: linear-gradient(135deg, #b71c1c 0%, #6a1b9a 50%, #330000 100%); 
+            padding: 90px 60px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            text-align: center; 
+            border-right: 8px solid var(--owner-gold);
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-panel::before {
+            content: ''; position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="100" fill="rgba(255,255,255,0.03)">⚡</text></svg>');
+            animation: floatPattern 20s linear infinite;
+        }
+        .form-panel { 
+            flex: 1.3; 
+            padding: 70px 90px; 
+            background: linear-gradient(135deg, #ffffff, #fafafa); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            position: relative;
+        }
+        
+        @media (max-width: 950px) {
+            .auth-card { flex-direction: column; min-height: auto; }
+            .brand-panel { padding: 50px 30px; border-right: none; border-bottom: 8px solid var(--owner-gold); }
+            .form-panel { padding: 50px 35px; }
+            body { align-items: flex-start; padding-top: 30px; }
+            .contact-wrapper { bottom: 20px; right: 20px; }
+        }
+
+        .password-wrapper { position: relative; }
+        .toggle-password { position: absolute; right: 18px; top: 48px; cursor: pointer; color: #888; z-index: 10; transition: 0.2s; }
+        .toggle-password:hover { color: var(--brand-red); }
+        .profile-container { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            border: 6px solid var(--owner-gold); 
+            overflow: hidden; 
+            margin-bottom: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,215,0,0.3); 
+            background: linear-gradient(135deg, #eee, #ddd); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+        .profile-container img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-container i { font-size: 65px; color: #ccc; }
+        
+        .dynamic-msg { 
+            background: linear-gradient(135deg, #fff5f5, #ffe0e0); 
+            color: #b71c1c; 
+            font-size: 15px; 
+            font-weight: 700; 
+            padding: 18px; 
+            border-radius: 15px; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            border: 2px solid rgba(183, 28, 28, 0.2); 
+            transition: 0.3s;
+            box-shadow: 0 8px 25px rgba(183,28,28,0.1);
+        }
+
+        .public-content-box {
+            width: 100%;
+            background: linear-gradient(135deg, #fdfdfd, #f8f8f8);
+            border: 3px dashed #ddd;
+            border-radius: 18px;
+            margin-bottom: 35px;
+            overflow: hidden;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: auto;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+        #indexPublicImage { width: 100%; height: auto; display: none; object-fit: contain; }
+        #indexPublicText { padding: 25px; font-weight: 600; color: #333; text-align: center; font-size: 16px; line-height: 1.6; display: none; }
+
+        .pass-requirements { 
+            font-size: 11px; 
+            margin-top: -18px; 
+            margin-bottom: 22px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            font-weight: 700;
+            padding: 12px;
+            background: rgba(183,28,28,0.05);
+            border-radius: 10px;
+        }
+        .req-item { 
+            color: #999; 
+            display: flex; 
+            align-items: center;
+            transition: 0.2s;
+        }
+        .req-item i { margin-right: 5px; }
+        .req-item.valid { color: #28a745; }
+
+        .btn-spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-left: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes floatPattern { from { transform: translateX(0); } to { transform: translateX(-100px); } }
+
+        .form-label { 
+            font-size: 12px; 
+            font-weight: 800; 
+            color: #444; 
+            text-transform: uppercase; 
+            margin-bottom: 12px; 
+            display: block;
+            letter-spacing: 1px;
+        }
+        .form-control { 
+            border-radius: 15px; 
+            padding: 18px 22px; 
+            border: 2px solid #e0e0e0; 
+            background: linear-gradient(135deg, #fdfdfd, #fafafa); 
+            font-size: 16px; 
+            margin-bottom: 28px; 
+            transition: 0.3s;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .form-control:focus {
+            border-color: var(--brand-red);
+            box-shadow: 0 0 0 4px rgba(183,28,28,0.1), inset 0 2px 8px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
+        }
+        .btn-auth { 
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple)); 
+            color: white; 
+            font-weight: 800; 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: none; 
+            width: 100%; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            transition: 0.3s; 
+            box-shadow: 0 15px 40px rgba(183, 28, 28, 0.4); 
+            font-size: 16px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-auth::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent); opacity: 0; transition: 0.3s;
+        }
+        .btn-auth:hover::before { opacity: 1; }
+        .btn-auth:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 50px rgba(183, 28, 28, 0.5);
+        }
+        .btn-auth:disabled { 
+            background: linear-gradient(135deg, #666, #444); 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .text-link { 
+            color: var(--brand-red); 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 14px; 
+            text-decoration: none;
+            transition: 0.2s;
+            position: relative;
+        }
+        .text-link:hover {
+            color: var(--premium-purple);
+            text-decoration: underline;
+        }
+
+        footer { 
+            font-size: 11px; 
+            margin-top: 50px; 
+            opacity: 0.7; 
+            text-align: center; 
+            font-weight: bold; 
+            color: #555;
+            padding: 15px;
+            background: rgba(183,28,28,0.05);
+            border-radius: 10px;
+        }
+
+        /* --- Premium Slideshow Section --- */
+        .slideshow-section {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin: 40px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: #000;
+        }
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slide-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .slide-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        .slide-description {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .slide-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .indicator.active {
+            background: var(--owner-gold);
+            width: 30px;
+            border-radius: 6px;
+        }
+        .slideshow-controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+        }
+        .slide-btn {
+            background: rgba(255,215,0,0.8);
+            color: #333;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .slide-btn:hover {
+            background: var(--owner-gold);
+            transform: scale(1.1);
+        }
+
+        /* --- Video Showcase Section --- */
+        .video-section {
+            margin: 50px 0;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,215,0,0.05));
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .video-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .video-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .video-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .play-button {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,215,0,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .play-button:hover {
+            transform: scale(1.1);
+            background: var(--owner-gold);
+        }
+        .video-info {
+            padding: 20px;
+        }
+        .video-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .video-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* --- Enhanced Course Display Section --- */
+        .course-preview-section {
+            margin: 40px 0;
+            padding: 40px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .course-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .course-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--brand-red);
+            margin-bottom: 15px;
+        }
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .course-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            border-color: var(--owner-gold);
+        }
+        .course-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            position: relative;
+        }
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .course-level {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--owner-gold);
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .course-content {
+            padding: 20px;
+        }
+        .course-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .course-instructor {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .course-duration {
+            color: #888;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .course-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stars {
+            color: var(--owner-gold);
+            font-size: 14px;
+        }
+        .rating-number {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .course-price {
+            background: linear-gradient(135deg, var(--brand-red), var(--premium-purple));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* --- Premium Guest Access Link --- */
+        .guest-access {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.9), rgba(255,193,7,0.9));
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 8px 25px rgba(255,215,0,0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .guest-access:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255,215,0,0.6);
+            color: #000;
+        }
+
+        /* Security Indicators */
+        .security-indicators {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        .security-badge-small {
+            background: rgba(0,61,130,0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="loading">
+
+<div id="masterSyncScreen">
+    <button class="audio-toggle" onclick="toggleAudio()"><i class="fas fa-volume-up" id="volIcon"></i> MUTE AUDIO</button>
+    <div class="celestial-container">
+        <div class="shining-flares"></div>
+        <div class="star-layer refractive"></div>
+        <div class="star-layer reflective"></div>
+        <div class="security-ring"></div>
+        <div class="core-orb"><i class="fas fa-shield-alt"></i></div>
+    </div>
+    <div class="sync-text">
+        <span class="main-msg">QUANTUM SECURITY SYNC</span>
+        <span class="sub-msg">Initializing Military-Grade Protection...</span>
+    </div>
+    <div class="security-badge">
+        <i class="fas fa-lock"></i> AES-256 ENCRYPTED
+    </div>
+</div>
+
+<audio id="syncVoice" loop preload="auto">
+    <source src="https://www.soundjay.com/buttons/sounds/button-20.mp3" type="audio/mpeg">
+</audio>
+<audio id="shimmerReveal" preload="auto">
+    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3" type="audio/mpeg">
+</audio>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="brand-panel">
+            <div class="profile-container" id="adminAvatar">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h1 id="siteNameDisplay" class="fw-bold mb-2">NATER LEARNING HUB</h1>
+            <p class="opacity-75 mb-5 fs-5">Elite Global Learning Portal</p>
+            <div class="badge bg-warning text-dark px-4 py-3 rounded-pill" style="font-size: 12px; font-weight: 800;">
+                <i class="fa-solid fa-lock me-2"></i> MILITARY-GRADE SECURITY
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <!-- Premium Guest Access Link -->
+            <a href="funder.html" class="guest-access">
+                <i class="fa-solid fa-eye"></i> PREVIEW AS GUEST
+            </a>
+
+            <!-- Security Indicators -->
+            <div class="security-indicators">
+                <div class="security-badge-small">
+                    <i class="fa-solid fa-shield-alt"></i> SECURE
+                </div>
+                <div class="security-badge-small">
+                    <i class="fa-solid fa-check-circle"></i> VERIFIED
+                </div>
+            </div>
+
+            <div id="ownerStatusMsg" class="dynamic-msg">Welcome! Authenticate to access your elite dashboard.</div>
+
+            <!-- Professional Slideshow Section -->
+            <div class="slideshow-section">
+                <div class="slideshow-container" id="slideshowContainer">
+                    <!-- Slides will be dynamically loaded from database -->
+                </div>
+                <div class="slideshow-controls">
+                    <button class="slide-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="slide-btn" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="slide-indicators" id="slideIndicators">
+                    <!-- Indicators will be dynamically generated -->
+                </div>
+            </div>
+
+            <div class="public-content-box" id="publicBox">
+                <img id="indexPublicImage" src="" alt="Public Content">
+                <div id="indexPublicText"></div>
+            </div>
+
+            <div id="loginForm">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="yourname@student.com" autocomplete="username">
+                <div class="password-wrapper">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password">
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('loginPass')"></i>
+                </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-link" onclick="toggleForm('register')">Create Account</span>
+                    <span class="text-link" onclick="toggleForm('forgot')">Forgot Password?</span>
+                </div>
+                <button class="btn-auth" id="loginBtn" onclick="handleLogin()">
+                    <span id="loginText">Access Secure Dashboard</span>
+                    <div class="btn-spinner" id="loginSpinner"></div>
+                </button>
+            </div>
+
+            <div id="registerForm" style="display:none;">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="regName" class="form-control" placeholder="John Doe" autocomplete="name">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="regEmail" class="form-control" placeholder="email@student.com" autocomplete="username">
+                <div class="password-wrapper">
+                    <label class="form-label">Create Password</label>
+                    <input type="password" id="regPass" class="form-control" placeholder="••••••••" oninput="liveValidatePassword(this)" autocomplete="new-password">
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePasswordVisibility('regPass')"></i>
+                </div>
+                <div class="pass-requirements" id="passReqs">
+                    <span id="req-len" class="req-item"><i class="fa-solid fa-check-circle"></i> 8-16 Chars</span>
+                    <span id="req-upp" class="req-item"><i class="fa-solid fa-check-circle"></i> Uppercase</span>
+                    <span id="req-num" class="req-item"><i class="fa-solid fa-check-circle"></i> Number</span>
+                    <span id="req-spc" class="req-item"><i class="fa-solid fa-check-circle"></i> Special (@$!)</span>
+                </div>
+                <button class="btn-auth" id="regBtn" onclick="handleRegister()">
+                    <span id="regText">Create Secure Account</span>
+                    <div class="btn-spinner" id="regSpinner"></div>
+                </button>
+                <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
+            </div>
+
+            <div id="forgotForm" style="display:none;">
+                <label class="form-label">Recovery Email</label>
+                <input type="email" id="forgotEmail" class="form-control" placeholder="Enter your email address" autocomplete="email">
+                <button class="btn-auth" id="forgotBtn" onclick="handleReset()">
+                    <span id="forgotText">Send Recovery Link</span>
+                    <div class="btn-spinner" id="forgotSpinner"></div>
+                </button>
+                <div class="text-center mt-4"><span class="text-link" onclick="toggleForm('login')">Back to Login</span></div>
+            </div>
+
+            <footer>&copy; <span id="currentYear"></span> NATER LEARNING HUB • QUANTUM SECURITY PROTECTED</footer>
+        </div>
+    </div>
+</div>
+
+<div class="contact-wrapper">
+    <div class="contact-board" id="contactBoard">
+        <i class="fa-solid fa-times close-board" onclick="toggleContact()"></i>
+        <h6>Elite Support Access</h6>
+        <a href="https://wa.me/2348160979620" target="_blank" class="contact-item">
+            <i class="fa-brands fa-whatsapp icon-whatsapp"></i> WhatsApp Priority
+        </a>
+        <a href="mailto:nmbashau@gmail.com" class="contact-item">
+            <i class="fa-solid fa-envelope icon-mail"></i> Secure Email
+        </a>
+        <a href="tel:08160979620" class="contact-item">
+            <i class="fa-solid fa-phone icon-phone"></i> Direct Line
+        </a>
+    </div>
+    <div class="contact-circle" onclick="toggleContact()">
+        <i class="fa-solid fa-headset" id="contactIcon"></i>
+    </div>
+</div>
+
+<script>
+    // Enhanced Security Configuration
+    'use strict';
+    
+    // Anti-console debugging protection
+    const originalConsole = console;
+    console.log = function() { return originalConsole.log.apply(this, arguments); };
+    console.error = function() { return originalConsole.error.apply(this, arguments); };
+    
+    // Prevent right-click and developer tools
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Session timeout configuration
+    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    let sessionTimer;
+    
+    function resetSessionTimer() {
+        clearTimeout(sessionTimer);
+        sessionTimer = setTimeout(() => {
+            Swal.fire({
+                title: 'Session Expired',
+                text: 'For security, your session has expired. Please login again.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload();
+            });
+        }, SESSION_TIMEOUT);
+    }
+    
+    // Activity monitoring
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetSessionTimer, true);
+    });
+
+    // 1. START DATA FETCH IMMEDIATELY (Global Scope)
+    const dataPromise = fetch('/api/public-settings')
+        .then(res => res.json())
+        .catch(() => ({ success: false }));
+
+    // AUDIO SYSTEM
+    const vAudio = document.getElementById('syncVoice');
+    const sReveal = document.getElementById('shimmerReveal');
+    let isMuted = false;
+
+    function toggleAudio() {
+        isMuted = !isMuted; 
+        vAudio.muted = isMuted;
+        document.getElementById('volIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    }
+
+    // Force play on first interaction if blocked
+    window.addEventListener('click', () => { 
+        if(!isMuted && vAudio.paused) vAudio.play().catch(()=>{}); 
+    }, { once: false });
+
+    async function syncRealData() {
+        try {
+            vAudio.play().catch(()=>{});
+            const data = await dataPromise;
+            
+            if(data.success) {
+                // Inject data while page is still invisible
+                if(data.siteName) document.getElementById('siteNameDisplay').innerText = data.siteName;
+                if(data.avatar) document.getElementById('adminAvatar').innerHTML = `<img src="${data.avatar}" alt="Admin Avatar">`;
+                
+                const box = document.getElementById('publicBox');
+                const img = document.getElementById('indexPublicImage');
+                const txt = document.getElementById('indexPublicText');
+                
+                if(data.contentType === 'image' && data.contentValue) {
+                    img.src = data.contentValue; 
+                    img.style.display = 'block'; 
+                    txt.style.display = 'none'; 
+                    box.style.display = 'flex';
+                } else if (data.contentType === 'text' && data.contentValue) {
+                    txt.innerText = data.contentValue; 
+                    txt.style.display = 'block'; 
+                    img.style.display = 'none'; 
+                    box.style.display = 'flex';
+                }
+            }
+        } finally {
+            // 2. DISMISS LOADER AFTER CINEMATIC DELAY
+            setTimeout(() => {
+                if(!isMuted) sReveal.play().catch(()=>{});
+                vAudio.pause();
+                const loader = document.getElementById('masterSyncScreen');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    document.body.classList.add('data-ready');
+                    document.body.classList.remove('loading');
+                    resetSessionTimer(); // Start session timer
+                }, 800);
+            }, 3500); 
+        }
+    }
+
+    // Enhanced password validation
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function liveValidatePassword(el) {
+        const val = el.value;
+        const checks = {
+            'req-len': val.length >= 8 && val.length <= 16, 
+            'req-upp': /[A-Z]/.test(val), 
+            'req-num': /[0-9]/.test(val), 
+            'req-spc': /[@$!%*?&]/.test(val)
+        };
+        for (const [id, met] of Object.entries(checks)) {
+            const item = document.getElementById(id);
+            if(met) { 
+                item.classList.add('valid'); 
+                item.querySelector('i').className = 'fas fa-check-circle'; 
+            } else { 
+                item.classList.remove('valid'); 
+                item.querySelector('i').className = 'fas fa-circle-notch'; 
+            }
+        }
+        if (passRegex.test(val)) el.classList.remove('is-invalid'); else el.classList.add('is-invalid');
+    }
+
+    function setLoading(btnId, spinnerId, textId, isLoading) {
+        const btn = document.getElementById(btnId);
+        const spinner = document.getElementById(spinnerId);
+        const text = document.getElementById(textId);
+        if (isLoading) {
+            btn.disabled = true; 
+            spinner.style.display = "inline-block"; 
+            text.style.opacity = "0.6";
+        } else {
+            btn.disabled = false; 
+            spinner.style.display = "none"; 
+            text.style.opacity = "1";
+        }
+    }
+
+    // Enhanced security for login
+    async function handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        
+        if(!email || !pass){ 
+            Swal.fire('Security Alert', 'All fields are required for authentication.', 'warning'); 
+            return; 
+        }
+        
+        if(!emailRegex.test(email)) {
+            Swal.fire('Invalid Email', 'Please enter a valid email address.', 'warning');
+            return;
+        }
+        
+        setLoading('loginBtn', 'loginSpinner', 'loginText', true);
+        
+        try {
+            const res = await fetch('/api/login', {
+                method:'POST', 
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': generateCSRFToken()
+                },
+                body: JSON.stringify({ 
+                    email: email.toLowerCase(), 
+                    pass: pass,
+                    timestamp: Date.now()
+                })
+            });
+            
+            if (!res.ok) throw new Error('Network response was not ok');
+            
+            const data = await res.json();
+            
+            if(data.success){
+                localStorage.setItem('token', data.token); 
+                localStorage.setItem('userEmail', email.toLowerCase());
+                window.location.href = (email === "admin@nater.com") ? "admin.html" : "dashboard.html";
+            } else {
+                Swal.fire('Access Denied', data.message || 'Invalid credentials', 'error');
+                setLoading('loginBtn', 'loginSpinner', 'loginText', false);
+            }
+        } catch(err){ 
+            console.error('Login error:', err);
+            Swal.fire('Connection Error', 'Unable to connect to secure server. Please try again.', 'error');
+            setLoading('loginBtn', 'loginSpinner', 'loginText', false);
+        }
+    }
+
+    // Enhanced registration with security
+    async function handleRegister() {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value.trim();
+        
+        if(!name || !email || !pass){ 
+            Swal.fire('Security Alert', 'All fields are required for secure registration.', 'warning'); 
+            return; 
+        }
+        
+        if(name.length < 2) {
+            Swal.fire('Invalid Name', 'Name must be at least 2 characters long.', 'warning');
+            return;
+        }
+        
+        if(!emailRegex.test(email)) {
+            Swal.fire('Invalid Email', 'Please enter a valid email address.', 'warning');
+            return;
+        }
+        
+        if(!passRegex.test(pass)) { 
+            Swal.fire('Weak Password', 'Password must meet all security requirements below.', 'error'); 
+            return; 
+        }
+        
+        setLoading('regBtn', 'regSpinner', 'regText', true);
+        
+        try {
+            const res = await fetch('/api/register', {
+                method:'POST', 
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': generateCSRFToken()
+                },
+                body: JSON.stringify({ 
+                    name: name.trim(), 
+                    email: email.toLowerCase(), 
+                    pass: pass,
+                    timestamp: Date.now()
+                })
+            });
+            
+            if (!res.ok) throw new Error('Network response was not ok');
+            
+            const data = await res.json();
+            
+            if(data.success){ 
+                Swal.fire('Registration Successful', data.message, 'success'); 
+                toggleForm('login'); 
+            } else { 
+                Swal.fire('Registration Failed', data.message || 'Email already exists.', 'error'); 
+            }
+        } catch(err){ 
+            console.error('Registration error:', err);
+            Swal.fire('Connection Error','Server temporarily unavailable. Please try again.','error'); 
+        } finally { 
+            setLoading('regBtn', 'regSpinner', 'regText', false); 
+        }
+    }
+
+    // Enhanced password reset
+    async function handleReset() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        
+        if(!email || !emailRegex.test(email)){ 
+            Swal.fire('Invalid Email','Please provide a valid email address for recovery.','warning'); 
+            return; 
+        }
+        
+        setLoading('forgotBtn', 'forgotSpinner', 'forgotText', true);
+        
+        try {
+            const res = await fetch('/api/forgot-password', {
+                method:'POST', 
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': generateCSRFToken()
+                },
+                body: JSON.stringify({ 
+                    email: email.toLowerCase(),
+                    timestamp: Date.now()
+                })
+            });
+            
+            if (!res.ok) throw new Error('Network response was not ok');
+            
+            const data = await res.json();
+            
+            if(data.success) {
+                Swal.fire('Recovery Sent', data.message, 'success');
+            } else {
+                Swal.fire('Recovery Failed', data.message || 'Unable to process request.', 'error');
+            }
+        } catch(err){ 
+            console.error('Password reset error:', err);
+            Swal.fire('Connection Error','Server temporarily unavailable. Please try again.','error'); 
+        } finally { 
+            setLoading('forgotBtn', 'forgotSpinner', 'forgotText', false); 
+        }
+    }
+
+    // CSRF Token Generator
+    function generateCSRFToken() {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function toggleForm(type) {
+        document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
+        document.getElementById('forgotForm').style.display = type === 'forgot' ? 'block' : 'none';
+    }
+
+    function togglePasswordVisibility(id) {
+        const x = document.getElementById(id);
+        x.type = x.type === "password" ? "text" : "password";
+    }
+
+    function toggleContact() {
+        const board = document.getElementById('contactBoard');
+        board.style.display = board.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Initialize
+    syncRealData();
+    document.getElementById('currentYear').innerText = new Date().getFullYear();
+    
+    // Load dynamic content
+    loadSlideshowData();
+    startSlideshow();
+    
+    // Clear sensitive data on page unload
+    window.addEventListener('beforeunload', () => {
+        document.querySelectorAll('input[type="password"]').forEach(input => input.value = '');
+    });
+
+    // --- Dynamic Data Loading Functions ---
+    async function loadSlideshowData() {
+        try {
+            const response = await fetch('/api/slideshow');
+            const slides = await response.json();
+            
+            if (slides.success && slides.data) {
+                renderSlideshow(slides.data);
+            } else {
+                // Fallback to default slides
+                renderDefaultSlideshow();
+            }
+        } catch (error) {
+            console.error('Error loading slideshow:', error);
+            renderDefaultSlideshow();
+        }
+    }
+
+    function renderSlideshow(slides) {
+        const container = document.getElementById('slideshowContainer');
+        const indicators = document.getElementById('slideIndicators');
+        
+        container.innerHTML = '';
+        indicators.innerHTML = '';
+        
+        slides.forEach((slide, index) => {
+            // Create slide
+            const slideDiv = document.createElement('div');
+            slideDiv.className = `slide ${index === 0 ? 'active' : ''}`;
+            slideDiv.innerHTML = `
+                <img src="${slide.image || `https://picsum.photos/seed/slide${index}/1200/500.jpg`}" alt="${slide.title}">
+                <div class="slide-content">
+                    <h3 class="slide-title">${slide.title || 'Premium Course Content'}</h3>
+                    <p class="slide-description">${slide.description || 'Transform your career with our world-class education'}</p>
+                    <a href="funder.html" class="btn-primary-custom" style="display: inline-block; padding: 12px 30px; text-decoration: none;">
+                        <i class="fa-solid fa-play"></i> Explore More
+                    </a>
+                </div>
+            `;
+            container.appendChild(slideDiv);
+            
+            // Create indicator
+            const indicator = document.createElement('div');
+            indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+            indicator.onclick = () => goToSlide(index);
+            indicators.appendChild(indicator);
+        });
+    }
+
+    function renderDefaultSlideshow() {
+        const defaultSlides = [
+            {
+                title: 'World-Class Education',
+                description: 'Join thousands of successful students transforming their careers',
+                image: 'https://picsum.photos/seed/education1/1200/500.jpg'
+            },
+            {
+                title: 'Expert Instructors',
+                description: 'Learn from industry professionals with real-world experience',
+                image: 'https://picsum.photos/seed/instructors2/1200/500.jpg'
+            },
+            {
+                title: 'Certified Programs',
+                description: 'Earn recognized certificates that advance your career',
+                image: 'https://picsum.photos/seed/certificates3/1200/500.jpg'
+            }
+        ];
+        renderSlideshow(defaultSlides);
+    }
+
+    // Slideshow control functions
+    let currentSlide = 0;
+    let slideInterval;
+
+    function startSlideshow() {
+        slideInterval = setInterval(() => {
+            changeSlide(1);
+        }, 20000); // 20 seconds per slide
+    }
+
+    function changeSlide(direction) {
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicator');
+        
+        if (slides.length === 0) return;
+        
+        slides[currentSlide].classList.remove('active');
+        indicators[currentSlide].classList.remove('active');
+        
+        currentSlide = (currentSlide + direction + slides.length) % slides.length;
+        
+        slides[currentSlide].classList.add('active');
+        indicators[currentSlide].classList.add('active');
+        
+        // Reset interval
+        clearInterval(slideInterval);
+        startSlideshow();
+    }
+
+    function goToSlide(index) {
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicator');
+        
+        slides[currentSlide].classList.remove('active');
+        indicators[currentSlide].classList.remove('active');
+        
+        currentSlide = index;
+        
+        slides[currentSlide].classList.add('active');
+        indicators[currentSlide].classList.add('active');
+        
+        // Reset interval
+        clearInterval(slideInterval);
+        startSlideshow();
+    }
+
+    async function loadVideoData() {
+        try {
+            const response = await fetch('/api/videos');
+            const videos = await response.json();
+            
+            if (videos.success && videos.data) {
+                renderVideos(videos.data);
+            } else {
+                renderDefaultVideos();
+            }
+        } catch (error) {
+            console.error('Error loading videos:', error);
+            renderDefaultVideos();
+        }
+    }
+
+    function renderVideos(videoData) {
+        const videoGrid = document.getElementById('videoGrid');
+        videoGrid.innerHTML = '';
+        
+        videoData.forEach((video, index) => {
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.innerHTML = `
+                <div class="video-thumbnail" onclick="playVideo('${video.url || '#'}')">
+                    <img src="${video.thumbnail || `https://picsum.photos/seed/video${index}/400/200.jpg`}" alt="${video.title}">
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="video-duration">${video.duration || '10:30'}</div>
+                </div>
+                <div class="video-info">
+                    <h4 class="video-name">${video.title || 'Introduction to Web Development'}</h4>
+                    <p class="video-description">${video.description || 'Learn the fundamentals of modern web development'}</p>
+                </div>
+            `;
+            videoGrid.appendChild(videoCard);
+        });
+    }
+
+    function renderDefaultVideos() {
+        const defaultVideos = [
+            {
+                title: 'Introduction to Web Development',
+                description: 'Start your journey into web development with HTML, CSS, and JavaScript',
+                duration: '15:45',
+                thumbnail: 'https://picsum.photos/seed/webdev1/400/200.jpg'
+            },
+            {
+                title: 'Digital Marketing Mastery',
+                description: 'Learn proven strategies for successful digital marketing campaigns',
+                duration: '22:30',
+                thumbnail: 'https://picsum.photos/seed/marketing2/400/200.jpg'
+            },
+            {
+                title: 'Data Science Fundamentals',
+                description: 'Explore the world of data science and machine learning',
+                duration: '18:15',
+                thumbnail: 'https://picsum.photos/seed/datascience3/400/200.jpg'
+            }
+        ];
+        renderVideos(defaultVideos);
+    }
+
+    function playVideo(url) {
+        if (url && url !== '#') {
+            window.open(url, '_blank');
+        } else {
+            Swal.fire({
+                title: 'Video Preview',
+                text: 'Full video access requires registration. Please sign up to watch complete courses.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Register Now',
+                cancelButtonText: 'Maybe Later'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+    }
+
+    async function loadCourseData() {
+        try {
+            const response = await fetch('/api/courses');
+            const courses = await response.json();
+            
+            if (courses.success && courses.data) {
+                renderCourses(courses.data);
+            } else {
+                renderDefaultCourses();
+            }
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            renderDefaultCourses();
+        }
+    }
+
+    function renderCourses(courseData) {
+        const courseGrid = document.getElementById('courseGrid');
+        courseGrid.innerHTML = '';
+        
+        courseData.forEach((course, index) => {
+            const courseCard = document.createElement('div');
+            courseCard.className = 'course-card';
+            courseCard.onclick = () => showCourseDetails(course);
+            courseCard.innerHTML = `
+                <div class="course-image">
+                    <img src="${course.image || `https://picsum.photos/seed/course${index}/300/160.jpg`}" alt="${course.title}">
+                    <div class="course-level">${course.level || 'Beginner'}</div>
+                </div>
+                <div class="course-content">
+                    <h4 class="course-name">${course.title || 'Web Development Bootcamp'}</h4>
+                    <div class="course-instructor">
+                        <i class="fas fa-user-tie"></i>
+                        ${course.instructor || 'Expert Instructor'}
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-duration">
+                            <i class="fas fa-clock"></i>
+                            ${course.duration || '8 weeks'}
+                        </div>
+                        <div class="course-rating">
+                            <div class="stars">${generateStars(course.rating || 4.5)}</div>
+                            <span class="rating-number">${course.rating || 4.5}</span>
+                        </div>
+                    </div>
+                    <div class="course-price">
+                        ${course.price ? '$' + course.price : 'FREE'}
+                    </div>
+                </div>
+            `;
+            courseGrid.appendChild(courseCard);
+        });
+    }
+
+    function renderDefaultCourses() {
+        const defaultCourses = [
+            {
+                title: 'Full Stack Web Development',
+                instructor: 'John Developer',
+                level: 'Intermediate',
+                duration: '12 weeks',
+                rating: 4.8,
+                price: 299
+            },
+            {
+                title: 'Digital Marketing Pro',
+                instructor: 'Sarah Marketer',
+                level: 'Beginner',
+                duration: '6 weeks',
+                rating: 4.6,
+                price: 199
+            },
+            {
+                title: 'Data Science with Python',
+                instructor: 'Dr. Data Scientist',
+                level: 'Advanced',
+                duration: '16 weeks',
+                rating: 4.9,
+                price: 399
+            },
+            {
+                title: 'Mobile App Development',
+                instructor: 'Mike Mobile',
+                level: 'Intermediate',
+                duration: '10 weeks',
+                rating: 4.7,
+                price: 349
+            }
+        ];
+        renderCourses(defaultCourses);
+    }
+
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+        const emptyStars = 5 - fullStars - halfStar;
+        
+        let stars = '';
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star"></i>';
+        }
+        if (halfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star"></i>';
+        }
+        return stars;
+    }
+
+    function showCourseDetails(course) {
+        Swal.fire({
+            title: course.title || 'Course Details',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>Instructor:</strong> ${course.instructor || 'Expert Instructor'}</p>
+                    <p><strong>Level:</strong> ${course.level || 'All Levels'}</p>
+                    <p><strong>Duration:</strong> ${course.duration || 'Self-paced'}</p>
+                    <p><strong>Rating:</strong> ${generateStars(course.rating || 4.5)} ${course.rating || 4.5}</p>
+                    <p><strong>Price:</strong> ${course.price ? '$' + course.price : 'FREE'}</p>
+                    <p><strong>Description:</strong> ${course.description || 'Comprehensive course designed to help you master the subject.'}</p>
+                </div>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Enroll Now',
+            cancelButtonText: 'Close'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'index.html';
+            }
+        });
+    }
+</script>
+</body>
+</html>

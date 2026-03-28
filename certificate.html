@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER LEARNING HUB | Certificate Verification Portal</title>
+    
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://api.qrserver.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https: https://api.qrserver.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://api.naterhub.com;">
+    
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NATER HUB">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { 
+            --brand-primary: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --brand-darker: #8b0000;
+            --brand-light: #ffcdd2;
+            --accent-gold: #FFD700;
+            --accent-platinum: #e5e4e2;
+            
+            /* Premium Gradients */
+            --gradient-primary: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #8b0000 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            --gradient-certificate: linear-gradient(135deg, #ffffff 0%, #fcfcfc 50%, #f8f9fa 100%);
+            
+            /* Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 40px rgba(0,0,0,0.16);
+            --shadow-premium: 0 20px 60px rgba(211, 47, 47, 0.15);
+            --shadow-gold: 0 20px 60px rgba(255, 215, 0, 0.2);
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-brand: 'Cinzel', serif;
+            --font-signature: 'Dancing Script', cursive;
+        }
+        
+        * {
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+        }
+
+        /* Premium Background Effects */
+        #starCanvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -2; 
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%); 
+        }
+
+        .reflective-glow { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(211, 47, 47, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            z-index: -1; 
+            pointer-events: none; 
+            animation: premiumGlow 15s ease-in-out infinite alternate; 
+        }
+
+        @keyframes premiumGlow {
+            0% { 
+                background: 
+                    radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, rgba(211, 47, 47, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            }
+            50% { 
+                background: 
+                    radial-gradient(circle at 30% 40%, rgba(255, 215, 0, 0.15) 0%, transparent 45%),
+                    radial-gradient(circle at 70% 60%, rgba(211, 47, 47, 0.15) 0%, transparent 45%),
+                    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+            }
+            100% { 
+                background: 
+                    radial-gradient(circle at 25% 35%, rgba(255, 215, 0, 0.18) 0%, transparent 50%),
+                    radial-gradient(circle at 75% 65%, rgba(211, 47, 47, 0.18) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            }
+        }
+
+        /* Premium Navigation */
+        .top-nav { 
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            z-index: 1000; 
+        }
+
+        .nav-btn {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: var(--brand-primary);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-premium);
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--brand-primary);
+        }
+
+        /* Premium Input Section */
+        #inputSection { 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            flex-direction: column; 
+        }
+
+        .claim-wrapper { 
+            max-width: 1000px; 
+            width: 100%; 
+            padding: 80px 60px; 
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px); 
+            border: 6px solid var(--accent-gold); 
+            border-radius: 40px; 
+            text-align: center; 
+            box-shadow: 
+                var(--shadow-gold),
+                0 0 100px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .claim-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .brand-nater { 
+            font-family: var(--font-brand); 
+            font-weight: 900; 
+            font-size: 3.5rem; 
+            color: var(--accent-gold); 
+            letter-spacing: 6px; 
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: brandGlow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-hub { 
+            font-family: var(--font-brand); 
+            font-weight: 900; 
+            font-size: 3.5rem; 
+            color: var(--brand-primary); 
+            letter-spacing: 6px; 
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: brandGlow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes brandGlow {
+            from { 
+                filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+            }
+            to { 
+                filter: brightness(1.2) drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+            }
+        }
+
+        .tagline {
+            color: var(--accent-gold); 
+            font-weight: 800; 
+            font-size: 1.2rem; 
+            letter-spacing: 3px; 
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Premium Input */
+        .id-input { 
+            background: var(--gradient-dark);
+            border: 4px solid var(--accent-gold); 
+            color: white; 
+            padding: 24px; 
+            border-radius: 20px; 
+            margin: 40px auto; 
+            width: 100%; 
+            max-width: 600px;
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 1.6rem; 
+            letter-spacing: 4px;
+            font-family: var(--font-display);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                inset 0 4px 12px rgba(0,0,0,0.3),
+                var(--shadow-gold);
+            position: relative;
+            z-index: 1;
+        }
+
+        .id-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .id-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+            box-shadow: 
+                inset 0 4px 12px rgba(0,0,0,0.3),
+                0 0 30px rgba(211, 47, 47, 0.3),
+                var(--shadow-gold);
+        }
+
+        /* Premium Button */
+        .btn-claim { 
+            padding: 24px 48px; 
+            font-size: 1.4rem; 
+            border-radius: 20px; 
+            max-width: 600px; 
+            width: 100%; 
+            font-weight: 900; 
+            background: var(--gradient-gold); 
+            color: #000; 
+            border: none; 
+            cursor: pointer;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-gold);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-claim::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-claim:hover::before {
+            left: 100%;
+        }
+
+        .btn-claim:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 30px 80px rgba(255, 215, 0, 0.4),
+                var(--shadow-gold);
+        }
+
+        /* Premium Loader */
+        #loader { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.95); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center; 
+            flex-direction: column; 
+            backdrop-filter: blur(20px);
+        }
+
+        .premium-spinner {
+            width: 100px;
+            height: 100px;
+            border: 8px solid rgba(255,255,255,0.1);
+            border-top: 8px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: premiumSpin 1s linear infinite;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes premiumSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: var(--accent-gold);
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .loader-subtitle {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+
+        /* Premium Certificate Viewer */
+        #certViewer { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 60px 20px; 
+            width: 100%; 
+        }
+        
+        .cert { 
+            width: 297mm; 
+            height: 210mm; 
+            background: var(--gradient-certificate); 
+            border: 25px solid var(--accent-gold); 
+            box-sizing: border-box; 
+            position: relative; 
+            border-style: ridge; 
+            text-align: center; 
+            color: #000;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            padding: 50px 70px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 100px rgba(0,0,0,0.3),
+                inset 0 0 50px rgba(255, 215, 0, 0.1);
+        }
+
+        .cert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(255, 215, 0, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 90% 90%, rgba(211, 47, 47, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .cert-header {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-nater { 
+            font-family: var(--font-brand); 
+            font-size: 48px; 
+            font-weight: 900; 
+            color: var(--accent-gold); 
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .logo-hub { 
+            font-family: var(--font-brand); 
+            font-size: 48px; 
+            font-weight: 900; 
+            color: var(--brand-primary); 
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .cert-subtitle {
+            letter-spacing: 6px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            color: #666; 
+            margin-top: 12px;
+            font-family: var(--font-display);
+            font-size: 14px;
+        }
+
+        .cert-body {
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cert-text {
+            font-size: 24px; 
+            font-weight: 600; 
+            margin-bottom: 20px;
+            font-family: var(--font-primary);
+        }
+
+        #displayName { 
+            font-size: 56px; 
+            font-weight: 900; 
+            border-bottom: 6px solid var(--accent-gold); 
+            padding: 8px 30px; 
+            text-transform: uppercase; 
+            margin: 20px auto; 
+            display: inline-block;
+            max-width: 95%;
+            word-wrap: break-word;
+            line-height: 1.2;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #displayCourse { 
+            font-size: 36px; 
+            color: var(--accent-gold); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            max-width: 90%;
+            margin: 20px auto;
+            word-wrap: break-word;
+            font-family: var(--font-display);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cert-footer {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            width: 100%; 
+            position: relative;
+            z-index: 1;
+        }
+
+        .qr-zone { 
+            text-align: left; 
+        }
+
+        .qr-code {
+            width: 130px;
+            height: 130px;
+            border: 4px solid var(--accent-gold);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .cert-date {
+            font-weight: 900; 
+            border-top: 3px solid #000; 
+            margin-top: 15px; 
+            width: 200px;
+            padding-top: 8px;
+            font-family: var(--font-display);
+            font-size: 14px;
+        }
+
+        .id-badge { 
+            font-size: 14px; 
+            font-weight: 900; 
+            background: var(--gradient-dark); 
+            color: var(--accent-gold); 
+            padding: 15px 30px; 
+            border-radius: 10px; 
+            border: 4px solid var(--accent-gold);
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: var(--font-display);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .sig-zone { 
+            text-align: right; 
+        }
+
+        .signature {
+            font-family: var(--font-signature); 
+            font-size: 52px; 
+            font-weight: 700;
+            color: var(--brand-primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sig-title {
+            font-weight: 900; 
+            border-top: 3px solid #000; 
+            width: 250px;
+            padding-top: 8px;
+            font-family: var(--font-display);
+            font-size: 14px;
+        }
+
+        /* Premium Control Buttons */
+        .control-buttons {
+            margin-bottom: 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-pdf {
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn-back {
+            background: var(--gradient-card);
+            color: var(--brand-primary);
+            border: 2px solid var(--glass-border);
+            font-size: 16px;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .control-btn:hover::before {
+            left: 100%;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-premium);
+        }
+
+        /* Print Styles */
+        @media print {
+            @page { 
+                size: A4 landscape; 
+                margin: 0; 
+            }
+            body { 
+                background: white; 
+            }
+            #starCanvas, .reflective-glow, #inputSection, .no-print, #loader, .top-nav, .control-buttons { 
+                display: none !important; 
+            }
+            #certViewer { 
+                display: flex !important; 
+                padding: 0 !important; 
+            }
+            .cert { 
+                box-shadow: none; 
+                border-width: 20px; 
+                width: 100%; 
+                height: 100vh; 
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .brand-nater, .brand-hub {
+                font-size: 2.5rem;
+                letter-spacing: 3px;
+            }
+
+            .claim-wrapper {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+
+            .id-input {
+                font-size: 1.2rem;
+                padding: 20px;
+            }
+
+            .btn-claim {
+                font-size: 1.2rem;
+                padding: 20px;
+            }
+
+            #displayName {
+                font-size: 42px;
+            }
+
+            #displayCourse {
+                font-size: 28px;
+            }
+        }
+
+        /* Premium Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-primary);
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;" onkeydown="return disableShortcuts(event)">
+
+<!-- Premium Navigation -->
+<div class="top-nav no-print">
+    <a href="academy.html" class="nav-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+        BACK TO ACADEMY
+    </a>
+</div>
+
+<!-- Premium Loader -->
+<div id="loader">
+    <div class="premium-spinner"></div>
+    <div class="loader-text">AUTHENTICATING...</div>
+    <div class="loader-subtitle">Verifying certificate credentials</div>
+</div>
+
+<!-- Premium Background Effects -->
+<canvas id="starCanvas"></canvas>
+<div class="reflective-glow"></div>
+
+<!-- Premium Input Section -->
+<div id="inputSection" class="no-print fade-in-up">
+    <div class="claim-wrapper">
+        <div id="siteIdentity">
+            <span class="brand-nater" id="siteNameNater">NATER</span>
+            <span class="brand-hub" id="siteNameHub">LEARNING HUB</span>
+        </div>
+        <div class="tagline" id="siteTagline">OFFICIAL CERTIFICATE PORTAL</div>
+        <input type="text" id="certIdInput" class="id-input" placeholder="ENTER VERIFICATION ID">
+        <button class="btn-claim" onclick="validateId()">
+            <i class="fa-solid fa-shield-halved me-3"></i>VERIFY & GENERATE
+        </button>
+    </div>
+</div>
+
+<!-- Premium Certificate Viewer -->
+<div id="certViewer">
+    <div class="control-buttons no-print">
+        <button class="control-btn btn-pdf" onclick="window.print()">
+            <i class="fa-solid fa-file-pdf me-2"></i>SAVE AS PDF
+        </button>
+        <button class="control-btn btn-back" onclick="location.reload()">
+            <i class="fa-solid fa-arrow-left me-2"></i>BACK
+        </button>
+    </div>
+    <div id="scaler">
+        <div class="cert" id="printableCert">
+            <!-- Certificate Header -->
+            <div class="cert-header">
+                <span class="logo-nater" id="certNameNater">NATER</span>
+                <span class="logo-hub" id="certNameHub">LEARNING HUB</span>
+                <div class="cert-subtitle">Certificate of Professional Completion</div>
+            </div>
+            
+            <!-- Certificate Body -->
+            <div class="cert-body">
+                <div class="cert-text">This is to officially certify that</div>
+                <div id="displayName">---</div>
+                <div class="cert-text">has successfully mastered the premium curriculum for</div>
+                <div id="displayCourse">---</div>
+            </div>
+
+            <!-- Certificate Footer -->
+            <div class="cert-footer">
+                <div class="qr-zone">
+                    <img id="displayQR" src="" class="qr-code" alt="Verification QR Code">
+                    <div class="cert-date" id="displayDate">DATE: --</div>
+                </div>
+
+                <div class="id-badge" id="displayId">VERIFICATION ID: --</div>
+
+                <div class="sig-zone">
+                    <div class="signature">Nater Mbashau</div>
+                    <div class="sig-title">Chief Instructor & CEO</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Enhanced Security
+    function disableShortcuts(e) { 
+        if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) {
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Premium Toast Notification
+    const showToast = (icon, title, text = '') => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({ 
+            icon: icon, 
+            title: title,
+            text: text
+        });
+    };
+
+    // Premium Initialization
+    window.onload = () => {
+        fetchBranding();
+        initStars();
+        animateStars();
+        
+        // Auto-fill certificate ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoId = urlParams.get('certId'); 
+        
+        if(autoId) {
+            document.getElementById('certIdInput').value = autoId;
+            // Auto-validate after a short delay for better UX
+            setTimeout(() => validateId(), 1000);
+        }
+    };
+
+    // Premium Branding Fetch
+    async function fetchBranding() {
+        try {
+            const res = await fetch('/api/public-settings');
+            const data = await res.json();
+            if(data.success) {
+                const nameParts = (data.siteName || 'NATER LEARNING HUB').split(' ');
+                const naterPart = nameParts[0];
+                const hubPart = nameParts.slice(1).join(' ');
+
+                // Update input section branding
+                document.getElementById('siteNameNater').innerText = naterPart;
+                document.getElementById('siteNameHub').innerText = hubPart;
+                document.getElementById('siteTagline').innerText = data.tagline || 'OFFICIAL CERTIFICATE PORTAL';
+
+                // Update certificate branding
+                document.getElementById('certNameNater').innerText = naterPart;
+                document.getElementById('certNameHub').innerText = hubPart;
+            }
+        } catch (err) { 
+            console.error("Premium branding fetch failed:", err); 
+        }
+    }
+
+    // Premium Certificate Validation
+    async function validateId() {
+        const certId = document.getElementById('certIdInput').value.trim();
+        
+        if (!certId) {
+            return Swal.fire({
+                title: 'Verification Required',
+                text: 'Please enter your Verification ID to proceed.',
+                icon: 'warning',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+
+        // Show premium loader
+        document.getElementById('loader').style.display = 'flex';
+
+        try {
+            const response = await fetch('/api/verify-certificate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ certId }) 
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                // Populate certificate with premium animations
+                await populateCertificate(data, certId);
+                
+                // Transition to certificate view
+                document.getElementById('inputSection').style.display = 'none';
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('certViewer').style.display = 'flex';
+                
+                // Handle scaling for responsive view
+                handleScaling();
+                
+                // Show success notification
+                showToast('success', 'Certificate Verified', 'Your certificate has been authenticated');
+            } else {
+                document.getElementById('loader').style.display = 'none';
+                Swal.fire({
+                    title: 'Verification Failed',
+                    text: data.message || 'Certificate verification failed. Please check your ID.',
+                    icon: 'error',
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            document.getElementById('loader').style.display = 'none';
+            Swal.fire({
+                title: 'Connection Error',
+                text: 'Unable to connect to verification server. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+    }
+
+    // Premium Certificate Population
+    async function populateCertificate(data, certId) {
+        // Animate name appearance
+        const nameElement = document.getElementById('displayName');
+        nameElement.style.opacity = '0';
+        nameElement.innerText = data.studentName;
+        
+        // Animate course appearance
+        const courseElement = document.getElementById('displayCourse');
+        courseElement.style.opacity = '0';
+        courseElement.innerText = data.courseTitle;
+        
+        // Update verification ID
+        document.getElementById('displayId').innerText = "VERIFICATION ID: " + certId;
+        
+        // Format and display date
+        const certDate = new Date(data.date).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        document.getElementById('displayDate').innerText = "DATE: " + certDate;
+
+        // Generate QR code
+        const verifyUrl = `${window.location.origin}/certificate.html?certId=${certId}`;
+        document.getElementById('displayQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(verifyUrl)}&margin=10&color=000000&bgcolor=FFFFFF`;
+
+        // Animate elements in
+        setTimeout(() => {
+            nameElement.style.transition = 'opacity 1s ease-in-out';
+            nameElement.style.opacity = '1';
+            
+            setTimeout(() => {
+                courseElement.style.transition = 'opacity 1s ease-in-out';
+                courseElement.style.opacity = '1';
+            }, 500);
+        }, 300);
+    }
+
+    // Premium Scaling Function
+    function handleScaling() {
+        const scaler = document.getElementById('scaler');
+        const winW = window.innerWidth - 40;
+        if (winW < 1122) {
+            scaler.style.transform = `scale(${winW / 1122})`;
+            scaler.style.transformOrigin = "top center";
+        }
+    }
+
+    // Premium Starfield Animation
+    const canvas = document.getElementById('starCanvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    
+    function initStars() {
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight;
+        
+        // Create premium stars with varied properties
+        for(let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width, 
+                y: Math.random() * canvas.height, 
+                s: Math.random() * 3 + 0.5, 
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.5 + 0.1
+            });
+        }
+    }
+    
+    function animateStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Create gradient background
+        const gradient = ctx.createRadialGradient(
+            canvas.width / 2, canvas.height / 2, 0,
+            canvas.width / 2, canvas.height / 2, canvas.width / 2
+        );
+        gradient.addColorStop(0, 'rgba(26, 26, 26, 0.8)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw stars
+        stars.forEach(s => { 
+            ctx.globalAlpha = s.o;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add glow effect for larger stars
+            if (s.s > 2) {
+                ctx.globalAlpha = s.o * 0.3;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.s * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Move stars
+            s.y -= s.speed;
+            if(s.y < -10) {
+                s.y = canvas.height + 10;
+                s.x = Math.random() * canvas.width;
+            }
+        });
+        
+        requestAnimationFrame(animateStars);
+    }
+
+    // Window resize handler
+    window.addEventListener('resize', () => {
+        initStars();
+        handleScaling();
+    });
+
+    // Premium Security Enhancements
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Premium Performance Monitoring
+    console.log('%c🏆 NATER LEARNING HUB - Premium Certificate Portal 🏆', 'font-size: 28px; font-weight: bold; color: #FFD700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-family: Space Grotesk;');
+    console.log('%cWorld-Class Certificate Verification System', 'font-size: 16px; color: #d32f2f; font-family: Inter;');
+</script>
+
+<style>
+    /* Premium SweetAlert2 Customization */
+    .swal2-popup {
+        border-radius: 20px;
+        border: 2px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        background: var(--gradient-card);
+    }
+
+    .swal2-title {
+        font-family: var(--font-display);
+        color: var(--brand-primary);
+        font-weight: 700;
+    }
+
+    .swal2-confirm {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-family: var(--font-primary);
+    }
+
+    /* Premium Touch Support */
+    @media (hover: none) {
+        .btn-claim:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .control-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+    }
+</style>
+</body>
+</html>

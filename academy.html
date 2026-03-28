@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER LEARNING HUB | Premium Academy</title>
+    
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.paystack.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://api.naterhub.com https://api.paystack.co; media-src 'self' blob:; object-src 'none';">
+    
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NATER HUB">
+    
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { 
+            --brand-primary: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --brand-darker: #8b0000;
+            --brand-light: #ffcdd2;
+            --accent-gold: #FFD700;
+            --accent-platinum: #e5e4e2;
+            
+            /* Premium Gradients */
+            --gradient-primary: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #8b0000 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            --gradient-course: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            
+            /* Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 40px rgba(0,0,0,0.16);
+            --shadow-premium: 0 20px 60px rgba(211, 47, 47, 0.15);
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-brand: 'Cinzel', serif;
+        }
+
+        [data-theme="dark"] {
+            --gradient-card: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.85) 100%);
+            --gradient-course: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        * {
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 50%, #d32f2f 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+        }
+
+        /* Premium Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(211, 47, 47, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(211, 47, 47, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Premium Branding */
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+            position: relative;
+        }
+
+        .brand-nater {
+            font-family: var(--font-brand);
+            font-weight: 900;
+            color: var(--accent-gold);
+            letter-spacing: 4px;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: inline-block;
+            animation: brandGlow 3s ease-in-out infinite alternate;
+        }
+
+        .brand-hub {
+            font-family: var(--font-brand);
+            font-weight: 900;
+            color: var(--brand-primary);
+            letter-spacing: 4px;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: inline-block;
+            animation: brandGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes brandGlow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .brand-tagline {
+            letter-spacing: 4px;
+            color: #666;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-family: var(--font-display);
+        }
+
+        /* Premium Stats Container */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (min-width: 850px) {
+            .stats-container { 
+                grid-template-columns: repeat(4, 1fr); 
+            }
+        }
+        
+        .stat-item {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-gold);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(211, 47, 47, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-item:hover::before {
+            opacity: 1;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-premium);
+            border-color: var(--brand-primary);
+        }
+
+        .stat-val {
+            color: var(--accent-gold);
+            font-weight: 900;
+            font-size: 2rem;
+            display: block;
+            font-family: var(--font-display);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-lbl {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* Premium Search */
+        .search-wrapper {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .search-input {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 16px 30px 16px 60px;
+            color: #333;
+            width: 100%;
+            font-size: 16px;
+            font-family: var(--font-primary);
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1), var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-gold);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        /* Premium Category Tabs */
+        .category-scroll {
+            display: flex;
+            justify-content: flex-start;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 20px;
+            margin-bottom: 40px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .category-scroll { 
+                justify-content: center; 
+            }
+        }
+        
+        .cat-btn {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: #666;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            white-space: nowrap;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cat-btn:hover::before {
+            left: 100%;
+        }
+
+        .cat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-primary);
+        }
+
+        .cat-btn.active {
+            background: var(--gradient-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+            font-weight: 700;
+            transform: translateY(-2px);
+        }
+
+        /* Premium Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: var(--brand-primary);
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(211, 47, 47, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-premium);
+            border-color: var(--brand-primary);
+            color: white;
+            background: var(--gradient-primary);
+        }
+
+        /* Premium Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Premium Course Card */
+        .course-card {
+            background: var(--gradient-course);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transition: height 0.3s;
+        }
+
+        .course-card:hover::before {
+            height: 8px;
+        }
+
+        .course-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: var(--shadow-premium);
+            border-color: var(--brand-primary);
+        }
+
+        .course-image-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .course-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .course-card:hover .course-image {
+            transform: scale(1.1);
+        }
+
+        .course-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .course-card:hover .course-overlay {
+            opacity: 1;
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-primary);
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .course-content {
+            padding: 28px;
+        }
+
+        .course-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 16px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .course-price {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+        }
+
+        .course-duration {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .course-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-family: var(--font-primary);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        .course-btn-owned {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .course-btn-enroll {
+            background: var(--gradient-gold);
+            color: #000;
+            box-shadow: var(--shadow-md);
+        }
+
+        .course-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .course-btn:hover::before {
+            left: 100%;
+        }
+
+        .course-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Premium Lesson View */
+        .lesson-header-branding {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .course-title-style {
+            font-family: var(--font-brand);
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: 3px;
+        }
+
+        .lesson-item {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-left: 6px solid var(--brand-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(211, 47, 47, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .lesson-item:hover::before {
+            opacity: 1;
+        }
+
+        .lesson-item:hover {
+            transform: translateX(8px);
+            box-shadow: var(--shadow-premium);
+            border-color: var(--brand-primary);
+        }
+
+        .lesson-locked {
+            opacity: 0.4;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
+
+        .lesson-number {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            margin-right: 16px;
+        }
+
+        .lesson-title {
+            font-weight: 600;
+            color: #333;
+            flex-grow: 1;
+            font-size: 1.1rem;
+        }
+
+        .lesson-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .lesson-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+        }
+
+        .lesson-btn-video {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lesson-btn-pdf {
+            background: var(--gradient-gold);
+            color: #000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lesson-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Premium Video Overlay */
+        #videoOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 95%;
+            max-width: 1200px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 4px solid var(--accent-gold);
+        }
+
+        #watermark {
+            position: absolute;
+            color: rgba(255,255,255,0.15);
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 20001;
+            font-size: 1.2rem;
+            transition: all 6s linear;
+            font-family: var(--font-brand);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            top: 10%;
+            left: 10%;
+            background: rgba(211, 47, 47, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        .video-controls {
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .video-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-family: var(--font-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .video-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Premium Certificate Card */
+        .cert-card {
+            background: var(--gradient-dark);
+            border: 3px solid var(--accent-gold);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+            display: none;
+            box-shadow: var(--shadow-premium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cert-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cert-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+
+        .cert-id-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px dashed var(--accent-gold);
+            font-family: 'Courier New', monospace;
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+            margin-bottom: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .cert-id-box:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.02);
+        }
+
+        /* Premium Payment Loader */
+        #paymentLoader {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 30000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255,255,255,0.1);
+            border-top: 8px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: white;
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .loader-subtitle {
+            color: #ccc;
+            font-size: 1rem;
+        }
+
+        /* Premium Back Button */
+        .back-btn {
+            background: var(--gradient-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: var(--brand-primary);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--brand-primary);
+        }
+
+        /* Premium Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .brand-nater, .brand-hub {
+                font-size: 2rem;
+                letter-spacing: 2px;
+            }
+
+            .course-grid {
+                grid-template-columns: 1fr;
+                padding: 0 16px;
+                gap: 20px;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                margin-bottom: 30px;
+            }
+
+            .stat-item {
+                padding: 20px;
+            }
+
+            .stat-val {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-dark);
+        }
+
+        /* Premium Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--glass-bg) 25%, rgba(255,255,255,0.1) 50%, var(--glass-bg) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--brand-primary);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body data-theme="light" oncontextmenu="return false;" onkeydown="return disableShortcuts(event)">
+
+<!-- Premium Payment Loader -->
+<div id="paymentLoader">
+    <div class="spinner"></div>
+    <div class="loader-text">VERIFYING PAYMENT...</div>
+    <div class="loader-subtitle">Please wait while we process your transaction</div>
+</div>
+
+<!-- Premium Container -->
+<div class="container p-4">
+    <!-- Premium Header -->
+    <div class="d-flex justify-content-end mb-4">
+        <a href="dashboard.html" class="back-btn">
+            <i class="fa-solid fa-th-large"></i>
+            DASHBOARD
+        </a>
+    </div>
+
+    <!-- Gallery View -->
+    <div id="galleryView" class="fade-in-up">
+        <!-- Premium Branding -->
+        <div class="brand-logo">
+            <div id="siteIdentity">
+                <span class="brand-nater dyn-site-nater">NATER</span>
+                <span class="brand-hub dyn-site-hub">LEARNING HUB</span>
+            </div>
+            <div class="brand-tagline" id="displayTagline">PREMIUM ACADEMY</div>
+        </div>
+
+        <!-- Premium Stats -->
+        <div class="stats-container">
+            <div class="stat-item fade-in-up">
+                <span class="stat-val" id="courseCount">0</span>
+                <span class="stat-lbl">Courses</span>
+            </div>
+            <div class="stat-item fade-in-up" style="animation-delay: 0.1s;">
+                <span class="stat-val" id="studentCount">0</span>
+                <span class="stat-lbl">Students</span>
+            </div>
+            <div class="stat-item fade-in-up" style="animation-delay: 0.2s;">
+                <span class="stat-val" id="scholarCount">0</span>
+                <span class="stat-lbl">Scholars</span>
+            </div>
+            <div class="stat-item fade-in-up" style="animation-delay: 0.3s;">
+                <span class="stat-val" id="purchaserCount">0</span>
+                <span class="stat-lbl">Purchasers</span>
+            </div>
+        </div>
+
+        <!-- Premium Search -->
+        <div class="search-wrapper fade-in-up" style="animation-delay: 0.4s;">
+            <i class="fa-solid fa-search search-icon"></i>
+            <input type="text" id="courseSearch" class="search-input" placeholder="Search for premium courses..." onkeyup="applyFilters()">
+        </div>
+
+        <!-- Premium Categories -->
+        <div class="category-scroll fade-in-up" style="animation-delay: 0.5s;" id="categoryTabs">
+            <button class="cat-btn active" onclick="setCategory('All', this)">
+                <i class="fa-solid fa-globe me-2"></i>All Courses
+            </button>
+            <button class="cat-btn" onclick="setCategory('Programming', this)">
+                <i class="fa-solid fa-code me-2"></i>Programming
+            </button>
+            <button class="cat-btn" onclick="setCategory('Trading', this)">
+                <i class="fa-solid fa-chart-line me-2"></i>Trading
+            </button>
+            <button class="cat-btn" onclick="setCategory('Design', this)">
+                <i class="fa-solid fa-palette me-2"></i>Design
+            </button>
+            <button class="cat-btn" onclick="setCategory('Marketing', this)">
+                <i class="fa-solid fa-bullhorn me-2"></i>Marketing
+            </button>
+        </div>
+
+        <!-- Premium Navigation -->
+        <div class="nav-container fade-in-up" style="animation-delay: 0.6s;">
+            <button class="nav-btn" onclick="resetView()">
+                <i class="fa-solid fa-compass me-2"></i>EXPLORE ALL
+            </button>
+            <button class="nav-btn" onclick="filterPurchased()">
+                <i class="fa-solid fa-bookmark me-2"></i>MY COURSES
+            </button>
+            <a href="verify-payment.html" class="nav-btn">
+                <i class="fa-solid fa-receipt me-2"></i>VERIFY PAYMENT
+            </a>
+            <a href="verify-certificate.html" class="nav-btn">
+                <i class="fa-solid fa-certificate me-2"></i>VERIFY CERTIFICATE
+            </a>
+        </div>
+
+        <!-- Premium Course Grid -->
+        <div id="courseGrid" class="course-grid fade-in-up" style="animation-delay: 0.7s;"></div>
+    </div>
+
+    <!-- Premium Lesson View -->
+    <div id="lessonView" style="display:none;" class="fade-in-up">
+        <a href="#" class="back-btn" onclick="location.reload()">
+            <i class="fa-solid fa-arrow-left me-2"></i>BACK TO ACADEMY
+        </a>
+        
+        <div class="lesson-header-branding">
+            <span class="brand-nater course-title-style dyn-site-nater">NATER</span>
+            <span class="brand-hub course-title-style dyn-site-hub">LEARNING HUB</span>
+        </div>
+        
+        <div id="lessonList"></div>
+
+        <!-- Premium Certificate Card -->
+        <div class="cert-card" id="completionCard">
+            <div class="cert-title">
+                <i class="fa-solid fa-trophy me-3"></i>COURSE COMPLETED!
+            </div>
+            <p class="text-white mb-3">Your unique verification ID is below. Click to copy.</p>
+            <div class="cert-id-box" id="certIdDisplay" onclick="copyCertID()">---</div>
+            <button class="video-btn" onclick="goToCertificate()">
+                <i class="fa-solid fa-award me-2"></i>GENERATE CERTIFICATE
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Premium Video Overlay -->
+<div id="videoOverlay">
+    <div class="brand-logo mb-4">
+        <span class="brand-nater dyn-site-nater" style="color:var(--accent-gold); font-size:1.8rem;">NATER</span>
+        <span class="brand-hub dyn-site-hub" style="color:var(--accent-gold); font-size:1.8rem;">LEARNING HUB</span>
+    </div>
+    <div class="video-wrapper">
+        <div id="watermark">SECURE SESSION: <span id="wmEmail"></span></div>
+        <video id="player" controls controlsList="nodownload" oncontextmenu="return false;"></video>
+    </div>
+    <div class="video-controls">
+        <button class="video-btn" onclick="closeVideo()">
+            <i class="fa-solid fa-power-off me-2"></i>EXIT SECURE PLAYER
+        </button>
+    </div>
+</div>
+
+<script>
+    // Enhanced Security
+    const token = localStorage.getItem('token');
+    if (!token) window.location.replace('index.html');
+
+    // Premium JWT Decoding
+    function parseJwt(t) { 
+        try { 
+            const base64Url = t.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) { 
+            console.error('JWT parsing error:', e);
+            return null; 
+        } 
+    }
+    
+    const student = parseJwt(token);
+    if(student) {
+        document.getElementById('wmEmail').innerText = student.email;
+    }
+
+    // Premium State Management
+    let allCourses = [], currentCategory = 'All', ownedCourseIds = [], showingPurchasedOnly = false;
+    let activeLessons = [], currentCourseId = null, enrollmentData = null;
+
+    // Enhanced Security Functions
+    function disableShortcuts(e) { 
+        if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) {
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Premium Toast Notification
+    const showToast = (icon, title, text = '') => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({ 
+            icon: icon, 
+            title: title,
+            text: text
+        });
+    };
+
+    // Premium Initialization
+    (async function init() {
+        try {
+            // Show loading state
+            showLoadingState();
+
+            const [settingsRes, courseRes] = await Promise.all([
+                fetch('/api/public-settings'),
+                fetch('/api/academy/all-courses', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ email: student.email }) 
+                })
+            ]);
+            
+            const sData = await settingsRes.json();
+            if(sData.success) {
+                const nameParts = (sData.siteName || 'NATER LEARNING HUB').split(' ');
+                document.querySelectorAll('.dyn-site-nater').forEach(el => el.innerText = nameParts[0]);
+                document.querySelectorAll('.dyn-site-hub').forEach(el => el.innerText = nameParts.slice(1).join(' '));
+                document.getElementById('displayTagline').innerText = sData.tagline || 'PREMIUM ACADEMY';
+            }
+
+            const cData = await courseRes.json();
+            if(cData.success) {
+                allCourses = cData.courses || [];
+                ownedCourseIds = cData.ownedIds || [];
+                
+                // Animate stats counting
+                const stats = cData.stats || {};
+                animateCounter('courseCount', stats.totalCourses || 0);
+                animateCounter('studentCount', stats.totalStudents || 0);
+                animateCounter('scholarCount', stats.totalScholarships || 0);
+                animateCounter('purchaserCount', stats.totalSales || 0);
+                
+                applyFilters();
+            }
+        } catch (err) { 
+            console.error("Premium Academy initialization failed:", err);
+            showToast('error', 'Initialization Error', 'Failed to load academy data');
+        } finally {
+            hideLoadingState();
+        }
+    })();
+
+    // Premium Counter Animation
+    function animateCounter(elementId, targetValue) {
+        const element = document.getElementById(elementId);
+        const duration = 2000;
+        const step = targetValue / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= targetValue) {
+                current = targetValue;
+                clearInterval(timer);
+            }
+            element.innerText = Math.floor(current).toLocaleString();
+        }, 16);
+    }
+
+    // Premium Loading States
+    function showLoadingState() {
+        const grid = document.getElementById('courseGrid');
+        grid.innerHTML = `
+            <div class="empty-state">
+                <div class="loading-shimmer" style="height: 400px; border-radius: 24px; margin-bottom: 20px;"></div>
+                <div class="loading-shimmer" style="height: 400px; border-radius: 24px; margin-bottom: 20px;"></div>
+                <div class="loading-shimmer" style="height: 400px; border-radius: 24px;"></div>
+            </div>
+        `;
+    }
+
+    function hideLoadingState() {
+        // Loading will be replaced by actual content
+    }
+
+    // Premium Filter Functions
+    function applyFilters() {
+        const query = document.getElementById('courseSearch').value.toLowerCase();
+        const filtered = allCourses.filter(c => {
+            const matchesSearch = c.title.toLowerCase().includes(query) || 
+                                 c.description?.toLowerCase().includes(query);
+            const matchesCat = currentCategory === 'All' || c.category === currentCategory;
+            const isOwned = ownedCourseIds.includes(c.id) || student.is_admin;
+            return matchesSearch && matchesCat && (!showingPurchasedOnly || isOwned);
+        });
+        renderGrid(filtered);
+    }
+
+    // Premium Course Grid Rendering
+    function renderGrid(courses) {
+        const grid = document.getElementById('courseGrid');
+        
+        if (courses.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                    <div class="empty-title">No Courses Found</div>
+                    <div class="empty-text">Try adjusting your search or filters</div>
+                </div>
+            `;
+            return;
+        }
+        
+        grid.innerHTML = courses.map((c, index) => {
+            const isOwned = ownedCourseIds.includes(c.id) || student.is_admin;
+            const delay = index * 0.1;
+            
+            return `
+            <div class="course-card fade-in-up" style="animation-delay: ${delay}s;" onclick="handleAccess('${c.id}', '${c.title.replace(/'/g, "\\'")}', ${c.price}, ${isOwned})">
+                <div class="course-image-wrapper">
+                    <img src="${c.thumbnail || 'https://picsum.photos/seed/course' + c.id + '/400/200.jpg'}" 
+                         class="course-image" alt="${c.title}">
+                    <div class="course-overlay"></div>
+                    ${isOwned ? '<div class="course-badge"><i class="fa-solid fa-check me-1"></i>ENROLLED</div>' : ''}
+                </div>
+                <div class="course-content">
+                    <h6 class="course-title">${c.title}</h6>
+                    <div class="course-meta">
+                        <div class="course-price">₦${Number(c.price || 0).toLocaleString()}</div>
+                        <div class="course-duration">
+                            <i class="fa-solid fa-clock me-1"></i>${c.duration || 'Self-paced'}
+                        </div>
+                    </div>
+                    <button class="course-btn ${isOwned ? 'course-btn-owned' : 'course-btn-enroll'}">
+                        ${isOwned ? '<i class="fa-solid fa-play me-2"></i>RESUME LEARNING' : '<i class="fa-solid fa-shopping-cart me-2"></i>ENROLL NOW'}
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // Premium Course Access Handler
+    function handleAccess(id, title, price, isOwned) {
+        if (isOwned) {
+            openCourse(id, title);
+        } else {
+            // Show enrollment confirmation
+            Swal.fire({
+                title: 'Enroll in Premium Course',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>Course:</strong> ${title}</p>
+                        <p><strong>Price:</strong> ₦${Number(price).toLocaleString()}</p>
+                        <p><strong>Student:</strong> ${student.email}</p>
+                    </div>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#d32f2f',
+                confirmButtonText: 'Proceed to Payment',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/api/paystack/initialize?courseId=${id}&title=${encodeURIComponent(title)}&amount=${price}&email=${student.email}`;
+                }
+            });
+        }
+    }
+
+    // Premium Course Opening
+    async function openCourse(id, title) {
+        currentCourseId = id;
+        try {
+            showLoadingState();
+            
+            const res = await fetch('/api/academy/lessons', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ email: student.email, courseId: id }) 
+            });
+            
+            const data = await res.json();
+            if(!data.success) throw new Error("Failed to load lessons");
+            
+            activeLessons = data.lessons || [];
+            enrollmentData = data.enrollment || null; 
+            
+            document.getElementById('galleryView').style.display = 'none';
+            document.getElementById('lessonView').style.display = 'block';
+            renderLessons();
+            
+            showToast('success', 'Course Loaded', `Welcome to ${title}`);
+        } catch (err) { 
+            console.error("Course loading error:", err);
+            showToast('error', 'Loading Error', 'Failed to load course lessons');
+        }
+    }
+
+    // Premium Lesson Rendering
+    function renderLessons() {
+        const list = document.getElementById('lessonList');
+        let allWatched = activeLessons.length > 0;
+        
+        list.innerHTML = activeLessons.map((l, i) => {
+            const isUnlocked = i === 0 || (activeLessons[i-1] && activeLessons[i-1].watched);
+            if(!l.watched) allWatched = false;
+            
+            // Generate PDF button if path exists
+            const pdfBtn = l.pdf_path ? `
+                <button class="lesson-btn lesson-btn-pdf" onclick="${isUnlocked ? `window.open('/${l.pdf_path}', '_blank')` : ''}">
+                    <i class="fa-solid fa-file-pdf me-1"></i> VIEW PDF
+                </button>` : '';
+
+            return `
+            <div class="lesson-item ${!isUnlocked ? 'lesson-locked' : ''}" style="animation-delay: ${i * 0.1}s;">
+                <div class="d-flex align-items-center">
+                    <span class="lesson-number">${i+1}</span>
+                    <div class="lesson-title">
+                        <i class="fa-solid ${l.watched ? 'fa-check-circle text-success me-2' : 'fa-play-circle me-2'}"></i>
+                        ${l.title}
+                    </div>
+                </div>
+                <div class="lesson-actions">
+                    <button class="lesson-btn lesson-btn-video" onclick="${isUnlocked ? `playVideo('/${l.video_path}', '${l.id}', ${i})` : ''}">
+                        <i class="fa-solid fa-play me-1"></i> WATCH
+                    </button>
+                    ${pdfBtn}
+                </div>
+            </div>`;
+        }).join('');
+        
+        // Show completion certificate
+        if(allWatched && activeLessons.length > 0) {
+            document.getElementById('completionCard').style.display = 'block';
+            const certID = enrollmentData?.payment_reference || enrollmentData?.id || 'CERT-' + Math.floor(Math.random()*1000000);
+            document.getElementById('certIdDisplay').innerText = certID;
+            
+            // Celebration animation
+            showToast('success', 'Congratulations!', 'You have completed the course!');
+        }
+    }
+
+    // Premium Video Player
+    function playVideo(url, lessonId, index) {
+        const p = document.getElementById('player'); 
+        p.src = url; 
+        document.getElementById('videoOverlay').style.display = 'flex'; 
+        
+        // Show premium loading
+        showPaymentLoader();
+        
+        p.play().then(() => {
+            hidePaymentLoader();
+        }).catch(e => {
+            hidePaymentLoader();
+            console.log("Playback interrupted:", e);
+        });
+
+        // Enhanced video tracking
+        p.onended = async () => {
+            showPaymentLoader();
+            
+            activeLessons[index].watched = true; 
+            renderLessons();
+            
+            try {
+                await fetch('/api/academy/save-progress', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ email: student.email, lessonId: lessonId, watched: true }) 
+                });
+                
+                showToast('success', 'Lesson Completed', 'Progress saved successfully');
+            } catch (err) {
+                console.error("Progress save error:", err);
+                showToast('error', 'Save Error', 'Failed to save progress');
+            } finally {
+                hidePaymentLoader();
+            }
+        };
+
+        // Premium watermark movement
+        startWatermarkAnimation();
+    }
+
+    function closeVideo() { 
+        document.getElementById('player').pause(); 
+        document.getElementById('videoOverlay').style.display = 'none'; 
+        stopWatermarkAnimation();
+    }
+
+    // Premium Watermark Animation
+    let watermarkInterval;
+    function startWatermarkAnimation() {
+        watermarkInterval = setInterval(() => {
+            const wm = document.getElementById('watermark');
+            if(wm && document.getElementById('videoOverlay').style.display === 'flex') { 
+                wm.style.top = Math.random() * 70 + 10 + '%'; 
+                wm.style.left = Math.random() * 70 + 10 + '%'; 
+            }
+        }, 6000);
+    }
+
+    function stopWatermarkAnimation() {
+        if (watermarkInterval) {
+            clearInterval(watermarkInterval);
+        }
+    }
+
+    // Premium Navigation Functions
+    function setCategory(cat, btn) { 
+        currentCategory = cat; 
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); 
+        btn.classList.add('active'); 
+        applyFilters(); 
+    }
+
+    function filterPurchased() { 
+        showingPurchasedOnly = true; 
+        applyFilters(); 
+        showToast('info', 'Filter Applied', 'Showing your enrolled courses only');
+    }
+
+    function resetView() { 
+        showingPurchasedOnly = false; 
+        document.getElementById('courseSearch').value = '';
+        applyFilters(); 
+        showToast('info', 'Filter Reset', 'Showing all courses');
+    }
+
+    // Premium Certificate Functions
+    function copyCertID() { 
+        navigator.clipboard.writeText(document.getElementById('certIdDisplay').innerText); 
+        showToast('success', 'ID Copied!', 'Certificate ID copied to clipboard'); 
+    }
+
+    function goToCertificate() { 
+        window.location.href = `certificate.html?course=${currentCourseId}&certId=${document.getElementById('certIdDisplay').innerText}&u=${student.email}`; 
+    }
+
+    // Premium Payment Loader
+    function showPaymentLoader() {
+        document.getElementById('paymentLoader').style.display = 'flex';
+    }
+
+    function hidePaymentLoader() {
+        document.getElementById('paymentLoader').style.display = 'none';
+    }
+
+    // Premium Security Enhancements
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Premium Performance Monitoring
+    console.log('%c🔥 NATER LEARNING HUB - Premium Academy 🔥', 'font-size: 24px; font-weight: bold; color: #d32f2f; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-family: Space Grotesk;');
+    console.log('%cWorld-Class Learning Experience with Premium Security', 'font-size: 14px; color: #FFD700; font-family: Inter;');
+</script>
+
+<style>
+    /* Premium SweetAlert2 Customization */
+    .swal2-popup {
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        background: var(--gradient-card);
+    }
+
+    .swal2-title {
+        font-family: var(--font-display);
+        color: var(--brand-primary);
+    }
+
+    /* Premium Touch Support */
+    @media (hover: none) {
+        .course-card:active {
+            transform: scale(0.98);
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+    }
+</style>
+</body>
+</html>

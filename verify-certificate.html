@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATER LEARNING HUB | Premium Verification Portal</title>
+    
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://api.naterhub.com;">
+    
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NATER HUB">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { 
+            --brand-primary: #d32f2f; 
+            --brand-dark: #b71c1c; 
+            --brand-darker: #8b0000;
+            --brand-light: #ffcdd2;
+            --accent-gold: #FFD700;
+            --accent-platinum: #e5e4e2;
+            
+            --gradient-primary: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #8b0000 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 40px rgba(0,0,0,0.16);
+            --shadow-premium: 0 20px 60px rgba(211, 47, 47, 0.15);
+            --shadow-gold: 0 20px 60px rgba(255, 215, 0, 0.2);
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-brand: 'Cinzel', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 80px 20px; 
+            overflow-x: hidden; 
+            position: relative;
+            color: white;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(211, 47, 47, 0.1) 0%, transparent 50%);
+            pointer-events: none; z-index: -1;
+        }
+
+        /* Premium Master Sync Screen */
+        #masterSyncScreen {
+            position: fixed; inset: 0; 
+            background: radial-gradient(circle at center, #2b0000 0%, #000 100%);
+            z-index: 99999; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .celestial-container { 
+            position: relative; 
+            width: 200px; 
+            height: 200px; 
+            margin-bottom: 40px; 
+        }
+
+        .core-orb {
+            position: absolute; 
+            inset: 20%; 
+            background: var(--gradient-primary); 
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--accent-gold);
+            font-size: 3.5rem; 
+            z-index: 5; 
+            box-shadow: 
+                0 0 60px rgba(211, 47, 47, 0.6),
+                inset 0 0 30px rgba(255, 215, 0, 0.3);
+            animation: pulseCore 2s infinite alternate;
+        }
+
+        .star-layer { 
+            position: absolute; 
+            inset: -20px; 
+            border: 6px solid var(--accent-gold); 
+            border-radius: 50%; 
+            animation: rotate 4s linear infinite; 
+            border-top-color: transparent;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .star-layer:nth-child(2) {
+            inset: -40px;
+            animation-duration: 6s;
+            animation-direction: reverse;
+            border-color: var(--brand-primary);
+            border-top-color: transparent;
+            box-shadow: 0 0 40px rgba(211, 47, 47, 0.4);
+        }
+
+        @keyframes rotate { 
+            from { transform: rotate(0deg); } 
+            to { transform: rotate(360deg); } 
+        }
+
+        @keyframes pulseCore { 
+            from { 
+                transform: scale(1); 
+                opacity: 0.8; 
+                box-shadow: 
+                    0 0 60px rgba(211, 47, 47, 0.6),
+                    inset 0 0 30px rgba(255, 215, 0, 0.3);
+            } 
+            to { 
+                transform: scale(1.1); 
+                opacity: 1; 
+                box-shadow: 
+                    0 0 80px rgba(211, 47, 47, 0.8),
+                    inset 0 0 40px rgba(255, 215, 0, 0.5);
+            } 
+        }
+
+        .sync-title {
+            font-family: var(--font-brand);
+            font-size: 1.8rem;
+            letter-spacing: 6px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.3); }
+        }
+
+        /* Premium Verification Card */
+        .verify-card { 
+            max-width: 600px; 
+            width: 100%; 
+            background: var(--gradient-card); 
+            backdrop-filter: blur(20px); 
+            border: 4px solid var(--accent-gold); 
+            border-radius: 30px; 
+            padding: 50px; 
+            text-align: center; 
+            box-shadow: 
+                var(--shadow-gold),
+                0 0 100px rgba(255, 215, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verify-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        #starCanvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -2; 
+            background: #000; 
+        }
+
+        /* Premium Brand */
+        .brand-container {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-nater { 
+            font-family: var(--font-brand); 
+            font-weight: 900; 
+            font-size: 2.5rem; 
+            color: var(--accent-gold); 
+            text-transform: uppercase;
+            animation: brandGlow 3s ease-in-out infinite alternate;
+        }
+
+        .brand-hub { 
+            font-family: var(--font-brand); 
+            font-weight: 900; 
+            font-size: 2.5rem; 
+            color: var(--brand-primary); 
+            text-transform: uppercase;
+            animation: brandGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes brandGlow {
+            from { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.3)); }
+            to { filter: brightness(1.2) drop-shadow(0 0 20px rgba(255, 215, 0, 0.5)); }
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Premium Inputs */
+        .id-input-field { 
+            background: var(--glass-bg); 
+            border: 2px solid var(--glass-border); 
+            border-radius: 16px; 
+            padding: 18px 20px; 
+            color: white; 
+            width: 100%; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 16px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            z-index: 1;
+        }
+
+        .id-input-field::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .id-input-field:focus { 
+            border-color: var(--accent-gold); 
+            outline: none; 
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.3),
+                var(--shadow-md);
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Button */
+        .btn-action { 
+            background: var(--gradient-gold); 
+            color: #000; 
+            font-weight: 800; 
+            border-radius: 50px; 
+            padding: 18px 40px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            width: 100%; 
+            font-family: var(--font-display);
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-gold);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-action:hover::before {
+            left: 100%;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 30px 80px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Status Sections */
+        .status-section { display: none; position: relative; z-index: 1; }
+
+        .status-icon { 
+            width: 100px; 
+            height: 100px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 30px; 
+            border: 4px solid var(--accent-gold); 
+            color: var(--accent-gold);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .status-icon.success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+            box-shadow: 0 0 40px rgba(76, 175, 80, 0.3);
+        }
+
+        .status-icon.error {
+            border-color: #f44336;
+            color: #f44336;
+            box-shadow: 0 0 40px rgba(244, 67, 54, 0.3);
+        }
+
+        /* Premium Info Box */
+        .info-box { 
+            background: var(--glass-bg); 
+            border-radius: 20px; 
+            padding: 30px; 
+            margin: 30px 0; 
+            border: 2px solid var(--glass-border); 
+            text-align: left;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-label { 
+            color: var(--accent-gold); 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .info-value { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            margin-bottom: 20px; 
+            color: white;
+            font-family: var(--font-display);
+        }
+
+        .info-value:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Premium Loading */
+        .premium-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255,255,255,0.1);
+            border-top: 6px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: premiumSpin 1s linear infinite;
+            margin: 0 auto 30px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes premiumSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtitle {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .verify-card {
+                padding: 30px;
+                margin: 20px;
+            }
+
+            .brand-nater, .brand-hub {
+                font-size: 2rem;
+            }
+
+            .celestial-container {
+                width: 150px;
+                height: 150px;
+            }
+
+            .core-orb {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Premium Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body data-theme="dark" oncontextmenu="return false;" onkeydown="return disableShortcuts(event)">
+
+<!-- Premium Master Sync Screen -->
+<div id="masterSyncScreen">
+    <div class="celestial-container">
+        <div class="star-layer"></div>
+        <div class="star-layer"></div>
+        <div class="core-orb">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+    </div>
+    <div class="sync-title">INITIALIZING SECURE GATEWAY</div>
+</div>
+
+<!-- Premium Star Background -->
+<canvas id="starCanvas"></canvas>
+
+<!-- Premium Verification Card -->
+<div class="verify-card fade-in-up">
+    <!-- Loading Section -->
+    <div id="loadingSection" class="status-section">
+        <div class="premium-spinner"></div>
+        <div class="loading-text">QUERYING GLOBAL REGISTRY</div>
+        <div class="loading-subtitle">Authenticating credentials...</div>
+    </div>
+
+    <!-- Manual Verification Section -->
+    <div id="manualSection" class="status-section">
+        <div class="brand-container">
+            <span class="brand-nater site-nater">NATER</span>
+            <span class="brand-hub site-hub">LEARNING HUB</span>
+        </div>
+        <div class="tagline">OFFICIAL VERIFICATION PORTAL</div>
+        <input type="text" id="manualId" class="id-input-field" placeholder="VERIFICATION ID (e.g. PAY-xxx or scholarship-xxx)">
+        <input type="email" id="manualEmail" class="id-input-field" placeholder="STUDENT EMAIL ADDRESS">
+        <button class="btn-action" onclick="handleManualVerify()">
+            <i class="fa-solid fa-shield-check me-2"></i>VERIFY NOW
+        </button>
+    </div>
+
+    <!-- Success Section -->
+    <div id="successSection" class="status-section">
+        <div class="status-icon success">
+            <i class="fa-solid fa-check fa-2x"></i>
+        </div>
+        <h4 class="fw-bold text-success mb-4">VERIFICATION SUCCESSFUL</h4>
+        <div class="info-box">
+            <div class="info-label">Student Name</div>
+            <div id="resName" class="info-value">---</div>
+            <div class="info-label">Course Completed</div>
+            <div id="resCourse" class="info-value">---</div>
+            <div class="info-label">Completion Date</div>
+            <div id="resDate" class="info-value">---</div>
+        </div>
+        <button class="btn-action" onclick="location.reload()">
+            <i class="fa-solid fa-redo me-2"></i>VERIFY ANOTHER
+        </button>
+    </div>
+
+    <!-- Error Section -->
+    <div id="errorSection" class="status-section">
+        <div class="status-icon error">
+            <i class="fa-solid fa-times fa-2x"></i>
+        </div>
+        <h4 class="fw-bold text-danger mb-4">VERIFICATION FAILED</h4>
+        <p class="text-muted mb-4" id="errMessage">No matching record found for this ID and Email combination.</p>
+        <button class="btn-action" style="background: var(--gradient-primary); color: white;" onclick="location.reload()">
+            <i class="fa-solid fa-redo me-2"></i>TRY AGAIN
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Enhanced Security
+    function disableShortcuts(e) { 
+        if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u'))) {
+            e.preventDefault();
+            return false;
+        }
+    }
+
+    // Premium Toast Notification
+    const showToast = (icon, title, text = '') => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({ 
+            icon: icon, 
+            title: title,
+            text: text
+        });
+    };
+
+    // State Management
+    let verificationInProgress = false;
+
+    // Hide All Sections
+    const hideAll = () => {
+        ['loadingSection', 'manualSection', 'successSection', 'errorSection'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+    };
+
+    // Main Verification Logic
+    async function performVerification(certId, email) {
+        if (verificationInProgress) return;
+        verificationInProgress = true;
+        
+        hideAll();
+        document.getElementById('loadingSection').style.display = 'block';
+
+        try {
+            const response = await fetch('/api/verify-certificate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ certId, email }) 
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('resName').innerText = data.studentName;
+                document.getElementById('resCourse').innerText = data.courseTitle || data.courseName;
+                document.getElementById('resDate').innerText = new Date(data.date).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                
+                hideAll();
+                document.getElementById('successSection').style.display = 'block';
+                showToast('success', 'Verification Complete', 'Certificate authenticated successfully');
+            } else {
+                document.getElementById('errMessage').innerText = data.message || "Invalid credentials provided.";
+                hideAll();
+                document.getElementById('errorSection').style.display = 'block';
+                showToast('error', 'Verification Failed', data.message);
+            }
+        } catch (error) {
+            document.getElementById('errMessage').innerText = "System connection error. Please try again.";
+            hideAll();
+            document.getElementById('errorSection').style.display = 'block';
+            showToast('error', 'Connection Error', 'Unable to reach verification server');
+        } finally {
+            verificationInProgress = false;
+        }
+    }
+
+    // Handle Manual Verification
+    function handleManualVerify() {
+        const id = document.getElementById('manualId').value.trim();
+        const email = document.getElementById('manualEmail').value.trim();
+        
+        if(!id || !email) {
+            return Swal.fire({
+                title: 'Missing Information',
+                text: 'Both Verification ID and Email are required',
+                icon: 'warning',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+        
+        performVerification(id, email);
+    }
+
+    // Premium Initialization
+    window.onload = async () => {
+        initStars();
+        animateStars();
+
+        // Fetch Branding
+        try {
+            const res = await fetch('/api/public-settings');
+            const settings = await res.json();
+            if(settings.success) {
+                const parts = settings.siteName.split(' ');
+                document.querySelectorAll('.site-nater').forEach(el => el.innerText = parts[0]);
+                document.querySelectorAll('.site-hub').forEach(el => el.innerText = " " + parts.slice(1).join(' '));
+            }
+        } catch(e) {}
+
+        // Check URL Parameters for Auto-Verify
+        const params = new URLSearchParams(window.location.search);
+        const urlId = params.get('certId') || params.get('id');
+        const urlEmail = params.get('u');
+
+        // Premium loader delay for effect
+        setTimeout(() => {
+            document.getElementById('masterSyncScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('masterSyncScreen').style.display = 'none';
+                if(urlId && urlEmail) {
+                    performVerification(urlId, urlEmail);
+                } else {
+                    hideAll();
+                    document.getElementById('manualSection').style.display = 'block';
+                }
+            }, 800);
+        }, 3000);
+    };
+
+    // Premium Star Background
+    const canvas = document.getElementById('starCanvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    
+    function initStars() {
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight;
+        for(let i=0; i<150; i++) {
+            stars.push({
+                x: Math.random() * canvas.width, 
+                y: Math.random() * canvas.height, 
+                s: Math.random() * 3 + 0.5, 
+                o: Math.random() * 0.8 + 0.2,
+                speed: Math.random() * 0.5 + 0.1
+            });
+        }
+    }
+    
+    function animateStars() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        
+        // Create gradient background
+        const gradient = ctx.createRadialGradient(
+            canvas.width / 2, canvas.height / 2, 0,
+            canvas.width / 2, canvas.height / 2, canvas.width / 2
+        );
+        gradient.addColorStop(0, 'rgba(26, 26, 26, 0.8)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "white";
+        stars.forEach(s => { 
+            ctx.globalAlpha = s.o; 
+            ctx.beginPath(); 
+            ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); 
+            ctx.fill();
+            
+            // Add glow for larger stars
+            if (s.s > 2) {
+                ctx.globalAlpha = s.o * 0.3;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.s * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            s.y -= s.speed;
+            if(s.y < -10) {
+                s.y = canvas.height + 10;
+                s.x = Math.random() * canvas.width;
+            }
+        });
+        
+        requestAnimationFrame(animateStars);
+    }
+
+    // Premium Security Enhancements
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Premium Performance Monitoring
+    console.log('%c🛡️ NATER LEARNING HUB - Premium Verification Portal 🛡️', 'font-size: 24px; font-weight: bold; color: #FFD700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-family: Space Grotesk;');
+    console.log('%cWorld-Class Authentication System', 'font-size: 16px; color: #d32f2f; font-family: Inter;');
+</script>
+
+<style>
+    /* Premium SweetAlert2 Customization */
+    .swal2-popup {
+        border-radius: 20px;
+        border: 2px solid var(--glass-border);
+        backdrop-filter: blur(20px);
+        background: var(--gradient-card);
+    }
+
+    .swal2-title {
+        font-family: var(--font-display);
+        color: var(--brand-primary);
+    }
+
+    .swal2-confirm {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-family: var(--font-primary);
+    }
+
+    /* Premium Touch Support */
+    @media (hover: none) {
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+        
+        .id-input-field:active {
+            transform: scale(0.99);
+        }
+    }
+</style>
+</body>
+</html>
