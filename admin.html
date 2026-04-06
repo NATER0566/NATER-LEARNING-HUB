@@ -819,21 +819,23 @@
         const title = document.getElementById('lessonTitle').value;
         const videoFile = document.getElementById('videoFile').files[0];
         const pdfFile = document.getElementById('pdfFile').files[0];
-
+        
         if(!courseId || !title || !videoFile) {
             return Swal.fire({
                 icon: 'warning',
                 title: 'Missing Information',
-                text: 'Course, Title, and Video are required.',
+                text: 'Course, lesson title, and video file are required.',
                 confirmButtonColor: '#d32f2f'
             });
         }
-
+        
         const formData = new FormData();
         formData.append('courseId', courseId);
         formData.append('title', title);
         formData.append('video', videoFile);
-        if (pdfFile) formData.append('pdf', pdfFile);
+        if (pdfFile) {
+            formData.append('pdf', pdfFile);
+        }
 
         Swal.fire({ 
             title: 'Uploading Content...', 
@@ -842,22 +844,36 @@
             didOpen: () => Swal.showLoading() 
         });
 
-        const res = await apiPost('/api/academy/add-lesson', formData);
-        Swal.close();
-
-        if(res.success) { 
-            loadRepository(); 
-            showToast('success', 'Lesson Published!', 'Content uploaded successfully');
+        try {
+            const response = await fetch('/api/admin/upload-lesson', {
+                method: 'POST',
+                body: formData
+            });
             
-            // Clear fields
-            document.getElementById('lessonTitle').value = '';
-            document.getElementById('videoFile').value = '';
-            document.getElementById('pdfFile').value = '';
-        } else {
+            const result = await response.json();
+
+            if(result.success) { 
+                loadRepository(); 
+                showToast('success', 'Lesson Published!', 'Content uploaded successfully');
+                
+                // Clear fields
+                document.getElementById('lessonTitle').value = '';
+                document.getElementById('videoFile').value = '';
+                document.getElementById('pdfFile').value = '';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed',
+                    text: result.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Upload Failed',
-                text: res.message,
+                title: 'Upload Error',
+                text: 'Failed to upload lesson. Please try again.',
                 confirmButtonColor: '#d32f2f'
             });
         }
@@ -931,42 +947,61 @@
         const sem = document.getElementById('libSemester').value;
         const type = document.getElementById('libMediaType').value;
         const file = document.getElementById('libFile').files[0];
-
-        if(!title || (!file && type !== 'Note')) {
+        
+        if(!title || !code || !file) {
             return Swal.fire({
                 icon: 'warning',
                 title: 'Missing Information',
-                text: 'Title and File are required.',
+                text: 'Title, course code, and file are required.',
                 confirmButtonColor: '#d32f2f'
             });
         }
-
+        
         const formData = new FormData();
         formData.append('title', title);
         formData.append('courseCode', code);
         formData.append('level', lvl);
         formData.append('semester', sem);
-        formData.append('type', type);
-        if(file) formData.append('file', file);
+        formData.append('mediaType', type);
+        formData.append('file', file);
 
         Swal.fire({ 
-            title: 'Publishing...', 
+            title: 'Publishing to Library...', 
+            text: 'Please wait while file processes.',
+            allowOutsideClick: false, 
             didOpen: () => Swal.showLoading() 
         });
-        
-        const res = await apiPost('/api/library/add', formData);
-        Swal.close();
-        
-        if(res.success) {
-            showToast('success', 'Published!', 'Library material updated');
-            loadLibraryRepository();
-            document.getElementById('libMaterialTitle').value = '';
-            document.getElementById('libFile').value = '';
-        } else {
+
+        try {
+            const response = await fetch('/api/admin/upload-library', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+
+            if(result.success) { 
+                loadRepository(); 
+                showToast('success', 'Published!', 'Material added to library successfully');
+                
+                // Clear fields
+                document.getElementById('libMaterialTitle').value = '';
+                document.getElementById('libCourseCode').value = '';
+                document.getElementById('libFile').value = '';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed',
+                    text: result.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Upload Failed',
-                text: res.message,
+                title: 'Upload Error',
+                text: 'Failed to upload material. Please try again.',
                 confirmButtonColor: '#d32f2f'
             });
         }
@@ -1159,31 +1194,54 @@
         const category = document.getElementById('courseCategory').value;
         const file = document.getElementById('courseThumb').files[0];
         
-        if(!title || !price || !file) {
+        if(!title || !price || !category) {
             return Swal.fire({
                 icon: 'warning',
                 title: 'Missing Information',
-                text: 'Please fill all fields and upload a thumbnail.',
+                text: 'Please fill all required fields.',
                 confirmButtonColor: '#d32f2f'
             });
         }
         
-        const thumbBase64 = await toBase64(file);
-        const res = await apiPost('/api/academy/add-course', { title, price, category, thumbnail: thumbBase64 });
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('price', price);
+        formData.append('category', category);
+        if (file) {
+            formData.append('thumbnail', file);
+        }
         
-        if(res.success) { 
-            loadRepository(); 
-            showToast('success', 'Course Created', 'New course added successfully');
+        try {
+            const response = await fetch('/api/admin/upload-course', {
+                method: 'POST',
+                body: formData
+            });
             
-            // Clear fields
-            document.getElementById('courseTitle').value = '';
-            document.getElementById('coursePrice').value = '';
-            document.getElementById('courseThumb').value = '';
-        } else {
+            const result = await response.json();
+            
+            if(result.success) { 
+                loadRepository(); 
+                showToast('success', 'Course Created', 'New course added successfully');
+                
+                // Clear fields
+                document.getElementById('courseTitle').value = '';
+                document.getElementById('coursePrice').value = '';
+                document.getElementById('courseCategory').value = 'Programming';
+                document.getElementById('courseThumb').value = '';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed',
+                    text: result.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Upload Failed',
-                text: res.message,
+                title: 'Upload Error',
+                text: 'Failed to upload course. Please try again.',
                 confirmButtonColor: '#d32f2f'
             });
         }
@@ -1232,15 +1290,65 @@
 
     async function saveBranding() {
         const file = document.getElementById('adminAvatarInput').files[0];
-        const avatarData = file ? await toBase64(file) : document.querySelector('#avatarPreviewBox img')?.src;
-        const res = await apiPost('/api/update-settings', { 
-            siteName: document.getElementById('brandName').value, 
-            tagline: document.getElementById('brandSubText').value, 
-            avatar: avatarData 
-        });
+        const siteName = document.getElementById('brandName').value;
+        const tagline = document.getElementById('brandSubText').value;
         
-        if(res.success) {
-            showToast('success', 'Branding Saved', 'Login page updated successfully');
+        if (file) {
+            // Upload profile photo
+            const formData = new FormData();
+            formData.append('profilePhoto', file);
+            
+            try {
+                const response = await fetch('/api/admin/upload-profile', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if(result.success) {
+                    showToast('success', 'Profile Updated', 'Admin profile photo uploaded successfully');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed',
+                        text: result.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Profile upload error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Error',
+                    text: 'Failed to upload profile photo. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        }
+        
+        // Update other branding settings
+        if (siteName || tagline) {
+            try {
+                const response = await fetch('/api/update-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        siteName,
+                        tagline
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if(result.success) {
+                    showToast('success', 'Branding Saved', 'Site settings updated successfully');
+                }
+            } catch (error) {
+                console.error('Settings update error:', error);
+            }
         }
     }
 
@@ -1266,15 +1374,44 @@
     }
 
     async function saveOrb() { 
-        const res = await apiPost('/api/update-orb', { 
-            active: document.getElementById('orbStatus').value === "true", 
-            title: document.getElementById('orbTitle').value, 
-            url: document.getElementById('orbUrl').value, 
-            message: "" 
-        });
+        const isActive = document.getElementById('orbStatus').value === "true";
+        const title = document.getElementById('orbTitle').value;
+        const url = document.getElementById('orbUrl').value;
         
-        if(res.success) {
-            showToast('success', 'Orb Updated', 'Feature orb configuration saved');
+        try {
+            const response = await fetch('/api/admin/update-orb', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    description: '',
+                    link: url,
+                    isActive
+                })
+            });
+            
+            const result = await response.json();
+            
+            if(result.success) {
+                showToast('success', 'Orb Updated', 'Feature orb configuration saved');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: result.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            console.error('Orb update error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Error',
+                text: 'Failed to update feature orb. Please try again.',
+                confirmButtonColor: '#d32f2f'
+            });
         }
     }
 
@@ -1290,10 +1427,32 @@
         });
         
         if (result.isConfirmed) {
-            const res = await apiPost('/api/academy/delete-course', { id }); 
-            if(res.success) {
-                showToast('success', 'Deleted', 'Course removed successfully');
-                loadRepository();
+            try {
+                const response = await fetch(`/api/admin/course/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const res = await response.json();
+                
+                if(res.success) {
+                    showToast('success', 'Deleted', 'Course removed successfully');
+                    loadRepository();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: res.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Error',
+                    text: 'Failed to delete course. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
             }
         }
     }
@@ -1310,10 +1469,32 @@
         });
         
         if (result.isConfirmed) {
-            const res = await apiPost('/api/academy/delete-lesson', { id }); 
-            if(res.success) {
-                showToast('success', 'Deleted', 'Lesson removed successfully');
-                loadRepository();
+            try {
+                const response = await fetch(`/api/admin/lesson/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const res = await response.json();
+                
+                if(res.success) {
+                    showToast('success', 'Deleted', 'Lesson removed successfully');
+                    loadRepository();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: res.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Error',
+                    text: 'Failed to delete lesson. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
             }
         }
     }

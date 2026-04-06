@@ -1092,6 +1092,18 @@
         
         setLoading('loginBtn', 'loginSpinner', 'loginText', true);
         
+        // Set timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            Swal.fire({
+                title: 'Request Timeout',
+                text: 'Login request is taking too long. Please check your connection and try again.',
+                icon: 'warning',
+                timer: 5000,
+                timerProgressBar: true
+            });
+            setLoading('loginBtn', 'loginSpinner', 'loginText', false);
+        }, 10000);
+        
         try {
             const res = await fetch('/api/login', {
                 method:'POST', 
@@ -1107,21 +1119,41 @@
                 })
             });
             
-            if (!res.ok) throw new Error('Network response was not ok');
+            clearTimeout(timeoutId); // Clear timeout if request completes
+            
+            if (!res.ok) {
+                if (res.status === 401) {
+                    throw new Error('Invalid password. Please ensure you type a valid and registered password.');
+                } else if (res.status === 404) {
+                    throw new Error('Invalid email. Please ensure you type a registered and valid email to login.');
+                } else {
+                    throw new Error('Login failed. Please check your credentials and try again.');
+                }
+            }
             
             const data = await res.json();
             
             if(data.success){
                 localStorage.setItem('token', data.token); 
                 localStorage.setItem('userEmail', email.toLowerCase());
-                window.location.href = (email === "admin@nater.com") ? "admin.html" : "dashboard.html";
+                Swal.fire({
+                    title: 'Login Successful!',
+                    text: 'Welcome back to NATER LEARNING HUB',
+                    icon: 'success',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = (email === "admin@nater.com") ? "admin.html" : "dashboard.html";
+                });
             } else {
                 Swal.fire('Access Denied', data.message || 'Invalid credentials', 'error');
                 setLoading('loginBtn', 'loginSpinner', 'loginText', false);
             }
         } catch(err){ 
+            clearTimeout(timeoutId); // Clear timeout on error
             console.error('Login error:', err);
-            Swal.fire('Connection Error', 'Unable to connect to secure server. Please try again.', 'error');
+            Swal.fire('Login Error', err.message || 'Unable to connect to secure server. Please try again.', 'error');
             setLoading('loginBtn', 'loginSpinner', 'loginText', false);
         }
     }
@@ -1143,16 +1175,39 @@
         }
         
         if(!emailRegex.test(email)) {
-            Swal.fire('Invalid Email', 'Please enter a valid email address.', 'warning');
+            Swal.fire('Invalid Email Format', 'Please type in a valid email address (e.g., user@example.com).', 'warning');
             return;
         }
         
         if(!passRegex.test(pass)) { 
-            Swal.fire('Weak Password', 'Password must meet all security requirements below.', 'error'); 
+            // Check what's missing in password
+            let missingRequirements = [];
+            if (pass.length < 8) missingRequirements.push('at least 8 characters');
+            if (!/[a-z]/.test(pass)) missingRequirements.push('one lowercase letter');
+            if (!/[A-Z]/.test(pass)) missingRequirements.push('one uppercase letter');
+            if (!/\d/.test(pass)) missingRequirements.push('one number');
+            if (!/[@$!%*?&]/.test(pass)) missingRequirements.push('one special character (@$!%*?&)');
+            
+            const missingText = missingRequirements.join(', ');
+            Swal.fire('Password Requirements Not Met', 
+                `Password must contain: ${missingText}. Please update your password to meet all security requirements.`, 
+                'error'); 
             return; 
         }
         
         setLoading('regBtn', 'regSpinner', 'regText', true);
+        
+        // Set timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            Swal.fire({
+                title: 'Registration Timeout',
+                text: 'Registration request is taking too long. Please check your connection and try again.',
+                icon: 'warning',
+                timer: 5000,
+                timerProgressBar: true
+            });
+            setLoading('regBtn', 'regSpinner', 'regText', false);
+        }, 10000);
         
         try {
             const res = await fetch('/api/register', {
@@ -1170,19 +1225,36 @@
                 })
             });
             
-            if (!res.ok) throw new Error('Network response was not ok');
+            clearTimeout(timeoutId); // Clear timeout if request completes
+            
+            if (!res.ok) {
+                if (res.status === 400) {
+                    throw new Error('Email already registered. Please use a different email or try logging in.');
+                } else {
+                    throw new Error('Registration failed. Please try again later.');
+                }
+            }
             
             const data = await res.json();
             
             if(data.success){ 
-                Swal.fire('Registration Successful', data.message, 'success'); 
-                toggleForm('login'); 
+                Swal.fire({
+                    title: 'Registration Successful!',
+                    text: data.message || 'Your account has been created successfully!',
+                    icon: 'success',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    toggleForm('login'); // Switch to login form
+                });
             } else { 
-                Swal.fire('Registration Failed', data.message || 'Email already exists.', 'error'); 
+                Swal.fire('Registration Failed', data.message || 'Unable to complete registration. Please try again.', 'error');
             }
         } catch(err){ 
+            clearTimeout(timeoutId); // Clear timeout on error
             console.error('Registration error:', err);
-            Swal.fire('Connection Error','Server temporarily unavailable. Please try again.','error'); 
+            Swal.fire('Registration Error', err.message || 'Server temporarily unavailable. Please try again.', 'error');
         } finally { 
             setLoading('regBtn', 'regSpinner', 'regText', false); 
         }
@@ -1192,12 +1264,29 @@
     async function handleReset() {
         const email = document.getElementById('forgotEmail').value.trim();
         
-        if(!email || !emailRegex.test(email)){ 
-            Swal.fire('Invalid Email','Please provide a valid email address for recovery.','warning'); 
+        if(!email){ 
+            Swal.fire('Email Required','Please provide an email address for password recovery.','warning'); 
+            return; 
+        }
+        
+        if(!emailRegex.test(email)){ 
+            Swal.fire('Invalid Email Format','Please type in a valid email address (e.g., user@example.com).','warning'); 
             return; 
         }
         
         setLoading('forgotBtn', 'forgotSpinner', 'forgotText', true);
+        
+        // Set timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            Swal.fire({
+                title: 'Reset Timeout',
+                text: 'Password reset request is taking too long. Please check your connection and try again.',
+                icon: 'warning',
+                timer: 5000,
+                timerProgressBar: true
+            });
+            setLoading('forgotBtn', 'forgotSpinner', 'forgotText', false);
+        }, 10000);
         
         try {
             const res = await fetch('/api/forgot-password', {
@@ -1213,18 +1302,34 @@
                 })
             });
             
-            if (!res.ok) throw new Error('Network response was not ok');
+            clearTimeout(timeoutId); // Clear timeout if request completes
+            
+            if (!res.ok) {
+                if (res.status === 404) {
+                    throw new Error('Email not found. You must be a registered user to use this feature.');
+                } else {
+                    throw new Error('Unable to process reset request. Please try again.');
+                }
+            }
             
             const data = await res.json();
             
             if(data.success) {
-                Swal.fire('Recovery Sent', data.message, 'success');
+                Swal.fire({
+                    title: 'Reset Email Sent!',
+                    text: data.message || 'Password reset instructions have been sent to your email.',
+                    icon: 'success',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
             } else {
-                Swal.fire('Recovery Failed', data.message || 'Unable to process request.', 'error');
+                Swal.fire('Reset Failed', data.message || 'Unable to send reset email. Please try again.', 'error');
             }
         } catch(err){ 
+            clearTimeout(timeoutId); // Clear timeout on error
             console.error('Password reset error:', err);
-            Swal.fire('Connection Error','Server temporarily unavailable. Please try again.','error'); 
+            Swal.fire('Reset Error', err.message || 'Server temporarily unavailable. Please try again.', 'error');
         } finally { 
             setLoading('forgotBtn', 'forgotSpinner', 'forgotText', false); 
         }

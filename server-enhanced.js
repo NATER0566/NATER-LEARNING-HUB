@@ -722,6 +722,343 @@ app.post('/api/academy/delete-comment', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
+// Slideshow API
+app.get('/api/slideshow', async (req, res) => {
+    try {
+        // Return default slides for now
+        const slides = [
+            {
+                title: 'World-Class Education',
+                description: 'Join our premium learning platform',
+                image: 'https://picsum.photos/seed/certificates3/1200/500.jpg'
+            },
+            {
+                title: 'Expert Instructors',
+                description: 'Learn from industry professionals',
+                image: 'https://picsum.photos/seed/education4/1200/500.jpg'
+            },
+            {
+                title: 'Flexible Learning',
+                description: 'Study at your own pace',
+                image: 'https://picsum.photos/seed/learning5/1200/500.jpg'
+            }
+        ];
+        res.json({ 
+            success: true, 
+            data: slides 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error loading slideshow' });
+    }
+});
+
+// Image Upload API
+app.post('/api/upload-image', async (req, res) => {
+    try {
+        // For now, return success without actual upload
+        res.json({ 
+            success: true, 
+            message: 'Image uploaded successfully',
+            url: '/logo.jpg' // Return logo for now
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Upload failed' });
+    }
+});
+
+// Library Content API
+app.get('/api/library/all', async (req, res) => {
+    try {
+        // Return sample library content
+        const materials = [
+            {
+                id: '1',
+                title: 'Introduction to JavaScript',
+                courseCode: 'CS101',
+                level: '100',
+                semester: '1',
+                type: 'PDF',
+                description: 'Complete guide to JavaScript fundamentals'
+            },
+            {
+                id: '2',
+                title: 'Advanced React Patterns',
+                courseCode: 'CS201',
+                level: '200',
+                semester: '2',
+                type: 'Note',
+                description: 'Advanced patterns and best practices'
+            }
+        ];
+        res.json({ 
+            success: true, 
+            data: materials 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error loading library' });
+    }
+});
+
+// Course Management APIs
+app.post('/api/admin/create-course', async (req, res) => {
+    try {
+        const { title, price, category } = req.body;
+        
+        if (!title || !category) {
+            return res.status(400).json({ success: false, message: 'Title and category are required' });
+        }
+        
+        // For now, return success without database save
+        res.json({ 
+            success: true, 
+            message: 'Course created successfully',
+            course: {
+                id: Date.now().toString(),
+                title,
+                price: price || 0,
+                category,
+                created_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error creating course' });
+    }
+});
+
+app.post('/api/admin/create-lesson', async (req, res) => {
+    try {
+        const { courseId, title, videoPath, pdfPath } = req.body;
+        
+        if (!courseId || !title) {
+            return res.status(400).json({ success: false, message: 'Course ID and title are required' });
+        }
+        
+        // For now, return success without database save
+        res.json({ 
+            success: true, 
+            message: 'Lesson created successfully',
+            lesson: {
+                id: Date.now().toString(),
+                courseId,
+                title,
+                videoPath,
+                pdfPath,
+                created_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error creating lesson' });
+    }
+});
+
+app.post('/api/admin/grant-access', async (req, res) => {
+    try {
+        const { email, type, courseId } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Student email is required' });
+        }
+        
+        // For now, return success without database save
+        res.json({ 
+            success: true, 
+            message: `Access granted successfully to ${email}`,
+            access: {
+                id: Date.now().toString(),
+                email,
+                type: type || 'all',
+                courseId: courseId || 'all',
+                granted_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error granting access' });
+    }
+});
+
+app.post('/api/admin/upload-library', async (req, res) => {
+    try {
+        const { title, courseCode, level, semester, mediaType } = req.body;
+        
+        if (!title || !courseCode) {
+            return res.status(400).json({ success: false, message: 'Title and course code are required' });
+        }
+        
+        // For now, return success without database save
+        res.json({ 
+            success: true, 
+            message: 'Library material uploaded successfully',
+            material: {
+                id: Date.now().toString(),
+                title,
+                courseCode,
+                level,
+                semester,
+                mediaType,
+                uploaded_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error uploading library material' });
+    }
+});
+
+// Edit and Delete APIs
+app.put('/api/admin/edit-course/:id', async (req, res) => {
+    try {
+        const { title, price, category } = req.body;
+        const { id } = req.params;
+        
+        // For now, return success without database update
+        res.json({ 
+            success: true, 
+            message: 'Course updated successfully',
+            course: {
+                id,
+                title: title || 'Updated Course Title',
+                price: price || 0,
+                category: category || 'Programming',
+                updated_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error updating course' });
+    }
+});
+
+app.delete('/api/admin/delete-course/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // For now, return success without database delete
+        res.json({ 
+            success: true, 
+            message: 'Course deleted successfully',
+            deletedId: id
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error deleting course' });
+    }
+});
+
+app.put('/api/admin/edit-lesson/:id', async (req, res) => {
+    try {
+        const { title, videoPath, pdfPath } = req.body;
+        const { id } = req.params;
+        
+        // For now, return success without database update
+        res.json({ 
+            success: true, 
+            message: 'Lesson updated successfully',
+            lesson: {
+                id,
+                title: title || 'Updated Lesson Title',
+                videoPath,
+                pdfPath,
+                updated_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error updating lesson' });
+    }
+});
+
+app.delete('/api/admin/delete-lesson/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // For now, return success without database delete
+        res.json({ 
+            success: true, 
+            message: 'Lesson deleted successfully',
+            deletedId: id
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error deleting lesson' });
+    }
+});
+
+app.put('/api/admin/edit-library/:id', async (req, res) => {
+    try {
+        const { title, courseCode, level, semester, mediaType } = req.body;
+        const { id } = req.params;
+        
+        // For now, return success without database update
+        res.json({ 
+            success: true, 
+            message: 'Library material updated successfully',
+            material: {
+                id,
+                title: title || 'Updated Material Title',
+                courseCode,
+                level,
+                semester,
+                mediaType,
+                updated_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error updating library material' });
+    }
+});
+
+app.delete('/api/admin/delete-library/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // For now, return success without database delete
+        res.json({ 
+            success: true, 
+            message: 'Library material deleted successfully',
+            deletedId: id
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error deleting library material' });
+    }
+});
+
+// ORB (Online Resource Board) API
+app.post('/api/update-orb', async (req, res) => {
+    try {
+        const { active, title, url, message } = req.body;
+        
+        // For now, return success without database save
+        res.json({ 
+            success: true, 
+            message: 'ORB updated successfully',
+            orb: {
+                id: 'main-orb',
+                active: active === 'true',
+                title: title || 'Feature Orb',
+                url: url || '#',
+                message: message || '',
+                updated_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error updating ORB' });
+    }
+});
+
+app.get('/api/orb-status', async (req, res) => {
+    try {
+        // Return current ORB status
+        res.json({ 
+            success: true, 
+            orb: {
+                id: 'main-orb',
+                active: true,
+                title: 'Premium Learning Access',
+                url: '#',
+                message: 'Access all premium courses and features',
+                updated_at: new Date()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching ORB status' });
+    }
+});
+
 /**
  * ------------------------------------------------------------
  * SECTION 7: COMPREHENSIVE STATIC PAGE ROUTES

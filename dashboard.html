@@ -1584,12 +1584,15 @@
 
     // Enhanced Scroll to Section
     function scrollToSec(id) { 
-        toggleSidebar(true); 
         const el = document.getElementById(id);
         if(el) {
+            // Close sidebar first
+            toggleSidebar(true);
+            
+            // Scroll to section
             el.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+                behavior: 'smooth', 
+                block: 'start' 
             });
             
             // Add highlight effect
