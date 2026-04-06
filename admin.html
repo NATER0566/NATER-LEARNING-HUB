@@ -689,13 +689,16 @@
         <div class="col-lg-6">
             <div class="admin-card notice fade-in-up">
                 <h5 class="fw-bold mb-4">
-                    <i class="fa-solid fa-bullhorn me-2 text-danger"></i>
+                    <i class="fa-solid fa-bullhorn me-2 text-primary"></i>
                     NOTICE BOARD
                 </h5>
                 <hr class="my-4">
-                <textarea id="newsText" class="form-control mb-4" rows="3"></textarea>
-                <button class="btn-premium w-100" onclick="saveNews()">
-                    <i class="fa-solid fa-paper-plane me-2"></i>PUSH TO DASHBOARD
+                <div class="mb-3">
+                    <label class="form-label">NEWS/ANNOUNCEMENT</label>
+                    <textarea id="newsText" class="form-control" rows="3" placeholder="Enter news or announcement..."></textarea>
+                </div>
+                <button class="btn-premium btn-info-premium w-100" onclick="saveNews()">
+                    <i class="fa-solid fa-paper-plane me-2"></i>PUBLISH NOTICE
                 </button>
             </div>
         </div>
@@ -708,26 +711,84 @@
                 </h5>
                 <hr class="my-4">
                 <div class="row g-3">
-                    <div class="col-6">
-                        <input type="text" id="orbTitle" class="form-control" placeholder="Orb Title">
-                    </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
+                        <label class="form-label">STATUS</label>
                         <select id="orbStatus" class="form-select">
-                            <option value="true">Visible</option>
-                            <option value="false">Hidden</option>
+                            <option value="false">Inactive</option>
+                            <option value="true">Active</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">TITLE</label>
+                        <input type="text" id="orbTitle" class="form-control" placeholder="Feature title">
+                    </div>
                     <div class="col-12">
-                        <input type="text" id="orbUrl" class="form-control" placeholder="URL">
+                        <label class="form-label">LINK/URL</label>
+                        <input type="url" id="orbUrl" class="form-control" placeholder="https://example.com">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn-premium btn-warning-premium w-100" onclick="saveOrb()">
+                            <i class="fa-solid fa-wand-magic-sparkles me-2"></i>UPDATE ORB
+                        </button>
                     </div>
                 </div>
-                <button class="btn-premium btn-dark-premium w-100 mt-3" onclick="saveOrb()">
-                    <i class="fa-solid fa-cog me-2"></i>UPDATE ORB
-                </button>
             </div>
         </div>
-    </div>
-</div>
+        
+        <!-- Slideshow Manager -->
+        <div class="col-12">
+            <div class="admin-card support fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-images me-2 text-primary"></i>
+                    HOMEPAGE SLIDESHOW MANAGER
+                </h5>
+                <hr class="my-4">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold mb-4">ADD SLIDE</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Slide Title</label>
+                            <input type="text" id="slideTitle" class="form-control" placeholder="Enter slide title">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Slide Description</label>
+                            <textarea id="slideDescription" class="form-control" rows="3" placeholder="Enter slide description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Slide Image</label>
+                            <input type="file" id="slideImage" class="form-control" accept="image/*">
+                        </div>
+                        <button class="btn-premium btn-primary-premium w-100" onclick="uploadSlide()">
+                            <i class="fa-solid fa-plus me-2"></i>ADD SLIDE
+                        </button>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold mb-4">CURRENT SLIDES</h6>
+                        <div id="slidesList" class="slides-list">
+                            <!-- Slides will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Questions Manager -->
+        <div class="col-12">
+            <div class="admin-card support fade-in-up">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-question-circle me-2 text-primary"></i>
+                    STUDENT QUESTIONS MANAGER
+                </h5>
+                <hr class="my-4">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="questionsList">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 <script>
     // Enhanced Security
@@ -1271,6 +1332,298 @@
             if(res.success) {
                 showToast('success', 'Course Updated', 'Changes saved successfully');
                 loadRepository();
+            }
+        }
+    }
+
+    // Slideshow Management
+    async function uploadSlide() {
+        const title = document.getElementById('slideTitle').value;
+        const description = document.getElementById('slideDescription').value;
+        const file = document.getElementById('slideImage').files[0];
+        
+        if(!title || !description || !file) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: 'Please fill all fields and select an image.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('image', file);
+        
+        try {
+            const response = await fetch('/api/admin/upload-slide', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if(result.success) {
+                showToast('success', 'Slide Added', 'New slide uploaded successfully');
+                loadSlides();
+                
+                // Clear fields
+                document.getElementById('slideTitle').value = '';
+                document.getElementById('slideDescription').value = '';
+                document.getElementById('slideImage').value = '';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload Failed',
+                    text: result.message,
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        } catch (error) {
+            console.error('Slide upload error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Error',
+                text: 'Failed to upload slide. Please try again.',
+                confirmButtonColor: '#d32f2f'
+            });
+        }
+    }
+
+    async function loadSlides() {
+        try {
+            const response = await fetch('/api/slideshow');
+            const result = await response.json();
+            
+            const slidesList = document.getElementById('slidesList');
+            slidesList.innerHTML = '';
+            
+            if (result.success && result.data) {
+                result.data.forEach((slide, index) => {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.className = 'slide-item mb-3 p-3 border rounded';
+                    slideDiv.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold">${slide.title}</h6>
+                                <p class="small text-muted mb-1">${slide.description}</p>
+                                <small class="text-muted">Image: ${slide.image}</small>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-danger" onclick="deleteSlide(${index})">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    slidesList.appendChild(slideDiv);
+                });
+            } else {
+                slidesList.innerHTML = '<p class="text-muted">No slides found.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading slides:', error);
+        }
+    }
+
+    async function deleteSlide(index) {
+        const result = await Swal.fire({
+            title: 'Delete Slide',
+            text: 'This will permanently remove this slide. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        });
+        
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/api/admin/slide/${index}`, {
+                    method: 'DELETE'
+                });
+                
+                const res = await response.json();
+                
+                if(res.success) {
+                    showToast('success', 'Deleted', 'Slide removed successfully');
+                    loadSlides();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: res.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Error',
+                    text: 'Failed to delete slide. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        }
+    }
+
+    // Load slides and questions when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSlides();
+        loadQuestions();
+        fetchInitialSettings();
+    });
+
+    // Questions Management
+    async function loadQuestions() {
+        try {
+            const response = await fetch('/api/admin/questions');
+            const result = await response.json();
+            
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = '';
+            
+            if (result.success && result.questions) {
+                if (result.questions.length === 0) {
+                    questionsList.innerHTML = '<p class="text-muted">No questions submitted yet.</p>';
+                } else {
+                    result.questions.forEach(question => {
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'question-item mb-3 p-3 border rounded';
+                        questionDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold">${question.title}</h6>
+                                    <p class="small text-muted mb-1">From: ${question.name} (${question.email})</p>
+                                    <p class="small text-muted mb-1">Category: ${question.category}</p>
+                                    ${question.course ? `<p class="small text-muted mb-1">Course: ${question.course}</p>` : ''}
+                                    <p class="small mb-2">${question.content}</p>
+                                    ${question.admin_reply ? `
+                                        <div class="admin-reply mt-2 p-2 bg-light rounded">
+                                            <strong>Admin Reply:</strong><br>
+                                            ${question.admin_reply}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="btn-group">
+                                    ${!question.admin_reply ? `
+                                        <button class="btn btn-sm btn-primary me-1" onclick="replyToQuestion('${question.id}', '${question.title.replace(/'/g, "\\'")}')">
+                                            <i class="fa-solid fa-reply"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn btn-sm btn-danger" onclick="deleteQuestion('${question.id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted">Asked: ${new Date(question.created_at).toLocaleDateString()}</small>
+                        `;
+                        questionsList.appendChild(questionDiv);
+                    });
+                }
+            } else {
+                questionsList.innerHTML = '<p class="text-muted">Error loading questions.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            document.getElementById('questionsList').innerHTML = '<p class="text-danger">Failed to load questions.</p>';
+        }
+    }
+
+    async function replyToQuestion(questionId, questionTitle) {
+        const { value: replyText } = await Swal.fire({
+            title: `Reply to Question`,
+            html: `
+                <div class="text-start">
+                    <p><strong>Question:</strong> ${questionTitle}</p>
+                    <textarea id="swal-reply-text" class="swal2-input form-control" rows="4" placeholder="Type your reply..."></textarea>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Send Reply',
+            confirmButtonColor: '#d32f2f',
+            preConfirm: () => document.getElementById('swal-reply-text').value
+        });
+        
+        if (replyText) {
+            try {
+                const response = await fetch('/api/admin/reply-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        questionId: questionId,
+                        reply: replyText
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('success', 'Reply Sent', 'Your reply has been submitted');
+                    loadQuestions();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Reply Failed',
+                        text: result.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Reply error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to send reply. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
+            }
+        }
+    }
+
+    async function deleteQuestion(questionId) {
+        const result = await Swal.fire({
+            title: 'Delete Question',
+            text: 'This will permanently remove this question. Continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d32f2f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Delete'
+        });
+        
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/api/admin/question/${questionId}`, {
+                    method: 'DELETE'
+                });
+                
+                const res = await response.json();
+                
+                if (res.success) {
+                    showToast('success', 'Deleted', 'Question removed successfully');
+                    loadQuestions();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: res.message,
+                        confirmButtonColor: '#d32f2f'
+                    });
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to delete question. Please try again.',
+                    confirmButtonColor: '#d32f2f'
+                });
             }
         }
     }

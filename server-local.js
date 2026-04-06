@@ -24,6 +24,9 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Serve all static files from the root directory
 app.use(express.static(path.join(__dirname)));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // --- FILE UPLOAD CONFIGURATION ---
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -449,6 +452,36 @@ app.get('/api/activate', async (req, res) => {
     }
 });
 
+app.post('/api/complete-reset', async (req, res) => {
+    try {
+        const { password } = req.body;
+        const urlParams = new URLSearchParams(req.url.split('?')[1] || '');
+        const email = urlParams.get('email');
+        
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "Missing required information." });
+        }
+        
+        const user = mockUsers.find(u => u.email === email.toLowerCase());
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Invalid reset link." });
+        }
+        
+        // Update password
+        user.password = password; // In real app, this would be hashed
+        console.log(`✅ Password reset completed for: ${user.name} (${user.email})`);
+        
+        res.json({ 
+            success: true, 
+            message: "Password reset successful! You can now login with your new password." 
+        });
+    } catch (err) {
+        console.error('Reset completion error:', err);
+        res.status(500).json({ success: false, message: "Server error during reset." });
+    }
+});
+
 app.post('/api/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
@@ -504,11 +537,21 @@ app.post('/api/academy/all-courses', async (req, res) => {
 
 app.get('/api/public-settings', async (req, res) => {
     try {
+        // Get admin profile photo if it exists
+        let avatar = null;
+        const profilePath = path.join(__dirname, 'admin-profile.json');
+        
+        if (fs.existsSync(profilePath)) {
+            const profileData = JSON.parse(fs.readFileSync(profilePath, 'utf8'));
+            avatar = `/uploads/${profileData.filename}`;
+        }
+        
         res.json({ 
             success: true, 
             siteName: "NATER LEARNING HUB",
             tagline: "Empowering Excellence through Digital Innovation",
-            logo: "/logo.jpg"
+            logo: "/logo.jpg",
+            avatar: avatar
         });
     } catch (err) {
         res.status(500).json({ success: false });
@@ -547,6 +590,229 @@ app.get('/api/slideshow', async (req, res) => {
     } catch (err) {
         console.error('Slideshow error:', err);
         res.status(500).json({ success: false, data: [] });
+    }
+});
+
+// Upload slide endpoint
+app.post('/api/admin/upload-slide', upload.single('image'), async (req, res) => {
+    try {
+        const { title, description } = req.body;
+        
+        if (!title || !description || !req.file) {
+            return res.status(400).json({ success: false, message: "Missing required fields." });
+        }
+        
+        const slide = {
+            id: Date.now().toString(),
+            title,
+            description,
+            image: `/uploads/${req.file.filename}`,
+            createdAt: new Date()
+        };
+        
+        // Store slides in mock database
+        if (!global.mockSlides) global.mockSlides = [];
+        global.mockSlides.push(slide);
+        
+        res.json({ 
+            success: true, 
+            message: "Slide uploaded successfully",
+            slide
+        });
+    } catch (err) {
+        console.error('Slide upload error:', err);
+        res.status(500).json({ success: false, message: "Upload failed." });
+    }
+});
+
+// Delete slide endpoint
+app.delete('/api/admin/slide/:index', async (req, res) => {
+    try {
+        const index = parseInt(req.params.index);
+        const slides = global.mockSlides || [];
+        
+        if (index >= 0 && index < slides.length) {
+            slides.splice(index, 1);
+            res.json({ 
+                success: true, 
+                message: "Slide deleted successfully"
+            });
+        } else {
+            res.status(404).json({ 
+                success: false, 
+                message: "Slide not found"
+            });
+        }
+    } catch (err) {
+        console.error('Slide delete error:', err);
+        res.status(500).json({ success: false, message: "Delete failed." });
+    }
+});
+
+// Update slideshow data endpoint to use mockSlides
+app.get('/api/slideshow', async (req, res) => {
+    try {
+        const slides = global.mockSlides || [
+            {
+                id: 1,
+                title: 'World-Class Education',
+                description: 'Join thousands of successful students transforming their careers',
+                image: 'https://picsum.photos/seed/education1/1200/500.jpg'
+            },
+            {
+                id: 2,
+                title: 'Expert Instructors',
+                description: 'Learn from industry leaders with real-world experience',
+                image: 'https://picsum.photos/seed/instructors2/1200/500.jpg'
+            },
+            {
+                id: 3,
+                title: 'Flexible Learning',
+                description: 'Study at your own pace with our comprehensive online platform',
+                image: 'https://picsum.photos/seed/flexible3/1200/500.jpg'
+            }
+        ];
+        
+        res.json({ 
+            success: true, 
+            data: slides
+        });
+    } catch (err) {
+        console.error('Slideshow error:', err);
+        res.status(500).json({ success: false, data: [] });
+    }
+});
+
+// Student question submission endpoint
+app.post('/api/student/submit-question', async (req, res) => {
+    try {
+        const { name, email, category, course, title, content } = req.body;
+        
+        if (!name || !email || !category || !title || !content) {
+            return res.status(400).json({ success: false, message: "All required fields must be filled." });
+        }
+        
+        const question = {
+            id: Date.now().toString(),
+            name,
+            email,
+            category,
+            course: course || '',
+            title,
+            content,
+            admin_reply: null,
+            reply_date: null,
+            created_at: new Date(),
+            status: 'pending'
+        };
+        
+        // Store questions in mock database
+        if (!global.mockQuestions) global.mockQuestions = [];
+        global.mockQuestions.push(question);
+        
+        console.log(`📝 New question submitted: ${title} by ${name}`);
+        
+        res.json({ 
+            success: true, 
+            message: "Question submitted successfully!" 
+        });
+    } catch (err) {
+        console.error('Question submission error:', err);
+        res.status(500).json({ success: false, message: "Failed to submit question." });
+    }
+});
+
+// Get all questions for display
+app.get('/api/student/questions', async (req, res) => {
+    try {
+        const questions = global.mockQuestions || [];
+        
+        // Sort by creation date (newest first)
+        questions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        res.json({ 
+            success: true, 
+            questions
+        });
+    } catch (err) {
+        console.error('Questions get error:', err);
+        res.status(500).json({ success: false, questions: [] });
+    }
+});
+
+// Admin reply to question
+app.post('/api/admin/reply-question', async (req, res) => {
+    try {
+        const { questionId, reply } = req.body;
+        
+        if (!questionId || !reply) {
+            return res.status(400).json({ success: false, message: "Question ID and reply are required." });
+        }
+        
+        const questions = global.mockQuestions || [];
+        const question = questions.find(q => q.id === questionId);
+        
+        if (!question) {
+            return res.status(404).json({ success: false, message: "Question not found." });
+        }
+        
+        // Update question with admin reply
+        question.admin_reply = reply;
+        question.reply_date = new Date();
+        question.status = 'answered';
+        
+        console.log(`💬 Admin replied to question: ${question.title}`);
+        
+        res.json({ 
+            success: true, 
+            message: "Reply submitted successfully!" 
+        });
+    } catch (err) {
+        console.error('Reply submission error:', err);
+        res.status(500).json({ success: false, message: "Failed to submit reply." });
+    }
+});
+
+// Get questions for admin panel
+app.get('/api/admin/questions', async (req, res) => {
+    try {
+        const questions = global.mockQuestions || [];
+        
+        // Sort by creation date (newest first)
+        questions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        res.json({ 
+            success: true, 
+            questions
+        });
+    } catch (err) {
+        console.error('Admin questions get error:', err);
+        res.status(500).json({ success: false, questions: [] });
+    }
+});
+
+// Delete question endpoint
+app.delete('/api/admin/question/:id', async (req, res) => {
+    try {
+        const questionId = req.params.id;
+        const questions = global.mockQuestions || [];
+        const index = questions.findIndex(q => q.id === questionId);
+        
+        if (index !== -1) {
+            questions.splice(index, 1);
+            res.json({ 
+                success: true, 
+                message: "Question deleted successfully"
+            });
+        } else {
+            res.status(404).json({ 
+                success: false, 
+                message: "Question not found"
+            });
+        }
+    } catch (err) {
+        console.error('Question delete error:', err);
+        res.status(500).json({ success: false, message: "Delete failed." });
     }
 });
 
@@ -734,6 +1000,7 @@ app.get('/success.html', (req, res) => res.sendFile(path.join(__dirname, 'succes
 app.get('/verify.html', (req, res) => res.sendFile(path.join(__dirname, 'verify.html')));
 app.get('/verify-certificate.html', (req, res) => res.sendFile(path.join(__dirname, 'verify-certificate.html')));
 app.get('/verify-payment.html', (req, res) => res.sendFile(path.join(__dirname, 'verify-payment.html')));
+app.get('/questions.html', (req, res) => res.sendFile(path.join(__dirname, 'questions.html')));
 
 // 404 handler
 app.use((req, res) => {

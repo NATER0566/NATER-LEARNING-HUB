@@ -897,6 +897,10 @@
                 <i class="fa-solid fa-book text-primary"></i>
                 <span>Study Materials</span>
             </div>
+            <div class="list-item-premium mb-2" onclick="window.location.href='questions.html'">
+                <i class="fa-solid fa-question-circle text-info"></i>
+                <span>Ask Questions</span>
+            </div>
             <div class="list-item-premium mb-2" onclick="scrollToSec('sec-planner')">
                 <i class="fa-solid fa-tasks text-success"></i>
                 <span>Student Planner</span>
@@ -1531,14 +1535,15 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem('token');
-                showToast('info', 'Session Ended', 'You have been logged out successfully');
-                setTimeout(() => window.location.replace('index.html'), 1500);
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('theme');
+                window.location.replace('index.html');
             }
         });
     }
 
     // Enhanced Sidebar Toggle
-    function toggleSidebar(forceClose = false) {
+    function toggleSidebar(forceClose = false, forceOpen = false) {
         const sb = document.getElementById('sidebar');
         const ov = document.getElementById('overlay');
         
@@ -1548,8 +1553,21 @@
             return; 
         }
         
-        sb.classList.toggle('active'); 
-        ov.classList.toggle('active');
+        if (forceOpen) {
+            sb.classList.add('active'); 
+            ov.classList.add('active');
+            return;
+        }
+        
+        // Only toggle if not forced - this prevents auto-opening
+        const isOpen = sb.classList.contains('active');
+        if (isOpen) {
+            sb.classList.remove('active'); 
+            ov.classList.remove('active');
+        } else {
+            sb.classList.add('active'); 
+            ov.classList.add('active');
+        }
     }
 
     // Enhanced Theme Toggle
